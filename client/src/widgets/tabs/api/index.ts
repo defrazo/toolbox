@@ -1,0 +1,1 @@
+export { shortenUrl } from './shortener';

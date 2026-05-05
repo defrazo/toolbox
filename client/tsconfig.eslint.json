@@ -1,0 +1,5 @@
+{
+	"extends": "./tsconfig.app.json",
+	"include": ["src", "global.d.ts", "vite-env.d.ts", "vite.config.ts"],
+	"exclude": ["node_modules", "dist", "**/*.css"]
+}

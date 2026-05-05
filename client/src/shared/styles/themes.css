@@ -1,0 +1,120 @@
+.dark-theme {
+	/* Текст */
+	--color-primary: #d7d7d7;
+	--color-secondary: #99a1af;
+	--color-tertiary: #64666b;
+	--color-accent: #00bcff;
+	--color-disabled: #666666;
+
+	/* Акцентные цвета */
+	--accent-primary: #0084d1;
+	--accent-primary-op: rgba(0, 132, 209, 0.5);
+	--accent-primary-hover: #0069a8;
+	--accent-primary-hover-op: rgba(0, 105, 168, 0.5);
+	--accent-primary-active: #00bcff;
+	--accent-primary-dark: rgba(0, 166, 244, 0.15);
+	--accent-primary-disabled: #a0d4f0;
+	--accent-primary-text: #d7d7d7;
+	--accent-primary-text-disabled: #5a7d8f;
+
+	--accent-secondary: #e18127;
+	--accent-secondary-op: rgba(225, 129, 39, 0.5);
+	--accent-secondary-hover: #e15300;
+	--accent-secondary-hover-op: rgba(225, 83, 0, 0.5);
+	--accent-secondary-active: rgba(255, 105, 0, 0.15);
+	--accent-secondary-dark: rgba(255, 105, 0, 0.15);
+	--accent-secondary-disabled: #e0b9a3;
+	--accent-secondary-text: #ffffff;
+	--accent-secondary-text-disabled: #8b5c49;
+
+	--warning-default: #b51111;
+	--warning-hover: #8d0404;
+
+	/* Фоны */
+	--bg-global: #121212;
+	--bg-global-op: rgba(18, 18, 18, 0.7);
+	--bg-primary: #191820;
+	--bg-secondary: rgba(250, 250, 250, 0.05);
+	--bg-tertiary: rgba(250, 250, 250, 0.09);
+	--bg-accent: rgba(16, 24, 40, 0.4);
+	--bg-overlay: rgba(0, 0, 0, 0.7);
+
+	/* Статусные цвета */
+	--status-success: #18a121;
+	--status-success-op: rgba(0, 201, 81, 0.1);
+	--status-error: #ff2828;
+	--status-warning: #ffa515;
+	--status-warning-op: rgba(255, 165, 21, 0.1);
+	--status-info: #2c90c7;
+	--status-info-op: rgb(44, 144, 199, 0.1);
+
+	/* Разделители и бордеры */
+	--border-color: rgba(250, 250, 250, 0.07);
+	--border-light: transparent;
+
+	/* Тени */
+	--shadow: none;
+
+	/* Особые стили */
+	--bg-mobile-sidebar: #252525;
+}
+
+.light-theme {
+	/* Текст */
+	--color-primary: #2f3441;
+	--color-secondary: #1d1c1c;
+	--color-tertiary: #64666b;
+	--color-accent: #0069a8;
+	--color-disabled: #666666;
+
+	/* Акцентные цвета */
+	--accent-primary: #0084d1;
+	--accent-primary-op: rgba(0, 132, 209, 0.5);
+	--accent-primary-hover: #0069a8;
+	--accent-primary-hover-op: rgba(0, 105, 168, 0.5);
+	--accent-primary-active: #00bcff;
+	--accent-primary-dark: rgba(0, 166, 244, 0.15);
+	--accent-primary-disabled: #a0d4f0;
+	--accent-primary-text: #d7d7d7;
+	--accent-primary-text-disabled: #5a7d8f;
+
+	--accent-secondary: #e18127;
+	--accent-secondary-op: rgba(225, 129, 39, 0.5);
+	--accent-secondary-hover: #e15300;
+	--accent-secondary-hover-op: rgba(225, 83, 0, 0.5);
+	--accent-secondary-active: rgba(255, 105, 0, 0.15);
+	--accent-secondary-dark: rgba(255, 105, 0, 0.15);
+	--accent-secondary-disabled: #e0b9a3;
+	--accent-secondary-text: #ffffff;
+	--accent-secondary-text-disabled: #8b5c49;
+
+	--warning-default: #b51111;
+	--warning-hover: #8d0404;
+
+	/* Фоны */
+	--bg-global: #d5d5d5;
+	--bg-global-op: rgba(213, 213, 213, 0.7);
+	--bg-primary: #191820;
+	--bg-secondary: rgba(250, 250, 250, 0.5);
+	--bg-tertiary: rgba(250, 250, 250, 0.6);
+	--bg-accent: rgba(0, 132, 209, 0.05);
+	--bg-overlay: rgba(0, 0, 0, 0.7);
+
+	/* Статусные цвета */
+	--status-success: #0b8d4c;
+	--status-success-op: rgba(0, 201, 81, 0.3);
+	--status-error: #ff2f2f;
+	--status-warning: #dd8c00;
+	--status-warning-op: rgba(255, 165, 21, 0.3);
+	--status-info: #31b7ff;
+
+	/* Разделители и бордеры */
+	--border-color: rgba(0, 0, 0, 0.15);
+	--border-light: rgba(0, 0, 0, 0.15);
+
+	/* Тени */
+	--shadow: 0 1px 2px 0px rgb(40 66 75 / 22%);
+
+	/* Особые стили */
+	--bg-mobile-sidebar: #d5d5d5;
+}

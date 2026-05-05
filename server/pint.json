@@ -1,0 +1,8 @@
+{
+    "preset": "psr12",
+    "rules": {
+        "array_syntax": { "syntax": "short" },
+        "ordered_imports": { "sort_algorithm": "alpha" }
+    },
+    "exclude": ["database/migrations"]
+}

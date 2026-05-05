@@ -1,0 +1,50 @@
+* {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+	height: 100%;
+}
+
+html {
+	scroll-behavior: smooth;
+	background-color: var(--bg-global);
+}
+
+body {
+	font-family: 'Exo 2', 'Arial Unicode MS', sans-serif;
+	color: var(--color-primary);
+	background: #161717;
+	/* background-repeat: repeat; */
+}
+
+@media (hover: hover) and (pointer: fine) {
+	html {
+		scrollbar-gutter: stable;
+	}
+
+	html,
+	body {
+		scrollbar-width: thin;
+		scrollbar-color: var(--bg-primary) var(--bg-tertiary);
+	}
+
+	html::-webkit-scrollbar,
+	body::-webkit-scrollbar {
+		width: 12px;
+	}
+
+	html::-webkit-scrollbar-thumb,
+	body::-webkit-scrollbar-thumb {
+		border-radius: 6px;
+		background-color: var(--bg-primary);
+	}
+
+	html::-webkit-scrollbar-track,
+	body::-webkit-scrollbar-track {
+		border-radius: 6px;
+		background-color: var(--bg-tertiary);
+	}
+}

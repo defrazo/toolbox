@@ -1,0 +1,22 @@
+/* Exo 2 */
+@font-face {
+	font-family: 'Exo 2';
+	src:
+		url('../assets/fonts/Exo2/Exo2.woff2') format('woff2'),
+		url('../assets/fonts/Exo2/Exo2.woff') format('woff'),
+		url('../assets/fonts/Exo2/Exo2.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Exo 2';
+	src:
+		url('../assets/fonts/Exo2/Exo2-Italic.woff2') format('woff2'),
+		url('../assets/fonts/Exo2/Exo2-Italic.woff') format('woff'),
+		url('../assets/fonts/Exo2/Exo2-Italic.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: italic;
+	font-display: swap;
+}

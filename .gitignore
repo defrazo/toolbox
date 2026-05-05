@@ -1,0 +1,11 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea
+.cursor/
+.zed
+.nova
+.vscode/*
+!.vscode/extensions.json
