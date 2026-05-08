@@ -17,7 +17,6 @@ body {
 	font-family: 'Exo 2', 'Arial Unicode MS', sans-serif;
 	color: var(--color-primary);
 	background: #161717;
-	/* background-repeat: repeat; */
 }
 
 @media (hover: hover) and (pointer: fine) {

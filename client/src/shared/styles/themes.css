@@ -1,31 +1,31 @@
 .dark-theme {
 	/* Текст */
-	--color-primary: #d7d7d7;
-	--color-secondary: #99a1af;
-	--color-tertiary: #64666b;
-	--color-accent: #00bcff;
-	--color-disabled: #666666;
+	--color-primary: #f4f7fb;
+	--color-secondary: #a8b1c2;
+	--color-tertiary: #687286;
+	--color-accent: #5b5cff;
+	--color-disabled: #5b6372;
 
 	/* Акцентные цвета */
-	--accent-primary: #0084d1;
-	--accent-primary-op: rgba(0, 132, 209, 0.5);
-	--accent-primary-hover: #0069a8;
-	--accent-primary-hover-op: rgba(0, 105, 168, 0.5);
-	--accent-primary-active: #00bcff;
-	--accent-primary-dark: rgba(0, 166, 244, 0.15);
-	--accent-primary-disabled: #a0d4f0;
-	--accent-primary-text: #d7d7d7;
-	--accent-primary-text-disabled: #5a7d8f;
+	--accent-primary: #7c5cff;
+	--accent-primary-op: rgba(124, 92, 255, 0.5);
+	--accent-primary-hover: #8f72ff;
+	--accent-primary-hover-op: rgba(143, 114, 255, 0.5);
+	--accent-primary-active: #5b8cff;
+	--accent-primary-dark: rgba(124, 92, 255, 0.16);
+	--accent-primary-disabled: #4a426b;
+	--accent-primary-text: #ffffff;
+	--accent-primary-text-disabled: #9a91c7;
 
-	--accent-secondary: #e18127;
-	--accent-secondary-op: rgba(225, 129, 39, 0.5);
-	--accent-secondary-hover: #e15300;
-	--accent-secondary-hover-op: rgba(225, 83, 0, 0.5);
-	--accent-secondary-active: rgba(255, 105, 0, 0.15);
-	--accent-secondary-dark: rgba(255, 105, 0, 0.15);
-	--accent-secondary-disabled: #e0b9a3;
+	--accent-secondary: #3ba7ff;
+	--accent-secondary-op: rgba(59, 167, 255, 0.5);
+	--accent-secondary-hover: #58b6ff;
+	--accent-secondary-hover-op: rgba(88, 182, 255, 0.5);
+	--accent-secondary-active: rgba(59, 167, 255, 0.16);
+	--accent-secondary-dark: rgba(59, 167, 255, 0.14);
+	--accent-secondary-disabled: #31485f;
 	--accent-secondary-text: #ffffff;
-	--accent-secondary-text-disabled: #8b5c49;
+	--accent-secondary-text-disabled: #86a6c2;
 
 	--warning-default: #b51111;
 	--warning-hover: #8d0404;
@@ -49,44 +49,47 @@
 	--status-info-op: rgb(44, 144, 199, 0.1);
 
 	/* Разделители и бордеры */
-	--border-color: rgba(250, 250, 250, 0.07);
+	--border-color: rgba(250, 250, 250, 0.071);
 	--border-light: transparent;
 
 	/* Тени */
 	--shadow: none;
+	--shadow-primary: 0 6px 30px rgba(91, 92, 255, 0.45), 0 0 25px rgba(77, 163, 255, 0.35);
 
 	/* Особые стили */
 	--bg-mobile-sidebar: #252525;
+	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
+	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);
 }
 
 .light-theme {
 	/* Текст */
-	--color-primary: #2f3441;
-	--color-secondary: #1d1c1c;
-	--color-tertiary: #64666b;
-	--color-accent: #0069a8;
-	--color-disabled: #666666;
+	--color-primary: #161a24;
+	--color-secondary: #5d6678;
+	--color-tertiary: #8a93a5;
+	--color-accent: #6d5dfc;
+	--color-disabled: #5b6372;
 
 	/* Акцентные цвета */
-	--accent-primary: #0084d1;
-	--accent-primary-op: rgba(0, 132, 209, 0.5);
-	--accent-primary-hover: #0069a8;
-	--accent-primary-hover-op: rgba(0, 105, 168, 0.5);
-	--accent-primary-active: #00bcff;
-	--accent-primary-dark: rgba(0, 166, 244, 0.15);
-	--accent-primary-disabled: #a0d4f0;
-	--accent-primary-text: #d7d7d7;
-	--accent-primary-text-disabled: #5a7d8f;
+	--accent-primary: #6d5dfc;
+	--accent-primary-op: rgba(109, 93, 252, 0.45);
+	--accent-primary-hover: #5b4cf0;
+	--accent-primary-hover-op: rgba(91, 76, 240, 0.45);
+	--accent-primary-active: #3ba7ff;
+	--accent-primary-dark: rgba(109, 93, 252, 0.1);
+	--accent-primary-disabled: #c4bfff;
+	--accent-primary-text: #ffffff;
+	--accent-primary-text-disabled: #7d77a8;
 
-	--accent-secondary: #e18127;
-	--accent-secondary-op: rgba(225, 129, 39, 0.5);
-	--accent-secondary-hover: #e15300;
-	--accent-secondary-hover-op: rgba(225, 83, 0, 0.5);
-	--accent-secondary-active: rgba(255, 105, 0, 0.15);
-	--accent-secondary-dark: rgba(255, 105, 0, 0.15);
-	--accent-secondary-disabled: #e0b9a3;
+	--accent-secondary: #168de2;
+	--accent-secondary-op: rgba(22, 141, 226, 0.45);
+	--accent-secondary-hover: #0f78c4;
+	--accent-secondary-hover-op: rgba(15, 120, 196, 0.45);
+	--accent-secondary-active: rgba(22, 141, 226, 0.12);
+	--accent-secondary-dark: rgba(22, 141, 226, 0.1);
+	--accent-secondary-disabled: #b7d9ef;
 	--accent-secondary-text: #ffffff;
-	--accent-secondary-text-disabled: #8b5c49;
+	--accent-secondary-text-disabled: #6f90a8;
 
 	--warning-default: #b51111;
 	--warning-hover: #8d0404;
@@ -95,7 +98,7 @@
 	--bg-global: #d5d5d5;
 	--bg-global-op: rgba(213, 213, 213, 0.7);
 	--bg-primary: #191820;
-	--bg-secondary: rgba(250, 250, 250, 0.5);
+	--bg-secondary: rgba(250, 250, 250, 0.2);
 	--bg-tertiary: rgba(250, 250, 250, 0.6);
 	--bg-accent: rgba(0, 132, 209, 0.05);
 	--bg-overlay: rgba(0, 0, 0, 0.7);
@@ -117,4 +120,6 @@
 
 	/* Особые стили */
 	--bg-mobile-sidebar: #d5d5d5;
+	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
+	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);
 }

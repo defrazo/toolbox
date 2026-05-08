@@ -1,8 +1,8 @@
 import { UserStore } from '@/entities/user';
 import { AuthStore } from '@/features/auth';
+import { TabsStore } from '@/features/tabs';
 import { ThemeStore } from '@/features/theme-switcher';
 import { ModalStore, NotifyStore } from '@/shared/stores';
-import { TabsStore } from '@/widgets/tabs';
 
 import { CoreStores } from '.';
 

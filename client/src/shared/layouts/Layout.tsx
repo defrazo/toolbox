@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom';
 
 import { useDeviceType } from '@/shared/lib/hooks';
 
+import { cn } from '../lib/utils';
+
 interface LayoutProps {
 	leftSide?: ReactNode;
 	hideLeftOnMobile?: boolean;
@@ -15,11 +17,16 @@ export function Layout({ hideLeftOnMobile = false, leftSide }: LayoutProps) {
 	const left = hideLeftOnMobile && device === 'mobile' ? null : leftSide;
 
 	return (
-		<div className="mx-auto flex h-dvh min-h-0 w-full flex-1 flex-col overflow-hidden p-4">
+		<div
+			className={cn(
+				'mx-auto flex h-dvh min-h-0 w-full flex-1 flex-col overflow-hidden',
+				left ? 'py-4 pr-4' : 'p-4'
+			)}
+		>
 			<div className="flex min-h-0 flex-1 overflow-hidden">
 				{left && <aside className="h-full">{left}</aside>}
-				<main className="flex min-h-0 flex-1 overflow-hidden">
-					<Outlet />{' '}
+				<main className="flex min-h-0 flex-1">
+					<Outlet />
 				</main>
 			</div>
 		</div>

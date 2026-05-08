@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
-import type { ShareType } from '../model';
+type ShareType = 'tg' | 'wa' | 'vk' | 'ok';
 
 // === SHORTENER ===
 export const share = (type: ShareType, url: string) => {
@@ -25,6 +25,12 @@ export const buildName = (prefix: string, suffix: string, index: number, origina
 	return `${prefix}${formatIndex(index)}${suffix}.${ext}`;
 };
 
+export const buildRenamedFiles = (files: File[], prefix: string, suffix: string) => {
+	return files.map(
+		(file, index) => new File([file], buildName(prefix, suffix, index, file.name), { type: file.type })
+	);
+};
+
 export const plural = (count: number, one: string, few: string, many: string) => {
 	const mod10 = count % 10;
 	const mod100 = count % 100;
@@ -39,11 +45,9 @@ export const plural = (count: number, one: string, few: string, many: string) =>
 export const downloadAsZip = async (files: File[]) => {
 	const zip = new JSZip();
 
-	files.forEach((file) => {
-		zip.file(file.name, file);
-	});
+	files.forEach((file) => zip.file(file.name, file));
 
 	const content = await zip.generateAsync({ type: 'blob' });
 
-	saveAs(content, 'renamed-files.zip');
+	saveAs(content, 'renamed.zip');
 };

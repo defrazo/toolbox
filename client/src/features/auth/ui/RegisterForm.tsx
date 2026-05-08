@@ -3,6 +3,7 @@ import { Eye, EyeClosed, Lock, Mail, User } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
+import { cn } from '@/shared/lib/utils';
 import { validateEmail, validatePasswords, validateUsername } from '@/shared/lib/validators';
 import { Button, Input } from '@/shared/ui';
 
@@ -17,7 +18,7 @@ export const RegisterForm = observer(() => {
 	const [passConfirm, setPassConfirm] = useState('');
 	const [showPass, setShowPass] = useState(false);
 	const [showHint, setShowHint] = useState(false);
-	const [isPassValid, setIsPassValid] = useState<boolean>(true);
+	const [isPassValid, setIsPassValid] = useState(true);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -107,7 +108,10 @@ export const RegisterForm = observer(() => {
 				onChange={(e) => setPassConfirm(e.target.value.trim())}
 			/>
 			<Button
-				className="mt-4 h-10 w-full bg-linear-to-br from-[#5b5cff] via-[#7a5cff] to-[#4da3ff] hover:shadow-[0_6px_30px_rgba(91,92,255,0.45),0_0_25px_rgba(77,163,255,0.35)]"
+				className={cn(
+					'mt-4 h-10 w-full',
+					username !== '' && password !== '' && email !== '' && isPassValid && 'active-btn'
+				)}
 				disabled={!isPassValid}
 				loading={authStore.isLoading}
 				// onClick={() => notifyStore.setNotice('Регистрация временно приостановлена', 'info')}

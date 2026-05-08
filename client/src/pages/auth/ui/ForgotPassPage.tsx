@@ -5,7 +5,7 @@ import { AuthFormHeader, ForgotPassForm } from '@/features/auth';
 export const ForgotPassPage = () => {
 	return (
 		<div className="hide-scrollbar relative flex h-full min-h-0 w-full flex-1 cursor-default flex-col gap-4 rounded-r-xl border border-(--border-color) p-3 shadow-(--shadow) md:p-6">
-			<div className="core-border m-auto flex w-lg flex-col items-center justify-center gap-4 bg-(--bg-secondary)/50 p-12">
+			<div className="core-border m-auto flex w-lg flex-col items-center justify-center gap-4 bg-(--bg-secondary)/50 p-12 text-(--accent-primary-text)">
 				<AuthFormHeader title="Восстановить пароль" />
 				<p className="text-justify">
 					Введите e-mail, к которому привязан ваш аккаунт ToolBox. Мы отправим на него письмо с инструкциями

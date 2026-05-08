@@ -1,1 +1,1 @@
-export const APP_NAME = 'Евгений Летунов';
+export const APP_NAME = 'ToolBox';

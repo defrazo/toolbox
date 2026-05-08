@@ -1,2 +1,1 @@
-export { ThemeStore } from './model';
-export { default } from './ui';
+export { type Theme, ThemeStore } from './model';

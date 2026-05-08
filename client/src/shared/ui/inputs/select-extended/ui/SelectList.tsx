@@ -86,7 +86,6 @@ export const SelectList = ({
 						{option.icon &&
 							(typeof option.icon === 'string' ? (
 								<img
-									alt=""
 									className="no-touch-callout size-6 rounded-lg"
 									decoding="async"
 									loading="lazy"

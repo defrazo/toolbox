@@ -12,12 +12,13 @@ export const UserButton = observer(({ onClick, minimized }: { onClick?: () => vo
 		<div className="group relative" onClick={onClick}>
 			<Button
 				className={cn(
-					'w-full justify-start p-2 text-left transition-[width] duration-500 group-hover:bg-(--accent-primary-hover)',
+					'h-12 w-full justify-start border-[#fafafa12] p-2 text-left transition-[width] duration-500 group-hover:bg-(--accent-primary-hover)',
 					minimized ? 'w-12' : 'w-60'
 				)}
 				leftIcon={
 					<img
-						className="size-8 min-w-8 rounded-full border border-(--border-color)"
+						alt={userStore.avatar}
+						className="size-7.5 min-w-7.5 rounded-full border border-(--border-color)"
 						src={userStore.avatar}
 					/>
 				}
@@ -27,7 +28,7 @@ export const UserButton = observer(({ onClick, minimized }: { onClick?: () => vo
 			>
 				<span
 					className={cn(
-						'overflow-hidden whitespace-nowrap transition-opacity duration-500',
+						'overflow-hidden whitespace-nowrap text-(--accent-primary-text) transition-opacity duration-500',
 						minimized ? 'opacity-0' : 'opacity-100 delay-200'
 					)}
 				>

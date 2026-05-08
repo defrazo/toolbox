@@ -46,9 +46,9 @@ export const UserMenu = observer(
 		return (
 			<div
 				ref={menuRef}
-				className="animate-in fade-in slide-in-from-bottom-2 absolute bottom-full left-0 z-30 mb-2 flex w-60 flex-col gap-1 rounded-xl border border-(--border-color) bg-(--bg-secondary) p-2 shadow-lg"
+				className="animate-in fade-in slide-in-from-bottom-2 core-border absolute bottom-full left-0 z-30 mb-2 flex w-60 flex-col gap-1 bg-(--bg-secondary) p-2 shadow-lg backdrop-blur-md"
 			>
-				<div className="px-2 py-1 text-sm text-(--color-disabled)">
+				<div className="cursor-default px-2 py-1 text-sm text-(--color-disabled)">
 					{userStore.username} ({userStore.email})
 				</div>
 				<Divider />
@@ -57,7 +57,7 @@ export const UserMenu = observer(
 						<>
 							{title === 'Выйти' && <Divider />}
 							<Button
-								className="justify-start rounded-xl px-2 py-0.5 text-left hover:border-(--accent-primary-hover) hover:bg-(--bg-secondary) hover:text-(--color-accent)"
+								className="justify-start rounded-xl px-2 py-0.5 text-left text-(--accent-primary-text) hover:bg-(--accent-primary-hover) hover:text-(--accent-primary-text)"
 								leftIcon={<Icon className="size-4" />}
 								size="custom"
 								variant="mobile"

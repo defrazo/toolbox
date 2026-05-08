@@ -14,14 +14,10 @@ export const useRenamer = () => {
 		}));
 	}, [files, prefix, suffix]);
 
-	const clearName = () => {
-		setPrefix('');
-		setSuffix('');
-	};
-
 	const reset = () => {
 		setFiles([]);
-		clearName();
+		setPrefix('');
+		setSuffix('');
 	};
 
 	return {
@@ -32,7 +28,6 @@ export const useRenamer = () => {
 		suffix,
 		setSuffix,
 		preview,
-		clearName,
 		reset,
 	};
 };

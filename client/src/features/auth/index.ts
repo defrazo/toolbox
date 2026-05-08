@@ -5,6 +5,7 @@ export {
 	AuthSocial,
 	ForgotPassForm,
 	LoginForm,
+	PasswordHint,
 	RegisterForm,
 	ResetPassForm,
 	VerifyEmailForm,

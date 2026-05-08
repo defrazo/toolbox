@@ -4,6 +4,7 @@ import { Eye, EyeClosed, Lock, Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
+import { cn } from '@/shared/lib/utils';
 import { Button, Input } from '@/shared/ui';
 
 export const LoginForm = observer(() => {
@@ -56,11 +57,11 @@ export const LoginForm = observer(() => {
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 			/>
-			<Link className="ml-auto text-sm hover:text-(--accent-primary-hover)" to="/forgot-password">
+			<Link className="ml-auto text-sm select-none hover:text-(--accent-primary-hover)" to="/forgot-password">
 				Забыли пароль?
 			</Link>
 			<Button
-				className="mt-4 h-10 w-full bg-linear-to-br from-[#5b5cff] via-[#7a5cff] to-[#4da3ff] hover:shadow-[0_6px_30px_rgba(91,92,255,0.45),0_0_25px_rgba(77,163,255,0.35)]"
+				className={cn('mt-4 h-10 w-full', email !== '' && password !== '' && 'active-btn')}
 				loading={authStore.isLoading}
 				type="submit"
 			>

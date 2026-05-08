@@ -2,9 +2,9 @@ import { FolderPen, House, LifeBuoy, Link, LucideIcon, Settings } from 'lucide-r
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
+import { TabId } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
-import type { TabId } from '@/widgets/tabs';
 
 const TABS: ReadonlyArray<{ id: TabId; title: string; icon: LucideIcon }> = [
 	{ id: 'home', title: 'Главная', icon: House },
@@ -30,19 +30,18 @@ export const TabsNav = observer(({ onTabClick, minimized }: { minimized?: boolea
 						<Button
 							key={id}
 							className={cn(
-								'justify-start rounded-xl border border-(--border-color) bg-(--bg-secondary) p-3 leading-4 shadow-(--shadow) hover:border-(--accent-primary-hover) hover:shadow-md',
+								'core-border h-12 justify-start bg-(--bg-secondary) p-3 leading-4 shadow-(--shadow) transition duration-200 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary)',
 								'transition-[width] duration-500',
 								minimized ? 'w-12' : 'w-60',
-								tabsStore.tab === id &&
-									'bg-linear-to-br from-[#5b5cff] via-[#7a5cff] to-[#4da3ff] hover:shadow-[0_6px_30px_rgba(91,92,255,0.45),0_0_25px_rgba(77,163,255,0.35)]'
+								tabsStore.tab === id && 'bg-(image:--gradient-primary)'
 							)}
-							leftIcon={<Icon className="size-5" />}
+							leftIcon={<Icon className="size-5 text-(--accent-primary-text)" />}
 							size="custom"
 							onClick={() => handleClick(id)}
 						>
 							<span
 								className={cn(
-									'overflow-hidden whitespace-nowrap transition-opacity duration-500',
+									'overflow-hidden whitespace-nowrap text-(--accent-primary-text) transition-opacity duration-500',
 									minimized ? 'opacity-0' : 'opacity-100'
 								)}
 							>

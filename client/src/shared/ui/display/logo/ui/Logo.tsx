@@ -6,7 +6,8 @@ const Logo = ({ className }: { className?: string }) => {
 		<div className={cn('top-4 left-4 mb-4 flex items-center gap-2 select-none', className)}>
 			<img alt="Логотип" className="size-6" decoding="async" loading="lazy" src={IconLogo} />
 			<h1 className="text-2xl">
-				Tool<span className="text-[#5b5cff]">Box</span>
+				<span className="text-(--accent-primary-text)">Tool</span>
+				<span className="text-(--color-accent)">Box</span>
 			</h1>
 		</div>
 	);

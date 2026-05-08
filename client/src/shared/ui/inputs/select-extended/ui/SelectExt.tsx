@@ -71,7 +71,6 @@ const SelectExt = ({
 						selectedOption?.icon &&
 						(typeof selectedOption.icon === 'string' ? (
 							<img
-								alt=""
 								className="no-touch-callout mr-2 size-6 rounded-xl"
 								decoding="async"
 								loading="lazy"

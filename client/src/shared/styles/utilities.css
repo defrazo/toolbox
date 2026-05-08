@@ -11,6 +11,10 @@
 		@apply text-left text-2xl font-bold xl:text-3xl;
 	}
 
+	.active-btn {
+		@apply pointer-events-auto bg-(image:--gradient-primary) font-medium text-(--accent-primary-text) transition duration-200 ease-out hover:-translate-y-px hover:shadow-(--shadow-primary);
+	}
+
 	.loader {
 		@apply aspect-square w-16 animate-spin rounded-full bg-(--accent-default);
 		mask-image: radial-gradient(circle closest-side at 50% 40%, transparent 94%, black);

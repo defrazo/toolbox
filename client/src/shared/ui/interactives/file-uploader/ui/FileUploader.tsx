@@ -1,27 +1,35 @@
 import type { ChangeEvent, ReactNode } from 'react';
 
 import { cn } from '@/shared/lib/utils';
-import { Input } from '@/shared/ui';
 
 interface FileUploaderProps {
+	id?: string;
 	selectedFileName?: string;
 	onUpload: (e: ChangeEvent<HTMLInputElement>) => void;
 	icon?: ReactNode;
+	disabled?: boolean;
 	className?: string;
 }
 
-const FileUploader = ({ selectedFileName, onUpload, icon, className }: FileUploaderProps) => (
+const FileUploader = ({ id, selectedFileName, onUpload, icon, disabled, className }: FileUploaderProps) => (
 	<label
 		className={cn(
-			'inline-block cursor-pointer px-4 py-2 text-center text-base ring-(--accent-primary-hover) select-none ring-inset focus-visible:ring-1',
+			'relative flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2 text-center text-(--accent-primary-text) select-none',
+			'focus-within:ring-1 focus-within:ring-(--accent-primary-hover)',
+			disabled && 'pointer-events-none text-(--color-disabled) opacity-30',
 			className
 		)}
 	>
-		<div className="flex items-center justify-center gap-2">
-			{icon}
-			<span className={selectedFileName && 'text-sm'}>{selectedFileName || 'Выберите файлы'}</span>
-		</div>
-		<Input className="hidden" multiple type="file" onChange={onUpload} />
+		<input
+			className="absolute size-px opacity-0"
+			disabled={disabled}
+			id={id}
+			multiple
+			type="file"
+			onChange={onUpload}
+		/>
+		{icon}
+		<span className={cn(selectedFileName && 'text-sm text-nowrap')}>{selectedFileName || 'Загрузить файлы'}</span>
 	</label>
 );
 

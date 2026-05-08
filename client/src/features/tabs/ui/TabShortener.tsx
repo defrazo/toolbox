@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { QRCode } from 'react-qr-code';
-import { Copy, Link, MessageCircleMore, QrCode as QrIcon } from 'lucide-react';
+import { Copy, Link, MessageCircleMore, QrCode as QrIcon, X } from 'lucide-react';
 
 import { IconTG, IconVK } from '@/shared/assets/icons';
 import { useCopy } from '@/shared/lib/hooks';
@@ -16,9 +16,6 @@ export const TabShortener = () => {
 	const [url, setUrl] = useState('');
 	const [shortUrl, setShortUrl] = useState('');
 	const [showQrCode, setShowQrCode] = useState(false);
-
-	const activeButton =
-		'pointer-events-auto bg-linear-to-br from-[#5b5cff] via-[#7a5cff] to-[#4da3ff] font-medium text-white transition-all duration-200 ease-out hover:-translate-y-px hover:shadow-[0_6px_30px_rgba(91,92,255,0.45),0_0_25px_rgba(77,163,255,0.35)] active:translate-y-0';
 
 	const socialButtons = [
 		{
@@ -48,40 +45,74 @@ export const TabShortener = () => {
 	];
 
 	const handleShortener = async () => {
-		const shortUrl = await shortenUrl(url);
-		setShortUrl(shortUrl);
+		const result = await shortenUrl(url);
+		setShortUrl(result);
 	};
+	useEffect(() => {
+		const handler = (e: CustomEvent) => setUrl(e.detail);
+		window.addEventListener('shortcut:paste-url', handler as EventListener);
+		return () => window.removeEventListener('shortcut:paste-url', handler as EventListener);
+	}, []);
 
 	return (
-		<div className="flex h-full flex-col gap-6">
-			<div className="flex flex-col gap-4 rounded-2xl border border-(--border-color) bg-(--bg-secondary)/50 p-4">
-				<div className="flex justify-between">
-					<span className="leading-4">Длинная ссылка</span>
-				</div>
-				<div className="flex items-center justify-between gap-4">
+		<>
+			<div className="core-border flex flex-col gap-4 bg-(--bg-secondary)/50 p-4">
+				<label className="w-fit leading-4 select-none" htmlFor="long-link">
+					Длинная ссылка
+				</label>
+				<form
+					className="flex items-center justify-between gap-4"
+					onSubmit={(e) => {
+						e.preventDefault();
+						handleShortener();
+					}}
+				>
 					<Input
 						className="h-14"
+						id="long-link"
 						leftIcon={<Link className="mx-2 size-4" />}
 						placeholder="Введите ссылку, которую нужно сократить"
+						required
+						rightIcon={
+							<X
+								className={cn(
+									'size-8 cursor-pointer p-2 opacity-50 transition-transform hover:scale-125 hover:text-(--accent-secondary-hover) hover:opacity-100',
+									url === '' && 'hidden'
+								)}
+								onClick={() => {
+									setUrl('');
+									setShortUrl('');
+								}}
+							/>
+						}
+						type="url"
 						value={url}
 						onChange={(e) => setUrl(e.target.value)}
 					/>
-					<Button className={cn('h-14 min-w-40', shortUrl === '' && activeButton)} onClick={handleShortener}>
+					<Button
+						className={cn('h-14 min-w-40', url && shortUrl === '' && 'active-btn')}
+						disabled={!url}
+						type="submit"
+					>
 						Сократить
 					</Button>
-				</div>
+				</form>
 			</div>
-			<div className="flex">
-				<div className="h-0.5 w-full bg-linear-to-l from-[#5b5cff]/50" />
-				<div className="h-0.5 w-full bg-linear-to-r from-[#5b5cff]/50" />
-			</div>
-			<div className="flex flex-col gap-6 rounded-xl border border-(--border-color) bg-(--bg-secondary)/50 p-4">
+			<div className="h-0.5 w-full animate-pulse bg-linear-to-r from-transparent via-(--accent-primary-hover) to-transparent" />
+			<div className="core-border flex flex-col gap-6 bg-(--bg-secondary)/50 p-4">
 				<div className="flex flex-col gap-4">
-					<span className="leading-4">Ваша короткая ссылка</span>
+					<span className="w-fit leading-4 select-none">Ваша короткая ссылка</span>
 					<div className="flex items-center justify-between gap-4">
-						<Input className="h-14" leftIcon={<Link className="mx-2 size-4" />} readOnly value={shortUrl} />
+						<Input
+							className="h-14"
+							disabled={!shortUrl}
+							leftIcon={<Link className="mx-2 size-4" />}
+							readOnly
+							value={shortUrl}
+						/>
 						<Button
-							className={cn('h-14 min-w-40', shortUrl !== '' && activeButton)}
+							className={cn('h-14 min-w-40', shortUrl !== '' && 'active-btn')}
+							disabled={!shortUrl}
 							leftIcon={<Copy className="size-4" />}
 							onClick={() => copy(shortUrl, 'Ссылка скопирована!')}
 						>
@@ -90,12 +121,14 @@ export const TabShortener = () => {
 					</div>
 				</div>
 				<div className="flex flex-col gap-4">
-					<span className="leading-4">Поделиться в</span>
+					<span className="leading-4 select-none">Поделиться в</span>
 					<div className="flex gap-4">
 						{socialButtons.map(({ title, icon: Icon, action, style }) => {
 							return (
 								<Button
+									key={title}
 									className={cn('flex-1', style)}
+									disabled={!shortUrl}
 									leftIcon={<Icon className="size-5" />}
 									onClick={action}
 								>
@@ -111,6 +144,6 @@ export const TabShortener = () => {
 					)}
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
