@@ -1,126 +1,103 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronRight, FolderPen, LayoutDashboard, Link, Lock, Pencil, Route, Sun, UserCircle } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
 import { Divider } from '@/shared/ui';
 
 export const TabHelp = () => {
+	const { t } = useTranslation('help');
+
 	const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-	const toggleFaq = (index: number) => {
-		setOpenFaq((prev) => (prev === index ? null : index));
-	};
+	const toggleFaq = (index: number) => setOpenFaq((prev) => (prev === index ? null : index));
 
 	const gettingStarted = [
 		{
+			title: t(($) => $.intro.toolbox.title),
+			desc: t(($) => $.intro.toolbox.desc),
 			icon: LayoutDashboard,
-			title: 'Что такое ToolBox?',
-			desc: 'ToolBox – набор инструментов для повседневных задач. Выбрать подходящий инструмент можно на главной странице или через боковое меню.',
 		},
 		{
+			title: t(($) => $.intro.interface.title),
+			desc: t(($) => $.intro.interface.desc),
 			icon: Route,
-			title: 'Как устроен интерфейс',
-			desc: 'Слева – панель навигации с инструментами и разделами. По центру – рабочая область. В настройках можно сменить тему, аватар, язык и другое.',
 		},
 	];
 
 	const toolsHelp = [
 		{
 			id: 'renamer',
-			title: 'Переименователь файлов',
-			subtitle:
-				'Массово переименовывает файлы по шаблону: префикс + порядковый номер + суффикс. Результат скачивается ZIP-архивом.',
+			title: t(($) => $.tools.renamer.title),
+			subtitle: t(($) => $.tools.renamer.subtitle),
 			icon: FolderPen,
-			steps: [
-				'Нажмите «Загрузить файлы» или перетащите их в зону загрузки. Максимум 100 файлов за раз.',
-				'Введите префикс (часть до номера) и суффикс (часть после номера). Например: photo_ и _2025 → photo_01_2025.jpg.',
-				'В колонках «До» и «После» проверьте предварительный результат.',
-				'Нажмите «Скачать» – файлы придут ZIP-архивом с новыми именами (качество и размер файлов не изменится).',
-			],
-			hints: [
-				'Кнопка «Добавить файлы» внизу позволяет дополнить список не сбрасывая его. «Очистить» – полностью сбросить.',
-			],
+			steps: t(($) => $.tools.renamer.steps, { returnObjects: true }),
+			hints: t(($) => $.tools.renamer.hints, { returnObjects: true }),
 		},
 		{
 			id: 'shortener',
-			title: 'Сокращатель ссылок',
-			subtitle:
-				'Превращает длинные URL в короткие. Поддерживает публикацию в соцсетях, копирование в буфер обмена и генерацию QR-кода.',
+			title: t(($) => $.tools.shortener.title),
+			subtitle: t(($) => $.tools.shortener.subtitle),
 			icon: Link,
-			steps: [
-				'Вставьте ссылку в поле «Длинная ссылка» и нажмите «Сократить».',
-				'Скопируйте результат кнопкой «Скопировать» или поделитесь напрямую в ВКонтакте, Telegram или WhatsApp.',
-				'Нажмите «QR-код» – появится изображение, которое можно сохранить скриншотом.',
-			],
+			steps: t(($) => $.tools.shortener.steps, { returnObjects: true }),
 			hints: [],
 		},
 	];
 
 	const accountTips = [
 		{
-			title: 'Аватар',
-			text: 'Нажмите на фото, выберите из сетки и подтвердите кнопкой «Применить аватар».',
+			title: t(($) => $.account.avatar.title),
+			text: t(($) => $.account.avatar.text),
 			icon: UserCircle,
 		},
 		{
-			title: 'Имя и почта',
-			text: 'Кликните в соответствующее поле, введите новое значение и нажмите иконку сохранения справа.',
+			title: t(($) => $.account.profile.title),
+			text: t(($) => $.account.profile.text),
 			icon: Pencil,
 		},
 		{
-			title: 'Пароль',
-			text: 'Нажмите «Сменить пароль», заполните три поля и сохраните. Новый пароль должен соответствовать требованиям безопасности.',
+			title: t(($) => $.account.password.title),
+			text: t(($) => $.account.password.text),
 			icon: Lock,
 		},
 		{
-			title: 'Тема и язык',
+			title: t(($) => $.account.appearance.title),
+			text: t(($) => $.account.appearance.text),
 			icon: Sun,
-			text: 'Выберите из выпадающего списка подходящий вариант',
 		},
 	];
 
-	const faq = [
-		{
-			question: 'Почему кнопка «Скачать» неактивна?',
-			answer: 'Кнопка активируется только после того, как добавлен хотя бы один файл.',
-		},
-		{
-			question: 'Можно ли добавить больше 100 файлов?',
-			answer: 'Нет, текущее ограничение – 100 файлов за одby подход. Для большего объёма разбейте файлы на несколько групп.',
-		},
-		{
-			question: 'Мои файлы загружаются на сервер?',
-			answer: 'Нет. Переименование происходит прямо в браузере, файлы не покидают ваше устройство.',
-		},
-		{
-			question: 'Ссылка не сокращается – что делать?',
-			answer: 'Убедитесь, что URL начинается с https:// и является корректным адресом. Если ошибка повторяется, попробуйте позже.',
-		},
-	];
+	const faqArray = t(($) => $.faq, { returnObjects: true });
 
 	return (
 		<div className="hide-scrollbar flex h-full min-h-0 flex-col gap-8 overflow-auto">
 			<section className="flex flex-1 flex-col gap-4">
-				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">Начало работы</h2>
+				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">
+					{t(($) => $.sections.intro)}
+				</h2>
 				<div className="flex flex-col gap-4 2xl:flex-row">
-					{gettingStarted.map(({ icon: Icon, title, desc }) => (
-						<div
-							key={title}
-							className="core-border flex flex-1 items-center gap-4 bg-(--bg-secondary)/50 p-5"
-						>
-							<div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-(--accent-primary-dark) p-3">
-								<Icon className="size-full text-(--color-accent)" />
+					{gettingStarted.map(({ title, desc, icon: Icon }) => {
+						return (
+							<div
+								key={title}
+								className="core-border flex flex-1 items-center gap-4 bg-(--bg-secondary)/50 p-5"
+							>
+								<div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-(--accent-primary-dark) p-3">
+									<Icon className="size-full text-(--color-accent)" />
+								</div>
+								<div className="flex flex-col">
+									<span className="font-medium">{title}</span>
+									<span className="text-sm leading-tight text-(--color-secondary)">{desc}</span>
+								</div>
 							</div>
-							<div className="flex flex-col">
-								<span className="font-medium">{title}</span>
-								<span className="text-sm leading-tight">{desc}</span>
-							</div>
-						</div>
-					))}
+						);
+					})}
 				</div>
 			</section>
 			<section className="flex flex-1 flex-col gap-4">
-				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">Инструменты</h2>
+				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">
+					{t(($) => $.sections.tools)}
+				</h2>
 				<div className="flex flex-col gap-4">
 					{toolsHelp.map(({ id, title, subtitle, steps, icon: Icon, hints }) => {
 						return (
@@ -134,7 +111,7 @@ export const TabHelp = () => {
 									</div>
 									<div className="flex flex-col">
 										<span className="text-xl font-medium">{title}</span>
-										<span className="text-sm leading-tight text-(--color-secondary)">
+										<span className="text-justify text-sm leading-tight text-(--color-secondary)">
 											{subtitle}
 										</span>
 									</div>
@@ -146,7 +123,7 @@ export const TabHelp = () => {
 											<div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-(--accent-primary-dark) text-xs">
 												{idx + 1}
 											</div>
-											<span className="leading-tight">{step}</span>
+											<span className="leading-tight font-light">{step}</span>
 										</div>
 									))}
 									{hints.length !== 0 && (
@@ -169,7 +146,7 @@ export const TabHelp = () => {
 			</section>
 			<section className="flex flex-1 flex-col gap-4">
 				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">
-					Настройки аккаунта
+					{t(($) => $.sections.account)}
 				</h2>
 				<div className="flex flex-col gap-4 xl:flex-row">
 					{accountTips.map(({ title, text, icon: Icon }) => (
@@ -182,17 +159,17 @@ export const TabHelp = () => {
 								<span>{title}</span>
 							</div>
 							<Divider />
-							<span className="text-center text-sm leading-tight">{text}</span>
+							<span className="px-5 text-center text-sm leading-tight">{text}</span>
 						</div>
 					))}
 				</div>
 			</section>
 			<section className="flex flex-1 flex-col gap-4">
 				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">
-					Часто задаваемые вопросы
+					{t(($) => $.sections.faq)}
 				</h2>
-				<div className="flex flex-col gap-3">
-					{faq.map(({ question, answer }, idx) => {
+				<div className="flex flex-col gap-4">
+					{faqArray.map(({ question, answer }, idx) => {
 						const isOpen = openFaq === idx;
 
 						return (
@@ -216,7 +193,9 @@ export const TabHelp = () => {
 										isOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
 									)}
 								>
-									<span className="mt-2 block text-sm leading-tight">{answer}</span>
+									<span className="block text-sm leading-tight text-(--color-secondary)">
+										{answer}
+									</span>
 								</div>
 							</div>
 						);

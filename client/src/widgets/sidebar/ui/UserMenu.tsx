@@ -1,74 +1,82 @@
 import { useEffect, useRef } from 'react';
-import { LifeBuoy, LogOut, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { LifeBuoy, LogOut, Mail, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
 import { Button, Divider } from '@/shared/ui';
 
-export const UserMenu = observer(
-	({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
-		const { tabsStore, userStore, authStore } = useStore();
-		const menuRef = useRef<HTMLDivElement>(null);
+interface UserMenuProps {
+	isOpen: boolean;
+	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-		const navButtons = [
-			{
-				title: 'Настройки',
-				icon: Settings,
-				action: () => {
-					tabsStore.setTab('settings');
-					setIsOpen(false);
-				},
+export const UserMenu = observer(({ isOpen, setIsOpen }: UserMenuProps) => {
+	const { t } = useTranslation('nav');
+
+	const { tabsStore, userStore, authStore } = useStore();
+
+	const menuRef = useRef<HTMLDivElement>(null);
+
+	const navButtons = [
+		{
+			title: t(($) => $.userMenu.settings),
+			icon: Settings,
+			action: () => {
+				tabsStore.setTab('settings');
+				setIsOpen(false);
 			},
-			{
-				title: 'Справка',
-				icon: LifeBuoy,
-				action: () => {
-					tabsStore.setTab('help');
-					setIsOpen(false);
-				},
+		},
+		{
+			title: t(($) => $.userMenu.help),
+			icon: LifeBuoy,
+			action: () => {
+				tabsStore.setTab('help');
+				setIsOpen(false);
 			},
-			{ title: 'Выйти', icon: LogOut, action: () => authStore.logout() },
-		];
+		},
+		{ title: t(($) => $.userMenu.logout), icon: LogOut, action: () => authStore.logout() },
+	];
 
-		useEffect(() => {
-			if (!isOpen) return;
+	useEffect(() => {
+		if (!isOpen) return;
 
-			const handleClickOutside = (event: MouseEvent) => {
-				if (menuRef.current && !menuRef.current.contains(event.target as Node)) setIsOpen(false);
-			};
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuRef.current && !menuRef.current.contains(event.target as Node)) setIsOpen(false);
+		};
 
-			document.addEventListener('mousedown', handleClickOutside);
-			return () => document.removeEventListener('mousedown', handleClickOutside);
-		}, [isOpen, setIsOpen]);
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, [isOpen, setIsOpen]);
 
-		if (!isOpen) return null;
+	if (!isOpen) return null;
 
-		return (
-			<div
-				ref={menuRef}
-				className="animate-in fade-in slide-in-from-bottom-2 core-border absolute bottom-full left-0 z-30 mb-2 flex w-60 flex-col gap-1 bg-(--bg-secondary) p-2 shadow-lg backdrop-blur-md"
-			>
-				<div className="cursor-default px-2 py-1 text-sm text-(--color-disabled)">
-					{userStore.username} ({userStore.email})
-				</div>
-				<Divider />
-				{navButtons.map(({ title, icon: Icon, action }) => {
-					return (
-						<>
-							{title === 'Выйти' && <Divider />}
-							<Button
-								className="justify-start rounded-xl px-2 py-0.5 text-left text-(--accent-primary-text) hover:bg-(--accent-primary-hover) hover:text-(--accent-primary-text)"
-								leftIcon={<Icon className="size-4" />}
-								size="custom"
-								variant="mobile"
-								onClick={action}
-							>
-								{title}
-							</Button>
-						</>
-					);
-				})}
+	return (
+		<div
+			ref={menuRef}
+			className="animate-in fade-in slide-in-from-bottom-2 core-border absolute bottom-full left-0 z-30 mb-2 flex w-60 flex-col gap-1 bg-(--bg-secondary) p-2 shadow-lg backdrop-blur-md"
+		>
+			<div className="flex cursor-default items-center gap-2 px-2 py-1 text-sm text-(--color-disabled)">
+				<Mail className="size-4" />
+				{userStore.email ? `${userStore.email}` : 'E-mail'}
 			</div>
-		);
-	}
-);
+			<Divider />
+			{navButtons.map(({ title, icon: Icon, action }) => {
+				return (
+					<>
+						{Icon === LogOut && <Divider />}
+						<Button
+							className="justify-start rounded-lg px-2 py-0.5 text-left text-(--accent-primary-text) hover:bg-(--accent-primary-hover) hover:text-(--accent-primary-text)"
+							leftIcon={<Icon className="size-4" />}
+							size="custom"
+							variant="mobile"
+							onClick={action}
+						>
+							{title}
+						</Button>
+					</>
+				);
+			})}
+		</div>
+	);
+});

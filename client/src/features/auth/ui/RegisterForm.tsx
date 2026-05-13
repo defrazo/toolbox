@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, EyeClosed, Lock, Mail, User } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
@@ -10,6 +11,8 @@ import { Button, Input } from '@/shared/ui';
 import { PasswordHint } from '.';
 
 export const RegisterForm = observer(() => {
+	const { t } = useTranslation('auth');
+
 	const { authStore, notifyStore } = useStore();
 
 	const [username, setUsername] = useState('');
@@ -30,7 +33,7 @@ export const RegisterForm = observer(() => {
 
 			// await authStore.register(email, password);
 		} catch (error: any) {
-			notifyStore.setNotice(error.message || 'Проверьте введенные данные', 'error');
+			notifyStore.setNotice(error.message || t(($) => $.register.error), 'error');
 		}
 	};
 
@@ -39,38 +42,38 @@ export const RegisterForm = observer(() => {
 	return (
 		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<User className="mr-1 size-6" />
+						<User className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="Имя пользователя"
+				placeholder={t(($) => $.fields.username.placeholder)}
 				type="text"
 				value={username}
 				onChange={(e) => setUsername(e.target.value.trim())}
 			/>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<Mail className="mr-1 size-6" />
+						<Mail className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="E-mail"
+				placeholder={t(($) => $.fields.email.placeholder)}
 				type="email"
 				value={email}
 				onChange={(e) => setEmail(e.target.value.trim())}
 			/>
 			<div className="relative">
 				<Input
-					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 					leftIcon={
 						<div className="border-r border-(--border-color)">
-							<Lock className="mr-1 size-6" />
+							<Lock className="mr-2 ml-1 size-5" />
 						</div>
 					}
-					placeholder="Пароль"
+					placeholder={t(($) => $.fields.password.placeholder)}
 					rightIcon={
 						<PassIcon
 							className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -90,13 +93,13 @@ export const RegisterForm = observer(() => {
 				/>
 			</div>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<Lock className="mr-1 size-6" />
+						<Lock className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="Пароль"
+				placeholder={t(($) => $.fields.passConfirm.placeholder)}
 				rightIcon={
 					<PassIcon
 						className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -117,7 +120,7 @@ export const RegisterForm = observer(() => {
 				// onClick={() => notifyStore.setNotice('Регистрация временно приостановлена', 'info')}
 				type="submit"
 			>
-				Зарегистрироваться
+				{t(($) => $.register.submit)}
 			</Button>
 		</form>
 	);

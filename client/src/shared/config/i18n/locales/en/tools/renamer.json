@@ -1,0 +1,28 @@
+{
+	"meta": {
+		"title": "File Renamer",
+		"subtitle": "Quickly change file names",
+		"pageTitle": "Rename files",
+		"pageSubtitle": "Bulk rename files in just a few clicks"
+	},
+	"upload": {
+		"addFiles": "Add files",
+		"uploadFiles": "Upload files",
+		"download": "Download",
+		"clear": "Clear"
+	},
+	"rename": {
+		"title": "New name",
+		"prefixPlaceholder": "part before number",
+		"suffixPlaceholder": "part after number",
+		"numberSign": "№"
+	},
+	"files": {
+		"before": "Before",
+		"after": "After",
+		"selectedFiles": "Selected files",
+		"selectedFiles_zero": "No files selected",
+		"selectedFiles_one": "{{count}} file selected",
+		"selectedFiles_other": "{{count}} files selected"
+	}
+}

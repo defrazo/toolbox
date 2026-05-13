@@ -1,10 +1,10 @@
 import type { RouteObject } from 'react-router';
 
+import { Layout } from '@/app/layouts';
 import { AuthSidebar } from '@/features/auth';
 import { ForgotPassPage, LoginPage, RegisterPage, ResetPassPage, VerifyEmailPage } from '@/pages/auth';
 import MainPage from '@/pages/main';
 import NotFoundPage from '@/pages/not-found';
-import { Layout } from '@/shared/layouts';
 import { Sidebar } from '@/widgets/sidebar';
 
 import { GuardedRoute, PublicRoute } from '.';

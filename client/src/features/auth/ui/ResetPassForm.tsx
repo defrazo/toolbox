@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, EyeClosed, Lock } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
@@ -10,6 +11,8 @@ import { Button, Input } from '@/shared/ui';
 import { PasswordHint } from '.';
 
 export const ResetPassForm = observer(() => {
+	const { t } = useTranslation('auth');
+
 	const { authStore, notifyStore } = useStore();
 
 	const [password, setPassword] = useState('');
@@ -25,7 +28,7 @@ export const ResetPassForm = observer(() => {
 			await validatePasswords(password, passConfirm);
 			// await authStore.resetPassword(email, password);
 		} catch (error: any) {
-			notifyStore.setNotice(error.message || 'Произошла ошибка', 'error');
+			notifyStore.setNotice(error.message || t(($) => $.resetPass.error), 'error');
 		}
 	};
 
@@ -35,13 +38,13 @@ export const ResetPassForm = observer(() => {
 		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
 			<div className="relative">
 				<Input
-					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 					leftIcon={
 						<div className="border-r border-(--border-color)">
-							<Lock className="mr-1 size-6" />
+							<Lock className="mr-2 ml-1 size-5" />
 						</div>
 					}
-					placeholder="Пароль"
+					placeholder={t(($) => $.fields.password.placeholder)}
 					rightIcon={
 						<PassIcon
 							className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -61,13 +64,13 @@ export const ResetPassForm = observer(() => {
 				/>
 			</div>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<Lock className="mr-1 size-6" />
+						<Lock className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="Пароль"
+				placeholder={t(($) => $.fields.passConfirm.placeholder)}
 				rightIcon={
 					<PassIcon
 						className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -84,7 +87,7 @@ export const ResetPassForm = observer(() => {
 				loading={authStore.isLoading}
 				type="submit"
 			>
-				Подтвердить
+				{t(($) => $.resetPass.submit)}
 			</Button>
 		</form>
 	);

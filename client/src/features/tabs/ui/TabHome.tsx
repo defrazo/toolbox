@@ -1,28 +1,39 @@
+import { useTranslation } from 'react-i18next';
 import { Blocks, ChevronRight, ClipboardPaste, LifeBuoy, PencilRuler, Upload } from 'lucide-react';
 
 import { useStore } from '@/app/providers';
-import { type Tool, type ToolId, TOOLS } from '@/entities/tool';
+import { type ToolId, TOOLS } from '@/entities/tool';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-const displayTools: Tool[] = [
-	...TOOLS,
-	{
-		id: 'placeholder' as ToolId,
-		title: 'Новые инструменты',
-		subtitle: 'Мы работаем над новыми полезными инструментами',
-		icon: PencilRuler,
-		isDisabled: true,
-	},
-];
-
 export const TabHome = () => {
+	const { t: tCommon } = useTranslation('common');
+	const { t: tHome } = useTranslation('home');
+	const { t: tRenamer } = useTranslation('renamer');
+	const { t: tShortener } = useTranslation('shortener');
+
 	const { userStore, tabsStore } = useStore();
+
+	const toolOverrides = {
+		renamer: { title: tRenamer(($) => $.meta.title), subtitle: tRenamer(($) => $.meta.subtitle) },
+		shortener: { title: tShortener(($) => $.meta.title), subtitle: tShortener(($) => $.meta.subtitle) },
+	};
+
+	const displayTools = [
+		...TOOLS.map((tool) => ({ ...tool, ...toolOverrides[tool.id] })),
+		{
+			id: 'new' as ToolId,
+			title: tHome(($) => $.tools.placeholder.title),
+			subtitle: tHome(($) => $.tools.placeholder.subtitle),
+			icon: PencilRuler,
+			isDisabled: true,
+		},
+	];
 
 	const shortcuts = [
 		{
-			title: 'Загрузить файлы',
-			subtitle: 'Выберите файлы с компьютера',
+			title: tHome(($) => $.shortcuts.upload.title),
+			subtitle: tHome(($) => $.shortcuts.upload.subtitle),
 			icon: Upload,
 			action: () => {
 				tabsStore.setTab('renamer');
@@ -30,8 +41,8 @@ export const TabHome = () => {
 			},
 		},
 		{
-			title: 'Вставить ссылку',
-			subtitle: 'Вставить ссылку из буфера обмена',
+			title: tHome(($) => $.shortcuts.paste.title),
+			subtitle: tHome(($) => $.shortcuts.paste.subtitle),
 			icon: ClipboardPaste,
 			action: async () => {
 				tabsStore.setTab('shortener');
@@ -40,8 +51,8 @@ export const TabHome = () => {
 			},
 		},
 		{
-			title: 'Нужна помощь?',
-			subtitle: 'Посмотреть руководство',
+			title: tHome(($) => $.shortcuts.help.title),
+			subtitle: tHome(($) => $.shortcuts.help.subtitle),
 			icon: LifeBuoy,
 			action: () => tabsStore.setTab('help'),
 		},
@@ -50,11 +61,13 @@ export const TabHome = () => {
 	return (
 		<>
 			<div className="flex flex-col gap-3 select-none">
-				<h1 className="text-4xl font-semibold">Привет, {userStore.username}!</h1>
-				<span className="text-2xl text-(--color-secondary)">Что будем делать сегодня?</span>
+				<h1 className="text-4xl font-semibold">
+					{tHome(($) => $.greeting.title)}, {userStore.username ?? tCommon(($) => $.user.default)}!
+				</h1>
+				<span className="text-2xl text-(--color-secondary)">{tHome(($) => $.greeting.subtitle)}</span>
 			</div>
 			<div className="flex flex-col gap-4 select-none">
-				<h2 className="text-2xl font-semibold">Популярные инструменты</h2>
+				<h2 className="text-2xl font-semibold">{tHome(($) => $.tools.title)}</h2>
 				<div className="flex gap-6">
 					{displayTools.map(({ id, title, subtitle, icon: Icon, isDisabled }) => {
 						return (
@@ -77,7 +90,9 @@ export const TabHome = () => {
 									rightIcon={<ChevronRight className="absolute top-1/2 right-4 -translate-y-1/2" />}
 									onClick={() => tabsStore.setTab(id)}
 								>
-									{isDisabled ? 'Скоро появится' : 'Перейти к инструменту'}
+									{isDisabled
+										? tHome(($) => $.tools.actions.soon)
+										: tHome(($) => $.tools.actions.open)}
 								</Button>
 							</div>
 						);
@@ -85,7 +100,7 @@ export const TabHome = () => {
 				</div>
 			</div>
 			<div className="flex flex-col gap-4 select-none">
-				<h2 className="text-2xl font-semibold">Быстрые действия</h2>
+				<h2 className="text-2xl font-semibold">{tHome(($) => $.shortcuts.title)}</h2>
 				<div className="flex gap-6">
 					{shortcuts.map(({ title, subtitle, icon: Icon, action }) => {
 						return (
@@ -111,10 +126,8 @@ export const TabHome = () => {
 				<div className="flex items-center gap-4">
 					<Blocks className="size-10 text-(--color-accent)" />
 					<div className="flex flex-col gap-2">
-						<span className="leading-4 text-(--color-accent)">ToolBox – ваши задачи, наши инструменты</span>
-						<span className="leading-4 text-(--color-secondary)">
-							Простой, быстрый и удобный набор инструментов на каждый день
-						</span>
+						<span className="leading-4 text-(--color-accent)">{tHome(($) => $.promo.title)}</span>
+						<span className="leading-4 text-(--color-secondary)">{tHome(($) => $.promo.subtitle)}</span>
 					</div>
 				</div>
 			</div>

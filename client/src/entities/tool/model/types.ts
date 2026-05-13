@@ -1,0 +1,12 @@
+import type { LucideIcon } from 'lucide-react';
+
+export type ToolId = 'renamer' | 'shortener';
+
+export type Layout = 'workspace' | 'tool' | 'page';
+
+export type Tool = {
+	id: ToolId;
+	icon: LucideIcon;
+	layout?: Layout;
+	isDisabled?: boolean;
+};

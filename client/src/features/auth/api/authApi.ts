@@ -1,4 +1,4 @@
-import { api } from '@/shared/lib/api';
+import { api } from '@/shared/api';
 
 export const login = async (email: string, password: string) => {
 	await api.get('/sanctum/csrf-cookie');

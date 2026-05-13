@@ -1,52 +1,20 @@
 import { makeAutoObservable } from 'mobx';
 
-import { DEFAULT_AVATAR } from '@/shared/lib/constants';
-
-import type { User } from '.';
+import { DEFAULT_AVATAR, type User } from '.';
 
 export class UserStore {
 	user: User | null = null;
-
-	constructor() {
-		makeAutoObservable(this);
-	}
-
-	setUser(user: User | null) {
-		this.user = user;
-	}
-
-	updateAvatar(avatar: string) {
-		if (!this.user) return;
-
-		this.user = { ...this.user, avatar };
-	}
-
-	updateUsername(username: string) {
-		if (!this.user) return;
-
-		this.user = { ...this.user, username };
-	}
-
-	updateEmail(email: string) {
-		if (!this.user) return;
-
-		this.user = { ...this.user, email };
-	}
-
-	clear() {
-		this.user = null;
-	}
 
 	get isAuth() {
 		return !!this.user;
 	}
 
 	get username() {
-		return this.user?.username ?? 'Пользователь';
+		return this.user?.username;
 	}
 
 	get email() {
-		return this.user?.email ?? 'Пользователь';
+		return this.user?.email;
 	}
 
 	get avatar() {
@@ -55,5 +23,32 @@ export class UserStore {
 
 	get role() {
 		return this.user?.role ?? 'user';
+	}
+
+	setUser(user: User | null) {
+		this.user = user;
+	}
+
+	updateUsername(username: string) {
+		if (!this.user) return;
+		this.user = { ...this.user, username };
+	}
+
+	updateEmail(email: string) {
+		if (!this.user) return;
+		this.user = { ...this.user, email };
+	}
+
+	updateAvatar(avatar: string) {
+		if (!this.user) return;
+		this.user = { ...this.user, avatar };
+	}
+
+	clear() {
+		this.user = null;
+	}
+
+	constructor() {
+		makeAutoObservable(this);
 	}
 }

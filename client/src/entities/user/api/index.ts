@@ -1,1 +1,1 @@
-export { getUser, updateProfile } from './userApi';
+export { getUser, updateProfile } from './user';

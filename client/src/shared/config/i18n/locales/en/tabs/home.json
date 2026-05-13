@@ -1,0 +1,40 @@
+{
+	"meta": {
+		"title": "Home",
+		"subtitle": "Start working with tools"
+	},
+	"greeting": {
+		"title": "Hi",
+		"subtitle": "What are we going to do today?"
+	},
+	"tools": {
+		"title": "Popular tools",
+		"placeholder": {
+			"title": "New tools",
+			"subtitle": "We are working on new useful tools"
+		},
+		"actions": {
+			"open": "Open tool",
+			"soon": "Coming soon"
+		}
+	},
+	"shortcuts": {
+		"title": "Quick actions",
+		"upload": {
+			"title": "Upload files",
+			"subtitle": "Select files from your computer"
+		},
+		"paste": {
+			"title": "Paste link",
+			"subtitle": "Paste a link from clipboard"
+		},
+		"help": {
+			"title": "Need help?",
+			"subtitle": "View guide"
+		}
+	},
+	"promo": {
+		"title": "ToolBox – your tasks, our tools",
+		"subtitle": "A simple, fast and convenient set of everyday tools"
+	}
+}

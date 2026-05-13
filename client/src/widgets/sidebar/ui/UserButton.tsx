@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronUp } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
@@ -6,13 +7,16 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 export const UserButton = observer(({ onClick, minimized }: { onClick?: () => void; minimized?: boolean }) => {
+	const { t: tCommon } = useTranslation('common');
+	const { t: tNav } = useTranslation('nav');
+
 	const { userStore } = useStore();
 
 	return (
 		<div className="group relative" onClick={onClick}>
 			<Button
 				className={cn(
-					'h-12 w-full justify-start border-[#fafafa12] p-2 text-left transition-[width] duration-500 group-hover:bg-(--accent-primary-hover)',
+					'core-border h-12 w-full justify-start bg-(--bg-secondary) p-2 text-left shadow-(--shadow) transition-all duration-500 ease-out group-hover:bg-(--accent-primary-hover) hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary)',
 					minimized ? 'w-12' : 'w-60'
 				)}
 				leftIcon={
@@ -23,7 +27,7 @@ export const UserButton = observer(({ onClick, minimized }: { onClick?: () => vo
 					/>
 				}
 				size="custom"
-				title="Открыть меню пользователя"
+				title={tNav(($) => $.tooltips.open)}
 				variant="ghost"
 			>
 				<span
@@ -32,7 +36,7 @@ export const UserButton = observer(({ onClick, minimized }: { onClick?: () => vo
 						minimized ? 'opacity-0' : 'opacity-100 delay-200'
 					)}
 				>
-					{userStore.username}
+					{userStore.username ?? tCommon(($) => $.user.default)}
 				</span>
 			</Button>
 			<ChevronUp

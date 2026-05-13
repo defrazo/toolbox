@@ -1,14 +1,15 @@
 import type { UserStore } from '@/entities/user';
 import type { AuthStore } from '@/features/auth';
+import type { ModalStore } from '@/features/modal';
+import type { NotifyStore } from '@/features/notification';
 import type { TabsStore } from '@/features/tabs';
 import type { ThemeStore } from '@/features/theme-switcher';
-import type { ModalStore, NotifyStore } from '@/shared/stores';
 
 export interface CoreStores {
 	readonly userStore: UserStore;
 	readonly authStore: AuthStore;
-	readonly notifyStore: NotifyStore;
 	readonly modalStore: ModalStore;
-	readonly themeStore: ThemeStore;
+	readonly notifyStore: NotifyStore;
 	readonly tabsStore: TabsStore;
+	readonly themeStore: ThemeStore;
 }

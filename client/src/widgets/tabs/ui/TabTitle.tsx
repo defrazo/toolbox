@@ -7,7 +7,7 @@ interface TabTitleProps {
 export const TabTitle = ({ title, subtitle, icon: Icon }: TabTitleProps) => {
 	return (
 		<div className="flex h-12 items-center gap-4">
-			<div className="rounded-xl bg-(--accent-primary-dark) p-2">
+			<div className="rounded-xl bg-(--accent-primary-dark) p-3">
 				<Icon className="size-8 text-(--color-accent)" />
 			</div>
 			<div className="flex h-full flex-col justify-between pt-0.5 select-none">

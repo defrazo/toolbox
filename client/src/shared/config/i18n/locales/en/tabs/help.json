@@ -1,0 +1,83 @@
+{
+	"meta": {
+		"title": "Help",
+		"subtitle": "Learn more about your tools"
+	},
+	"sections": {
+		"intro": "Getting started",
+		"tools": "Tools",
+		"account": "Account settings",
+		"faq": "Frequently asked questions"
+	},
+	"intro": {
+		"toolbox": {
+			"title": "What is ToolBox?",
+			"desc": "ToolBox is a set of tools for everyday tasks. You can choose the right tool from the home page or the sidebar."
+		},
+		"interface": {
+			"title": "How the interface works",
+			"desc": "On the left is the navigation panel with tools and sections. In the center is the workspace. In settings you can change the theme, avatar, language, and more."
+		}
+	},
+	"tools": {
+		"renamer": {
+			"title": "File renamer",
+			"subtitle": "Bulk renames files using the pattern: prefix + sequence number + suffix. The result is downloaded as a ZIP archive.",
+			"steps": [
+				"Click “Upload files” or drag files into the upload area. Maximum 100 files at a time.",
+				"Enter a prefix (before the number) and suffix (after the number). Example: photo_ and _2025 → photo_01_2025.jpg.",
+				"Check the preview result in the “Before” and “After” columns.",
+				"Click “Download” — the files will be downloaded as a ZIP archive with new names (file quality and size remain unchanged)."
+			],
+			"hints": [
+				"The “Add files” button at the bottom allows you to extend the list without resetting it. “Clear” completely resets the list."
+			]
+		},
+		"shortener": {
+			"title": "Link shortener",
+			"subtitle": "Turns long URLs into short ones. Supports social sharing, clipboard copy, and QR code generation.",
+			"steps": [
+				"Paste a link into the “Long URL” field and click “Shorten”.",
+				"Copy the result using the “Copy” button or share it directly via VK, Telegram, or WhatsApp.",
+				"Click “QR code” — an image will appear that you can save with a screenshot."
+			],
+			"hints": []
+		}
+	},
+	"account": {
+		"avatar": {
+			"title": "Avatar",
+			"text": "Click on the photo, choose one from the grid, and confirm with the “Apply avatar” button."
+		},
+		"profile": {
+			"title": "Name and email",
+			"text": "Click the corresponding field, enter a new value, and press the save icon."
+		},
+		"password": {
+			"title": "Password",
+			"text": "Click “Change password”, fill in all three fields, and save."
+		},
+		"appearance": {
+			"title": "Theme and language",
+			"text": "Choose the appropriate option from the dropdown list."
+		}
+	},
+	"faq": [
+		{
+			"question": "Why is the “Download” button disabled?",
+			"answer": "The button becomes active only after at least one file has been added."
+		},
+		{
+			"question": "Can I add more than 100 files?",
+			"answer": "No, the current limit is 100 files per batch. For larger volumes, split the files into several groups."
+		},
+		{
+			"question": "Are my files uploaded to the server?",
+			"answer": "No. Renaming happens directly in the browser, and the files never leave your device."
+		},
+		{
+			"question": "The link is not shortening — what should I do?",
+			"answer": "Make sure the URL starts with https:// and is a valid address. If the error persists, try again later."
+		}
+	]
+}

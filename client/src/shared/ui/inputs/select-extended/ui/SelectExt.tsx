@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-import { getComponentStyles, sizes, variants } from '@/shared/lib/ui-kit';
+import { getComponentStyles, sizes, variants } from '@/shared/lib/design';
 import { cn } from '@/shared/lib/utils';
 
 import type { Direction, Justify, SelectExtOption } from '../model';

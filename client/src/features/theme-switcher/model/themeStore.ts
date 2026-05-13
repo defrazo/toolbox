@@ -48,9 +48,7 @@ export class ThemeStore {
 		);
 
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-			if (this.theme === 'system') {
-				this.applyTheme('system');
-			}
+			if (this.theme === 'system') this.applyTheme('system');
 		});
 	}
 }

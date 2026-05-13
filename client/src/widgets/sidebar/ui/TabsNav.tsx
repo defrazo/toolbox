@@ -1,4 +1,5 @@
-import { FolderPen, House, LifeBuoy, Link, LucideIcon, Settings } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { FolderPen, House, LifeBuoy, Link, type LucideIcon, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -6,16 +7,18 @@ import { TabId } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-const TABS: ReadonlyArray<{ id: TabId; title: string; icon: LucideIcon }> = [
-	{ id: 'home', title: 'Главная', icon: House },
-	{ id: 'renamer', title: 'Переименовать файлы', icon: FolderPen },
-	{ id: 'shortener', title: 'Сократить ссылку', icon: Link },
-	{ id: 'settings', title: 'Настройки', icon: Settings },
-	{ id: 'help', title: 'Справка', icon: LifeBuoy },
-];
-
 export const TabsNav = observer(({ onTabClick, minimized }: { minimized?: boolean; onTabClick?: () => void }) => {
+	const { t } = useTranslation('nav');
+
 	const { tabsStore } = useStore();
+
+	const TABS: ReadonlyArray<{ id: TabId; title: string; icon: LucideIcon }> = [
+		{ id: 'home', title: t(($) => $.sidebar.items.home), icon: House },
+		{ id: 'renamer', title: t(($) => $.sidebar.items.renamer), icon: FolderPen },
+		{ id: 'shortener', title: t(($) => $.sidebar.items.shortener), icon: Link },
+		{ id: 'settings', title: t(($) => $.sidebar.items.settings), icon: Settings },
+		{ id: 'help', title: t(($) => $.sidebar.items.help), icon: LifeBuoy },
+	];
 
 	const handleClick = (tab: TabId) => {
 		tabsStore.setTab(tab);
@@ -30,8 +33,7 @@ export const TabsNav = observer(({ onTabClick, minimized }: { minimized?: boolea
 						<Button
 							key={id}
 							className={cn(
-								'core-border h-12 justify-start bg-(--bg-secondary) p-3 leading-4 shadow-(--shadow) transition duration-200 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary)',
-								'transition-[width] duration-500',
+								'core-border h-12 justify-start bg-(--bg-secondary) p-3 leading-4 shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary)',
 								minimized ? 'w-12' : 'w-60',
 								tabsStore.tab === id && 'bg-(image:--gradient-primary)'
 							)}

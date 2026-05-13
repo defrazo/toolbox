@@ -1,0 +1,30 @@
+{
+	"meta": {
+		"title": "Переименование файлов",
+		"subtitle": "Быстро меняйте названия файлов",
+		"pageTitle": "Переименовать файлы",
+		"pageSubtitle": "Массовое переименование файлов в пару кликов"
+	},
+	"upload": {
+		"addFiles": "Добавить файлы",
+		"uploadFiles": "Загрузить файлы",
+		"download": "Скачать",
+		"clear": "Очистить"
+	},
+	"rename": {
+		"title": "Новое название",
+		"prefixPlaceholder": "часть до номера",
+		"suffixPlaceholder": "часть после номера",
+		"numberSign": "№"
+	},
+	"files": {
+		"before": "До",
+		"after": "После",
+		"selectedFiles": "Выбрано файлов",
+		"selectedFiles_zero": "Файлы не выбраны",
+		"selectedFiles_one": "Выбран {{count}} файл",
+		"selectedFiles_few": "Выбрано {{count}} файла",
+		"selectedFiles_many": "Выбрано {{count}} файлов",
+		"selectedFiles_other": "Выбрано {{count}} файла"
+	}
+}

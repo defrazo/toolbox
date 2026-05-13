@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
 	CircleUserRound,
 	Contrast,
@@ -6,6 +7,8 @@ import {
 	EyeClosed,
 	Languages,
 	Lock,
+	LockKeyhole,
+	LockOpen,
 	Mail,
 	Moon,
 	Save,
@@ -16,12 +19,16 @@ import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
 import { PasswordHint } from '@/features/auth';
+import LanguageSelect from '@/features/language-switcher';
 import type { Theme } from '@/features/theme-switcher';
 import { AVATARS } from '@/shared/assets/images/avatars';
 import { cn } from '@/shared/lib/utils';
 import { Button, Divider, Input, Select } from '@/shared/ui';
 
 export const TabSettings = observer(() => {
+	const { t: tSettings } = useTranslation('settings');
+	const { t: tAuth } = useTranslation('auth');
+
 	const { userStore, themeStore } = useStore();
 
 	const [visiblePass, setVisiblePass] = useState(false);
@@ -29,8 +36,8 @@ export const TabSettings = observer(() => {
 	const [showPass, setShowPass] = useState(false);
 	const [showHint, setShowHint] = useState(false);
 
-	const [tempUsername, setTempUsername] = useState(userStore.username);
-	const [tempEmail, setTempEmail] = useState(userStore.email);
+	const [tempUsername, setTempUsername] = useState(userStore.username ?? '');
+	const [tempEmail, setTempEmail] = useState(userStore.email ?? '');
 	const [tempPassOld, setTempPassOld] = useState('');
 	const [tempPassNew, setTempPassNew] = useState('');
 	const [tempPassNewConfirm, setTempPassNewConfirm] = useState('');
@@ -49,18 +56,20 @@ export const TabSettings = observer(() => {
 	useEffect(() => {
 		if (!userStore.user) return;
 
-		setTempUsername(userStore.username);
-		setTempEmail(userStore.email);
+		setTempUsername(userStore.username ?? '');
+		setTempEmail(userStore.email ?? '');
 	}, [userStore.user]);
 
 	return (
 		<>
 			<div className="flex flex-col gap-4">
-				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">Аккаунт</h2>
+				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70 select-none">
+					{tSettings(($) => $.account.title)}
+				</h2>
 				<div className="core-border flex min-h-0 flex-1 gap-4 bg-(--bg-secondary)/50 p-4 select-none">
 					<img
-						alt="Аватар пользователя"
-						className="size-40 cursor-pointer rounded-full ring-(--accent-primary-hover) ring-inset hover:ring-1 focus:ring-1"
+						alt={tSettings(($) => $.account.avatar.alt)}
+						className="size-40 cursor-pointer rounded-full border-2 border-transparent ring-inset hover:border-(--accent-primary-hover)"
 						src={userStore.avatar}
 						onClick={() => setVisibleAvatars((prev) => !prev)}
 					/>
@@ -72,7 +81,7 @@ export const TabSettings = observer(() => {
 									key={src}
 									alt={`Аватар ${idx}`}
 									className={cn(
-										'aspect-square size-32 cursor-pointer rounded-full object-cover transition',
+										'aspect-square size-28 cursor-pointer rounded-full object-cover transition',
 										'hover:scale-[1.2]',
 										selectedAvatar === src && 'ring-3 ring-(--accent-primary)'
 									)}
@@ -88,7 +97,7 @@ export const TabSettings = observer(() => {
 									setVisibleAvatars(false);
 								}}
 							>
-								Применить аватар
+								{tSettings(($) => $.account.avatar.apply)}
 							</Button>
 						</div>
 					) : (
@@ -96,10 +105,11 @@ export const TabSettings = observer(() => {
 							<div className="flex items-center">
 								<div className="flex w-full gap-2">
 									<CircleUserRound />
-									Имя пользователя
+									{tAuth(($) => $.fields.username.label)}
 								</div>
 								<Input
 									className="w-72"
+									placeholder={tAuth(($) => $.fields.username.placeholder)}
 									rightIcon={
 										activeField === 'name' && (
 											<Button
@@ -120,10 +130,11 @@ export const TabSettings = observer(() => {
 							<div className="flex items-center">
 								<div className="flex w-full gap-2">
 									<Mail />
-									Электронная почта
+									{tAuth(($) => $.fields.email.label)}
 								</div>
 								<Input
 									className="w-72"
+									placeholder={tAuth(($) => $.fields.email.placeholder)}
 									rightIcon={
 										activeField === 'email' && (
 											<Button
@@ -144,7 +155,7 @@ export const TabSettings = observer(() => {
 							<div className="flex items-center">
 								<div className="flex w-full gap-2">
 									<Lock />
-									Пароль
+									{tAuth(($) => $.fields.password.label)}
 								</div>
 								<Button
 									className={cn(
@@ -156,19 +167,23 @@ export const TabSettings = observer(() => {
 									)}
 									onClick={() => setVisiblePass((prev) => !prev)}
 								>
-									{visiblePass ? 'Сохранить пароль' : 'Сменить пароль'}
+									{visiblePass
+										? tSettings(($) => $.account.password.save)
+										: tSettings(($) => $.account.password.change)}
 								</Button>
 							</div>
 							{visiblePass && (
 								<>
 									<Divider />
 									<div className="flex w-full items-center justify-between gap-2">
-										<label className="w-full" htmlFor="pass-old">
-											Введите старый пароль
+										<label className="flex w-full gap-2" htmlFor="pass-old">
+											<LockOpen />
+											{tSettings(($) => $.account.password.old)}
 										</label>
 										<Input
 											className="w-72"
 											id="pass-old"
+											placeholder={tAuth(($) => $.fields.password.placeholder)}
 											rightIcon={
 												<PassIcon
 													className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -181,13 +196,15 @@ export const TabSettings = observer(() => {
 										/>
 									</div>
 									<div className="flex w-full items-center justify-between gap-2">
-										<label className="w-full" htmlFor="pass-new">
-											Введите новый пароль
+										<label className="flex w-full gap-2" htmlFor="pass-new">
+											<LockKeyhole />
+											{tSettings(($) => $.account.password.new)}
 										</label>
 										<div className="relative">
 											<Input
 												className="w-72"
 												id="pass-new"
+												placeholder={tAuth(($) => $.fields.password.placeholder)}
 												rightIcon={
 													<PassIcon
 														className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -208,12 +225,14 @@ export const TabSettings = observer(() => {
 										</div>
 									</div>
 									<div className="flex w-full items-center justify-between gap-2">
-										<label className="w-full" htmlFor="pass-new-confirm">
-											Подтвердите новый пароль
+										<label className="flex w-full gap-2" htmlFor="pass-new-confirm">
+											<LockKeyhole />
+											{tSettings(($) => $.account.password.confirm)}
 										</label>
 										<Input
 											className="w-72"
 											id="pass-new-confirm"
+											placeholder={tAuth(($) => $.fields.passConfirm.placeholder)}
 											rightIcon={
 												<PassIcon
 													className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -232,20 +251,26 @@ export const TabSettings = observer(() => {
 				</div>
 			</div>
 			<div className="flex flex-col gap-4 select-none">
-				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70">Основные</h2>
+				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70">
+					{tSettings(($) => $.general.title)}
+				</h2>
 				<div className="core-border flex min-h-0 flex-1 flex-col gap-4 bg-(--bg-secondary)/50 p-4">
 					<div className="flex flex-col gap-4">
 						<div className="flex items-center">
 							<div className="flex w-full gap-2">
 								<SunMoon />
-								Внешний вид
+								{tSettings(($) => $.general.theme.label)}
 							</div>
 							<Select
 								className="w-36"
 								options={[
-									{ value: 'system', label: 'Системная', icon: Contrast },
-									{ value: 'dark', label: 'Темная', icon: Moon },
-									{ value: 'light', label: 'Светлая', icon: Sun },
+									{
+										value: 'system',
+										label: tSettings(($) => $.general.theme.system),
+										icon: Contrast,
+									},
+									{ value: 'dark', label: tSettings(($) => $.general.theme.dark), icon: Moon },
+									{ value: 'light', label: tSettings(($) => $.general.theme.light), icon: Sun },
 								]}
 								placeholder="Выберите"
 								value={themeStore.theme}
@@ -256,18 +281,9 @@ export const TabSettings = observer(() => {
 						<div className="flex items-center">
 							<div className="flex w-full gap-2">
 								<Languages />
-								Язык
+								{tSettings(($) => $.general.language.label)}
 							</div>
-							<Select
-								className="w-36"
-								options={[
-									{ value: 'ru', label: 'Русский' },
-									{ value: 'en', label: 'English' },
-								]}
-								placeholder="Выберите"
-								value="ru"
-								onChange={() => console.log(1)}
-							/>
+							<LanguageSelect />
 						</div>
 					</div>
 				</div>

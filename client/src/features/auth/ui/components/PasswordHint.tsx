@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { passwordRules } from '../../lib';
 
@@ -9,6 +10,8 @@ interface PasswordHintProps {
 }
 
 export const PasswordHint = ({ password, showHint, onValidityChange }: PasswordHintProps) => {
+	const { t } = useTranslation('auth');
+
 	const allRulesPassed = passwordRules.every((rule) => rule.test(password));
 	const visible = showHint && password.length > 0 && !allRulesPassed;
 
@@ -26,7 +29,7 @@ export const PasswordHint = ({ password, showHint, onValidityChange }: PasswordH
 					const passed = rule.test(password);
 					return (
 						<li key={idx} className={passed ? 'text-(--status-success)' : 'text-(--status-error)'}>
-							{passed ? '✔' : '✖'} {rule.label}
+							{passed ? '✔' : '✖'} {t(($) => $.passHint[rule.id])}
 						</li>
 					);
 				})}

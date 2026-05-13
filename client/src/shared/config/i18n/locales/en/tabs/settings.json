@@ -1,0 +1,31 @@
+{
+	"meta": {
+		"title": "Settings",
+		"subtitle": "Customize the app for yourself"
+	},
+	"account": {
+		"title": "Account",
+		"avatar": {
+			"alt": "User avatar",
+			"apply": "Apply avatar"
+		},
+		"password": {
+			"change": "Change password",
+			"save": "Save password",
+			"old": "Enter old password",
+			"new": "Enter new password",
+			"confirm": "Repeat new password"
+		}
+	},
+	"general": {
+		"title": "General",
+		"theme": {
+			"label": "Appearance",
+			"placeholder": "Select",
+			"system": "System",
+			"dark": "Dark",
+			"light": "Light"
+		},
+		"language": { "label": "Language" }
+	}
+}

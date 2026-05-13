@@ -1,9 +1,12 @@
-type PasswordRule = { label: string; test: (pass: string) => boolean };
+type PasswordRule = {
+	id: 'minLength' | 'uppercase' | 'lowercase' | 'number' | 'latinOnly';
+	test: (pass: string) => boolean;
+};
 
 export const passwordRules: PasswordRule[] = [
-	{ label: 'Минимум 8 символов', test: (pass: string) => pass.length >= 8 },
-	{ label: 'Заглавная буква', test: (pass: string) => /[A-Z]/.test(pass) },
-	{ label: 'Строчная буква', test: (pass: string) => /[a-z]/.test(pass) },
-	{ label: 'Цифра', test: (pass: string) => /\d/.test(pass) },
-	{ label: 'Только латиница', test: (pass: string) => !/[А-Яа-яЁё]/.test(pass) },
+	{ id: 'minLength', test: (pass) => pass.length >= 8 },
+	{ id: 'uppercase', test: (pass) => /[A-Z]/.test(pass) },
+	{ id: 'lowercase', test: (pass) => /[a-z]/.test(pass) },
+	{ id: 'number', test: (pass) => /\d/.test(pass) },
+	{ id: 'latinOnly', test: (pass) => !/[А-Яа-яЁё]/.test(pass) },
 ];

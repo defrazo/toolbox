@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useStore } from '@/app/providers';
@@ -9,6 +10,8 @@ interface AuthSocialProps {
 }
 
 export const AuthSocial = ({ type }: AuthSocialProps) => {
+	const { t } = useTranslation('auth');
+
 	const { authStore, notifyStore } = useStore();
 	const navigate = useNavigate();
 
@@ -26,9 +29,9 @@ export const AuthSocial = ({ type }: AuthSocialProps) => {
 			<Button
 				className="h-10 w-full bg-(--bg-secondary) text-sm hover:text-(--accent-text) md:text-base"
 				rightIcon={<IconGoogle className="size-5" />}
-				title="Доступно только для разработчика"
+				title={t(($) => $.tooltips.developer)}
 			>
-				Продолжить с аккаунтом Google
+				{t(($) => $.social.google)}
 			</Button>
 			{type === 'login' && (
 				<Button
@@ -36,7 +39,7 @@ export const AuthSocial = ({ type }: AuthSocialProps) => {
 					rightIcon={<IconMask className="size-5" />}
 					onClick={handleDemo}
 				>
-					Войти как гость
+					{t(($) => $.login.guest)}
 				</Button>
 			)}
 		</>

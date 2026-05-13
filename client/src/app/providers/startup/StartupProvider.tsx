@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 
 import App from '@/app';
-import { cn } from '@/shared/lib/utils';
 import { PreloaderExt } from '@/shared/ui';
 
 import StoreProvider, { useStore } from '../store';
 
 const AppInitializer = observer(() => {
 	const { themeStore, authStore } = useStore();
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
 		const init = async () => {
@@ -21,15 +21,11 @@ const AppInitializer = observer(() => {
 		void init();
 	}, []);
 
+	if (isLoading) return <PreloaderExt />;
+
 	return (
 		<div className="relative flex h-dvh w-full flex-col">
-			{isLoading && <PreloaderExt />}
-			<div
-				className={cn(
-					'flex min-h-0 flex-1 flex-col transition-opacity duration-100',
-					isLoading ? 'opacity-0' : 'opacity-100'
-				)}
-			>
+			<div className="flex min-h-0 flex-1 flex-col transition-opacity duration-100">
 				<App />
 			</div>
 		</div>

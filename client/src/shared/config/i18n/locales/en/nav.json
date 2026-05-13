@@ -1,0 +1,23 @@
+{
+	"sidebar": {
+		"subtitle": "Your Toolbox",
+		"items": {
+			"home": "Home",
+			"renamer": "File Renamer",
+			"shortener": "Shorten link",
+			"settings": "Settings",
+			"help": "Help"
+		}
+	},
+	"userMenu": {
+		"user": "User",
+		"settings": "Settings",
+		"help": "Help",
+		"logout": "Log out"
+	},
+	"tooltips": {
+		"open": "Open user menu",
+		"collapse": "Collapse sidebar",
+		"expand": "Expand sidebar"
+	}
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PanelLeft } from 'lucide-react';
 
 // import { useStore } from '@/app/providers';
@@ -9,6 +10,8 @@ import { Button } from '@/shared/ui';
 import { TabsNav, UserButton, UserMenu } from '.';
 
 export const Sidebar = () => {
+	const { t } = useTranslation('nav');
+
 	// const { userStore } = useStore();
 
 	// if (!userStore.user) return;
@@ -42,7 +45,7 @@ export const Sidebar = () => {
 							centerIcon={<PanelLeft className="size-8" />}
 							className="absolute rounded-xl p-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
 							size="custom"
-							title="Развернуть боковую панель"
+							title={t(($) => $.tooltips.expand)}
 						/>
 					)}
 				</div>
@@ -56,7 +59,7 @@ export const Sidebar = () => {
 						<span className="text-(--accent-primary-text)">Tool</span>
 						<span className="text-(--color-accent)">Box</span>
 					</h1>
-					<h2 className="text-xs leading-4 text-(--color-disabled)">Ваш набор инструментов</h2>
+					<h2 className="text-xs leading-4 text-(--color-disabled)">{t(($) => $.sidebar.subtitle)}</h2>
 				</div>
 				<Button
 					centerIcon={
@@ -64,7 +67,7 @@ export const Sidebar = () => {
 					}
 					className="ml-auto"
 					size="custom"
-					title="Свернуть боковую панель"
+					title={t(($) => $.tooltips.collapse)}
 					variant="mobile"
 					onClick={() => setMinimized((prev) => !prev)}
 				/>

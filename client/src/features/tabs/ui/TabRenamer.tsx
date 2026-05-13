@@ -1,17 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { Download, File, Plus, Trash2, X } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
 import { Button, FileUploader, Input } from '@/shared/ui';
 
-import { buildRenamedFiles, downloadAsZip, plural } from '../lib';
+import { buildRenamedFiles, downloadAsZip } from '../lib';
 import { useRenamer } from '../model';
 
-const fileContainers = [
-	{ title: 'До', statusColor: 'bg-(--status-warning)', getName: (file: any) => file.oldName },
-	{ title: 'После', statusColor: 'bg-(--status-success)', getName: (file: any) => file.newName },
-];
-
 export const TabRenamer = () => {
+	const { t } = useTranslation('renamer');
+
 	const { files, setFiles, prefix, setPrefix, suffix, setSuffix, preview, reset } = useRenamer();
 
 	const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,9 +19,14 @@ export const TabRenamer = () => {
 
 		setFiles((prev) => {
 			const merged = [...prev, ...newFiles];
-			return merged.slice(0, 50);
+			return merged.slice(0, 100);
 		});
 	};
+
+	const fileContainers = [
+		{ title: t(($) => $.files.before), statusColor: 'bg-(--status-warning)', getName: (file: any) => file.oldName },
+		{ title: t(($) => $.files.after), statusColor: 'bg-(--status-success)', getName: (file: any) => file.newName },
+	];
 
 	return (
 		<>
@@ -33,6 +36,7 @@ export const TabRenamer = () => {
 					disabled={files.length !== 0}
 					icon={<File />}
 					id="renamer-upload"
+					selectedFileName={t(($) => $.upload.uploadFiles)}
 					onUpload={handleFiles}
 				/>
 				<Button
@@ -45,16 +49,16 @@ export const TabRenamer = () => {
 					variant="custom"
 					onClick={() => downloadAsZip(buildRenamedFiles(files, prefix, suffix))}
 				>
-					Скачать
+					{t(($) => $.upload.download)}
 				</Button>
 			</div>
 			<div className="flex min-h-0 flex-1 flex-col gap-4">
 				<div className="core-border flex items-center justify-between gap-4 bg-(--bg-secondary)/50 p-4">
-					<span className="text-lg select-none">Новое название:</span>
+					<span className="text-lg select-none">{t(($) => $.rename.title)}:</span>
 					<div className="relative flex flex-1 items-center gap-2">
 						<Input
-							className="text-center"
-							placeholder="часть до номера"
+							className={cn('text-center', prefix === '' && 'pr-2')}
+							placeholder={t(($) => $.rename.prefixPlaceholder)}
 							rightIcon={
 								<X
 									className={cn(
@@ -69,8 +73,8 @@ export const TabRenamer = () => {
 						/>
 						<span className="text-xl select-none">№</span>
 						<Input
-							className="text-center"
-							placeholder="часть после номера"
+							className={cn('text-center', suffix === '' && 'pr-2')}
+							placeholder={t(($) => $.rename.suffixPlaceholder)}
 							rightIcon={
 								<X
 									className={cn(
@@ -89,7 +93,7 @@ export const TabRenamer = () => {
 					{fileContainers.map(({ title, statusColor, getName }) => (
 						<div
 							key={title}
-							className="core-border flex min-h-0 flex-1 flex-col gap-4 bg-(--bg-secondary)/50 p-4"
+							className="core-border flex min-h-0 max-w-88 flex-1 flex-col gap-4 bg-(--bg-secondary)/50 p-4"
 						>
 							<div className="flex items-center gap-2">
 								<div className={cn('mt-0.5 size-3 rounded-full', statusColor)} />
@@ -98,7 +102,8 @@ export const TabRenamer = () => {
 							<div className="hide-scrollbar flex-1 overflow-y-auto rounded-lg bg-(--bg-tertiary)/70">
 								{preview.map((file, idx) => (
 									<div key={idx} className="border-b border-(--border-color) px-3 py-2">
-										<span className="text-(--color-disabled)">№ {idx + 1}.</span> {getName(file)}
+										<span className="text-(--color-disabled)">№ {idx + 1}.</span>{' '}
+										<span className="wrap-break-word">{getName(file)}</span>
 									</div>
 								))}
 							</div>
@@ -107,15 +112,14 @@ export const TabRenamer = () => {
 				</div>
 				<div className="core-border flex items-center justify-between gap-2 bg-(--bg-secondary)/50 p-4">
 					<div className="min-w-40 rounded-full bg-(--accent-primary-dark) px-4 py-2 text-center text-sm text-(--color-accent) select-none">
-						{plural(preview.length, 'Выбран', 'Выбрано', 'Выбрано')} {preview.length}{' '}
-						{plural(preview.length, 'файл', 'файла', 'файлов')}
+						{t(($) => $.files.selectedFiles, { count: preview.length })}
 					</div>
 					<div className="flex w-1/2 gap-2">
 						<FileUploader
 							className={cn('flex-1 bg-(--bg-tertiary)', files.length >= 1 && 'active-btn')}
 							disabled={files.length === 0}
 							icon={<Plus />}
-							selectedFileName="Добавить файлы"
+							selectedFileName={t(($) => $.upload.addFiles)}
 							onUpload={handleFiles}
 						/>
 						<Button
@@ -124,7 +128,7 @@ export const TabRenamer = () => {
 							leftIcon={<Trash2 />}
 							onClick={reset}
 						>
-							Очистить
+							{t(($) => $.upload.clear)}
 						</Button>
 					</div>
 				</div>

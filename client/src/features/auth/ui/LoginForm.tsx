@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Eye, EyeClosed, Lock, Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -8,6 +9,8 @@ import { cn } from '@/shared/lib/utils';
 import { Button, Input } from '@/shared/ui';
 
 export const LoginForm = observer(() => {
+	const { t } = useTranslation('auth');
+
 	const { authStore, notifyStore } = useStore();
 
 	const [email, setEmail] = useState('');
@@ -20,7 +23,7 @@ export const LoginForm = observer(() => {
 		try {
 			await authStore.login(email, password);
 		} catch (error: any) {
-			notifyStore.setNotice(error?.response?.data?.message || 'Ошибка входа', 'error');
+			notifyStore.setNotice(error?.response?.data?.message || t(($) => $.login.error), 'error');
 		}
 	};
 
@@ -29,24 +32,24 @@ export const LoginForm = observer(() => {
 	return (
 		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<Mail className="mr-1 size-6" />
+						<Mail className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="E-mail"
+				placeholder={t(($) => $.fields.email.placeholder)}
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 			/>
 			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11 ring-0! hover:border-(--accent-primary-hover)"
+				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
-						<Lock className="mr-1 size-6" />
+						<Lock className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder="Пароль"
+				placeholder={t(($) => $.fields.password.placeholder)}
 				rightIcon={
 					<PassIcon
 						className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -58,14 +61,14 @@ export const LoginForm = observer(() => {
 				onChange={(e) => setPassword(e.target.value)}
 			/>
 			<Link className="ml-auto text-sm select-none hover:text-(--accent-primary-hover)" to="/forgot-password">
-				Забыли пароль?
+				{t(($) => $.login.forgotPass)}
 			</Link>
 			<Button
 				className={cn('mt-4 h-10 w-full', email !== '' && password !== '' && 'active-btn')}
 				loading={authStore.isLoading}
 				type="submit"
 			>
-				Войти
+				{t(($) => $.login.submit)}
 			</Button>
 		</form>
 	);
