@@ -1,2 +1,3 @@
-export { default as FileUploader } from './file-uploader';
-export { default as ScrollToTop } from './scroll-to-top';
+export { ClearInputButton } from './clear-input-button';
+export { FileUploader } from './file-uploader';
+export { ScrollToTop } from './scroll-to-top';

@@ -1,1 +1,1 @@
-export { buildName, buildRenamedFiles, downloadAsZip, share } from './utils';
+export { buildName, buildRenamedFiles, downloadAsZip, formatFileSize, share } from './utils';

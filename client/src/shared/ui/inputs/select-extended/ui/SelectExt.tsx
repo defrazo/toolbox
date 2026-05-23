@@ -26,7 +26,7 @@ interface SelectExtProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'
 	addStyle?: string;
 }
 
-const SelectExt = ({
+export const SelectExt = ({
 	options,
 	value,
 	onChange,
@@ -117,5 +117,3 @@ const SelectExt = ({
 		</div>
 	);
 };
-
-export default SelectExt;

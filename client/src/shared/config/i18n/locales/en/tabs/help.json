@@ -21,27 +21,58 @@
 	},
 	"tools": {
 		"renamer": {
-			"title": "File renamer",
-			"subtitle": "Bulk renames files using the pattern: prefix + sequence number + suffix. The result is downloaded as a ZIP archive.",
+			"title": "File Renamer",
+			"subtitle": "Bulk-rename files using a template. Download the result as a ZIP archive.",
 			"steps": [
-				"Click “Upload files” or drag files into the upload area. Maximum 100 files at a time.",
-				"Enter a prefix (before the number) and suffix (after the number). Example: photo_ and _2025 → photo_01_2025.jpg.",
-				"Check the preview result in the “Before” and “After” columns.",
-				"Click “Download” — the files will be downloaded as a ZIP archive with new names (file quality and size remain unchanged)."
-			],
-			"hints": [
-				"The “Add files” button at the bottom allows you to extend the list without resetting it. “Clear” completely resets the list."
+				{
+					"id": "upload",
+					"title": "Upload files",
+					"subtitle": "Drag and drop or select up to 100 files",
+					"icon": "CloudUpload"
+				},
+				{
+					"id": "edit",
+					"title": "Configure the name",
+					"subtitle": "Set a prefix and suffix",
+					"icon": "RectangleEllipsis"
+				},
+				{
+					"id": "check",
+					"title": "Preview the result",
+					"subtitle": "Review the new filenames before downloading",
+					"icon": "FileSearchCorner"
+				},
+				{
+					"id": "download",
+					"title": "Download ZIP",
+					"subtitle": "Save the archive with renamed files",
+					"icon": "CloudDownload"
+				}
 			]
 		},
 		"shortener": {
-			"title": "Link shortener",
-			"subtitle": "Turns long URLs into short ones. Supports social sharing, clipboard copy, and QR code generation.",
+			"title": "Link Shortener",
+			"subtitle": "Turns long URLs into short ones. Share on social media, copy to clipboard, or generate a QR code.",
 			"steps": [
-				"Paste a link into the “Long URL” field and click “Shorten”.",
-				"Copy the result using the “Copy” button or share it directly via VK, Telegram, or WhatsApp.",
-				"Click “QR code” — an image will appear that you can save with a screenshot."
-			],
-			"hints": []
+				{
+					"id": "input",
+					"title": "Paste your link",
+					"subtitle": "Enter or paste any long URL",
+					"icon": "TextCursorInput"
+				},
+				{
+					"id": "short",
+					"title": "Shorten the link",
+					"subtitle": "Click the \"Shorten\" button and get a short link.",
+					"icon": "Link2"
+				},
+				{
+					"id": "share",
+					"title": "Share the result",
+					"subtitle": "Copy, share, or scan the QR code",
+					"icon": "Share2"
+				}
+			]
 		}
 	},
 	"account": {
@@ -64,18 +95,22 @@
 	},
 	"faq": [
 		{
+			"id": "renamer-download",
 			"question": "Why is the “Download” button disabled?",
 			"answer": "The button becomes active only after at least one file has been added."
 		},
 		{
+			"id": "renamer-limit",
 			"question": "Can I add more than 100 files?",
 			"answer": "No, the current limit is 100 files per batch. For larger volumes, split the files into several groups."
 		},
 		{
+			"id": "renamer-upload",
 			"question": "Are my files uploaded to the server?",
 			"answer": "No. Renaming happens directly in the browser, and the files never leave your device."
 		},
 		{
+			"id": "shortener-error",
 			"question": "The link is not shortening — what should I do?",
 			"answer": "Make sure the URL starts with https:// and is a valid address. If the error persists, try again later."
 		}

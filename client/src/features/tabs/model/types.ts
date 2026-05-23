@@ -1,3 +1,3 @@
-export type TabId = 'home' | 'renamer' | 'shortener' | 'settings' | 'help';
+import type { TabId } from '.';
 
 export type Tab = { id: TabId; title: string };

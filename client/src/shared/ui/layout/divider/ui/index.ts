@@ -1,2 +1,2 @@
 export { AuthDivider } from './AuthDivider';
-export { default } from './Divider';
+export { Divider } from './Divider';

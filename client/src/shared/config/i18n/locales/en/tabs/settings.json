@@ -7,11 +7,13 @@
 		"title": "Account",
 		"avatar": {
 			"alt": "User avatar",
+			"optionAlt": "Avatar {{number}}",
 			"apply": "Apply avatar"
 		},
 		"password": {
 			"change": "Change password",
 			"save": "Save password",
+			"hide": "Cancel",
 			"old": "Enter old password",
 			"new": "Enter new password",
 			"confirm": "Repeat new password"
@@ -21,7 +23,6 @@
 		"title": "General",
 		"theme": {
 			"label": "Appearance",
-			"placeholder": "Select",
 			"system": "System",
 			"dark": "Dark",
 			"light": "Light"

@@ -1,37 +1,41 @@
+import { type ChangeEvent, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, File, Plus, Trash2, X } from 'lucide-react';
+import { Download, File, Plus, Trash2 } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
-import { Button, FileUploader, Input } from '@/shared/ui';
+import { Button, ClearInputButton, FileUploader, Input } from '@/shared/ui';
 
 import { buildRenamedFiles, downloadAsZip } from '../lib';
-import { useRenamer } from '../model';
+import { RenamerProvider, useRenamerContext } from '../model';
+import { FileArea } from './components/renamer';
 
 export const TabRenamer = () => {
+	return (
+		<RenamerProvider>
+			<TabRenamerContent />
+		</RenamerProvider>
+	);
+};
+
+const TabRenamerContent = () => {
 	const { t } = useTranslation('renamer');
 
-	const { files, setFiles, prefix, setPrefix, suffix, setSuffix, preview, reset } = useRenamer();
+	const { files, prefix, setPrefix, suffix, setSuffix, preview, reset, handleIncomingFiles } = useRenamerContext();
 
-	const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const uploadRef = useRef<HTMLInputElement>(null);
+
+	const handleFiles = (e: ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) return;
 
-		const newFiles = Array.from(e.target.files);
-
-		setFiles((prev) => {
-			const merged = [...prev, ...newFiles];
-			return merged.slice(0, 100);
-		});
+		handleIncomingFiles(Array.from(e.target.files));
+		e.target.value = '';
 	};
-
-	const fileContainers = [
-		{ title: t(($) => $.files.before), statusColor: 'bg-(--status-warning)', getName: (file: any) => file.oldName },
-		{ title: t(($) => $.files.after), statusColor: 'bg-(--status-success)', getName: (file: any) => file.newName },
-	];
 
 	return (
 		<>
-			<div className="core-border flex bg-(--bg-tertiary)/70">
+			<div className="core-border flex flex-col bg-(--bg-tertiary)/70 shadow-(--shadow) md:flex-row">
 				<FileUploader
+					ref={uploadRef}
 					className={cn('m-1 flex-1 rounded-lg', files.length === 0 && 'active-btn')}
 					disabled={files.length !== 0}
 					icon={<File />}
@@ -52,69 +56,33 @@ export const TabRenamer = () => {
 					{t(($) => $.upload.download)}
 				</Button>
 			</div>
-			<div className="flex min-h-0 flex-1 flex-col gap-4">
-				<div className="core-border flex items-center justify-between gap-4 bg-(--bg-secondary)/50 p-4">
-					<span className="text-lg select-none">{t(($) => $.rename.title)}:</span>
-					<div className="relative flex flex-1 items-center gap-2">
+			<div className="core-gap flex min-h-0 flex-1 flex-col">
+				<div className="core-border core-gap core-pad flex flex-col items-center justify-between bg-(--bg-secondary)/50 shadow-(--shadow) xl:flex-row">
+					<span className="mr-auto text-lg select-none">{t(($) => $.rename.title)}:</span>
+					<div className="relative flex w-full flex-1 flex-col items-center gap-2 md:flex-row">
 						<Input
 							className={cn('text-center', prefix === '' && 'pr-2')}
 							placeholder={t(($) => $.rename.prefixPlaceholder)}
-							rightIcon={
-								<X
-									className={cn(
-										'size-8 cursor-pointer p-2 opacity-50 transition-transform hover:scale-125 hover:text-(--accent-secondary-hover) hover:opacity-100',
-										prefix === '' && 'hidden'
-									)}
-									onClick={() => setPrefix('')}
-								/>
-							}
+							rightIcon={<ClearInputButton hidden={prefix === ''} onClick={() => setPrefix('')} />}
 							value={prefix}
 							onChange={(e) => setPrefix(e.target.value)}
 						/>
-						<span className="text-xl select-none">№</span>
+						<span className="hidden text-xl select-none md:block">№</span>
 						<Input
 							className={cn('text-center', suffix === '' && 'pr-2')}
 							placeholder={t(($) => $.rename.suffixPlaceholder)}
-							rightIcon={
-								<X
-									className={cn(
-										'size-8 cursor-pointer p-2 opacity-50 transition-transform hover:scale-125 hover:text-(--accent-secondary-hover) hover:opacity-100',
-										suffix === '' && 'hidden'
-									)}
-									onClick={() => setSuffix('')}
-								/>
-							}
+							rightIcon={<ClearInputButton hidden={suffix === ''} onClick={() => setSuffix('')} />}
 							value={suffix}
 							onChange={(e) => setSuffix(e.target.value)}
 						/>
 					</div>
 				</div>
-				<div className="flex min-h-0 flex-1 justify-between gap-4" tabIndex={-1}>
-					{fileContainers.map(({ title, statusColor, getName }) => (
-						<div
-							key={title}
-							className="core-border flex min-h-0 max-w-88 flex-1 flex-col gap-4 bg-(--bg-secondary)/50 p-4"
-						>
-							<div className="flex items-center gap-2">
-								<div className={cn('mt-0.5 size-3 rounded-full', statusColor)} />
-								<span className="text-lg leading-4 select-none">{title}</span>
-							</div>
-							<div className="hide-scrollbar flex-1 overflow-y-auto rounded-lg bg-(--bg-tertiary)/70">
-								{preview.map((file, idx) => (
-									<div key={idx} className="border-b border-(--border-color) px-3 py-2">
-										<span className="text-(--color-disabled)">№ {idx + 1}.</span>{' '}
-										<span className="wrap-break-word">{getName(file)}</span>
-									</div>
-								))}
-							</div>
-						</div>
-					))}
-				</div>
-				<div className="core-border flex items-center justify-between gap-2 bg-(--bg-secondary)/50 p-4">
-					<div className="min-w-40 rounded-full bg-(--accent-primary-dark) px-4 py-2 text-center text-sm text-(--color-accent) select-none">
+				<FileArea uploadRef={uploadRef} />
+				<div className="core-border core-pad core-gap flex flex-col items-center justify-between bg-(--bg-secondary)/50 shadow-(--shadow) lg:flex-row">
+					<div className="hidden min-w-40 rounded-xl bg-(--accent-primary-dark) px-4 py-2 text-center text-sm text-(--color-accent) select-none lg:block">
 						{t(($) => $.files.selectedFiles, { count: preview.length })}
 					</div>
-					<div className="flex w-1/2 gap-2">
+					<div className="core-gap flex w-full flex-col md:flex-row lg:w-1/2">
 						<FileUploader
 							className={cn('flex-1 bg-(--bg-tertiary)', files.length >= 1 && 'active-btn')}
 							disabled={files.length === 0}
@@ -123,7 +91,7 @@ export const TabRenamer = () => {
 							onUpload={handleFiles}
 						/>
 						<Button
-							className={cn('flex-1', files.length >= 1 && 'pointer-events-auto')}
+							className={cn('flex-1 hover:shadow-(--shadow)', files.length >= 1 && 'pointer-events-auto')}
 							disabled={files.length === 0}
 							leftIcon={<Trash2 />}
 							onClick={reset}

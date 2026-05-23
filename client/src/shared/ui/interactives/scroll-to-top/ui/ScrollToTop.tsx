@@ -4,7 +4,7 @@ import { ArrowUp } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/inputs';
 
-const ScrollToTop = () => {
+export const ScrollToTop = () => {
 	const [visible, setVisible] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -29,5 +29,3 @@ const ScrollToTop = () => {
 		/>
 	);
 };
-
-export default ScrollToTop;

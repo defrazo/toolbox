@@ -19,6 +19,12 @@ type TabConfig = {
 	layout: Layout;
 };
 
+const LAYOUT_CLASSES: Record<Layout, string> = {
+	page: 'lg:p-6 2xl:p-12 lg:justify-between',
+	workspace: 'lg:max-w-3xl lg:p-6 ',
+	screen: 'lg:h-full lg:max-w-3xl lg:p-6',
+};
+
 const TabContainer = observer(() => {
 	const { t: tHome } = useTranslation('home');
 	const { t: tSettings } = useTranslation('settings');
@@ -33,15 +39,15 @@ const TabContainer = observer(() => {
 			component: TabRenamer,
 			title: tRenamer(($) => $.meta.pageTitle),
 			subtitle: tRenamer(($) => $.meta.pageSubtitle),
-			icon: TOOLS.find((tool) => tool.id === 'renamer')!.icon,
-			layout: 'tool',
+			icon: TOOLS.renamer.icon,
+			layout: TOOLS.renamer.layout,
 		},
 		shortener: {
 			component: TabShortener,
 			title: tShortener(($) => $.meta.pageTitle),
 			subtitle: tShortener(($) => $.meta.pageSubtitle),
-			icon: TOOLS.find((tool) => tool.id === 'shortener')!.icon,
-			layout: 'tool',
+			icon: TOOLS.shortener.icon,
+			layout: TOOLS.shortener.layout,
 		},
 	};
 
@@ -58,7 +64,7 @@ const TabContainer = observer(() => {
 			title: tSettings(($) => $.meta.title),
 			subtitle: tSettings(($) => $.meta.subtitle),
 			icon: Settings,
-			layout: 'tool',
+			layout: 'workspace',
 		},
 		help: {
 			component: TabHelp,
@@ -71,30 +77,33 @@ const TabContainer = observer(() => {
 	};
 
 	const activeTab = tabsStore.tab;
-	const { component: TabComponent, title, subtitle, icon, layout } = TABS[activeTab ?? 'home'];
+	const { component: TabComponent, title, subtitle, icon, layout } = TABS[activeTab];
 
 	usePageTitle(title);
 
 	return (
-		<div className="hide-scrollbar core-border relative z-0 flex size-full min-h-0 cursor-default flex-col overflow-x-hidden overflow-y-auto bg-(--bg-global) shadow-(--shadow)">
-			<div
-				className={cn(
-					'z-10 mx-auto flex size-full flex-col gap-8',
-					layout === 'tool' ? 'max-w-3xl p-6' : 'justify-between p-12'
+		<div className="core-border relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)">
+			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+				<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px]" />
+
+				{layout !== 'page' && (
+					<div className="bottom-0 left-0 hidden size-100 -translate-x-1/2 translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px] xl:absolute" />
 				)}
-			>
-				{activeTab !== 'home' && <TabTitle icon={icon} subtitle={subtitle} title={title} />}
-				<TabComponent />
 			</div>
-			{activeTab === 'home' && <TabFooter />}
-			{layout === 'tool' ? (
-				<>
-					<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#7a5cff]/40 blur-[120px]" />
-					<div className="absolute bottom-0 left-0 size-100 -translate-x-1/2 translate-y-1/2 rounded-full bg-[#7a5cff]/40 blur-[120px]" />
-				</>
-			) : (
-				<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#7a5cff]/40 blur-[120px]" />
-			)}
+
+			<div className="hide-scrollbar relative z-20 flex size-full min-h-0 flex-col overflow-x-hidden overflow-y-auto">
+				<div
+					className={cn(
+						'flex w-full flex-1 flex-col gap-4 p-3 lg:mx-auto lg:gap-6 2xl:gap-8',
+						LAYOUT_CLASSES[layout]
+					)}
+				>
+					{activeTab !== 'home' && <TabTitle icon={icon} subtitle={subtitle} title={title} />}
+					<TabComponent />
+				</div>
+
+				{activeTab === 'home' && <TabFooter />}
+			</div>
 		</div>
 	);
 });

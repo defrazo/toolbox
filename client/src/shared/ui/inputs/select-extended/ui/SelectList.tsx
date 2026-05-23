@@ -38,11 +38,11 @@ export const SelectList = ({
 	return (
 		<ul
 			className={cn(
-				'hide-scrollbar absolute right-0 z-30 max-h-48 w-full min-w-max overflow-y-auto rounded-xl border-solid border-(--accent-primary-hover-op) bg-(--bg-tertiary) text-center backdrop-blur-sm',
+				'hide-scrollbar absolute right-0 z-30 max-h-48 w-full min-w-max overflow-y-auto rounded-xl border-solid border-(--accent-primary-hover-op) bg-(--bg-tertiary) text-center shadow-(--shadow) backdrop-blur-sm',
 				addStyle,
 				openUpwards
-					? `bottom-full border ${variant === 'embedded' && 'rounded-b-none border-b-0'}`
-					: `top-full border ${variant === 'embedded' && 'rounded-t-none border-t-0'}`
+					? `bottom-full mb-0.5 border ${variant === 'embedded' && 'rounded-b-none border-b-0'}`
+					: `top-full mt-0.5 border ${variant === 'embedded' && 'rounded-t-none border-t-0'}`
 			)}
 			role="listbox"
 			tabIndex={-1}
@@ -69,7 +69,7 @@ export const SelectList = ({
 					key={option.value}
 					aria-selected={option.value === value}
 					className={cn(
-						'flex w-full cursor-pointer items-center gap-2 p-2 text-sm whitespace-nowrap hover:bg-(--accent-primary-hover) hover:text-(--accent-text)',
+						'flex w-full cursor-pointer items-center gap-2 p-2 text-sm whitespace-nowrap hover:bg-(--accent-primary-hover) hover:text-(--accent-primary-text)',
 						justifies[justify],
 						option.value === value && 'text-(--accent-hover)'
 					)}
@@ -98,7 +98,7 @@ export const SelectList = ({
 									return <Icon className="size-6" />;
 								})()
 							))}
-						<span className="font-bold">{option.label}</span>
+						<span className="">{option.label}</span>
 						{visibleKey && <span>{option.key}</span>}
 					</div>
 				</li>

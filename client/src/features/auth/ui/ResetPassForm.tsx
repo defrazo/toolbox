@@ -35,7 +35,7 @@ export const ResetPassForm = observer(() => {
 	let PassIcon = showPassword ? EyeClosed : Eye;
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-4" name="reset-pass-form" onSubmit={handleSubmit}>
 			<div className="relative">
 				<Input
 					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
@@ -47,7 +47,7 @@ export const ResetPassForm = observer(() => {
 					placeholder={t(($) => $.fields.password.placeholder)}
 					rightIcon={
 						<PassIcon
-							className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
+							className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
 							onClick={() => setShowPassword((prev) => !prev)}
 						/>
 					}
@@ -73,7 +73,7 @@ export const ResetPassForm = observer(() => {
 				placeholder={t(($) => $.fields.passConfirm.placeholder)}
 				rightIcon={
 					<PassIcon
-						className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
+						className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
 						onClick={() => setShowPassword((prev) => !prev)}
 					/>
 				}
@@ -82,7 +82,10 @@ export const ResetPassForm = observer(() => {
 				onChange={(e) => setPassConfirm(e.target.value)}
 			/>
 			<Button
-				className={cn('mt-4 h-10 w-full', password !== '' && passConfirm !== '' && 'active-btn')}
+				className={cn(
+					'mt-4 h-10 w-full bg-(--bg-secondary)',
+					password !== '' && passConfirm !== '' && 'active-btn'
+				)}
 				disabled={!isPasswordValid}
 				loading={authStore.isLoading}
 				type="submit"

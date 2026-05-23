@@ -30,7 +30,7 @@ export const LoginForm = observer(() => {
 	const PassIcon = showPass ? EyeClosed : Eye;
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-4" name="login-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
@@ -52,7 +52,7 @@ export const LoginForm = observer(() => {
 				placeholder={t(($) => $.fields.password.placeholder)}
 				rightIcon={
 					<PassIcon
-						className="size-5 cursor-pointer hover:text-(--accent-primary-hover)"
+						className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
 						onClick={() => setShowPass((prev) => !prev)}
 					/>
 				}
@@ -64,7 +64,7 @@ export const LoginForm = observer(() => {
 				{t(($) => $.login.forgotPass)}
 			</Link>
 			<Button
-				className={cn('mt-4 h-10 w-full', email !== '' && password !== '' && 'active-btn')}
+				className={cn('mt-4 h-10 w-full bg-(--bg-secondary)', email !== '' && password !== '' && 'active-btn')}
 				loading={authStore.isLoading}
 				type="submit"
 			>

@@ -1,1 +1,1 @@
-export { AuthDivider, default as Divider } from './divider';
+export { AuthDivider, Divider } from './divider';

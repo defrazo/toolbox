@@ -1,1 +1,1 @@
-export { AuthDivider, default } from './ui';
+export { AuthDivider, Divider } from './ui';

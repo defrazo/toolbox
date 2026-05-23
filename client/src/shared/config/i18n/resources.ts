@@ -1,5 +1,5 @@
-import { authEn, commonEn, helpEn, homeEn, navEn, renamerEn, settingsEn, shortenerEn } from './locales/en';
-import { authRu, commonRu, helpRu, homeRu, navRu, renamerRu, settingsRu, shortenerRu } from './locales/ru';
+import { authEn, commonEn, helpEn, homeEn, navEn, notFoundEn, renamerEn, settingsEn, shortenerEn } from './locales/en';
+import { authRu, commonRu, helpRu, homeRu, navRu, notFoundRu, renamerRu, settingsRu, shortenerRu } from './locales/ru';
 
 export const defaultNS = 'common';
 
@@ -10,6 +10,7 @@ export const resources = {
 		help: helpRu,
 		home: homeRu,
 		nav: navRu,
+		notFound: notFoundRu,
 		renamer: renamerRu,
 		settings: settingsRu,
 		shortener: shortenerRu,
@@ -20,6 +21,7 @@ export const resources = {
 		help: helpEn,
 		home: homeEn,
 		nav: navEn,
+		notFound: notFoundEn,
 		renamer: renamerEn,
 		settings: settingsEn,
 		shortener: shortenerEn,

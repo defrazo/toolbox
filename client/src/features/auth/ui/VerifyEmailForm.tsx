@@ -27,7 +27,7 @@ export const VerifyEmailForm = observer(() => {
 	};
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-4" name="verify-email-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={
@@ -41,7 +41,7 @@ export const VerifyEmailForm = observer(() => {
 			/>
 
 			<Button
-				className={cn('mt-4 h-10 w-full', email !== '' && 'active-btn')}
+				className={cn('mt-4 h-10 w-full bg-(--bg-secondary)', email !== '' && 'active-btn')}
 				loading={authStore.isLoading}
 				type="submit"
 			>

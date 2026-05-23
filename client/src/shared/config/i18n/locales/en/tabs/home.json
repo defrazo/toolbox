@@ -36,5 +36,9 @@
 	"promo": {
 		"title": "ToolBox – your tasks, our tools",
 		"subtitle": "A simple, fast and convenient set of everyday tools"
+	},
+	"errors": {
+		"paste": "Failed to paste URL from clipboard",
+		"empty": "Clipboard is empty"
 	}
 }

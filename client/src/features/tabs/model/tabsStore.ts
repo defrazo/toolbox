@@ -1,6 +1,12 @@
 import { makeAutoObservable, reaction } from 'mobx';
 
-import type { TabId } from '.';
+const VALID_TABS = ['home', 'renamer', 'shortener', 'settings', 'help'] as const;
+
+export type TabId = (typeof VALID_TABS)[number];
+
+const isValidTab = (value: string): value is TabId => {
+	return VALID_TABS.includes(value as TabId);
+};
 
 export class TabsStore {
 	tab: TabId = 'home';
@@ -9,20 +15,52 @@ export class TabsStore {
 		this.tab = id;
 	}
 
+	private initFromUrl(): boolean {
+		const params = new URLSearchParams(window.location.search);
+		const tabParam = params.get('tab');
+		const hasUnknownParams = [...params.keys()].some((key) => key !== 'tab');
+
+		if (hasUnknownParams) {
+			window.location.replace('/404');
+			return false;
+		}
+
+		if (!params.has('tab')) return true;
+
+		if (tabParam && isValidTab(tabParam)) {
+			this.tab = tabParam;
+			return true;
+		}
+
+		window.location.replace('/404');
+		return false;
+	}
+
+	private syncUrl(): void {
+		if (!this.isHomePage()) return;
+
+		const url = new URL(window.location.href);
+		url.searchParams.set('tab', this.tab);
+		window.history.replaceState({}, '', url);
+	}
+
+	private isHomePage(): boolean {
+		return window.location.pathname === '/';
+	}
+
 	constructor() {
 		makeAutoObservable(this);
 
-		const params = new URLSearchParams(window.location.search);
-		const tabParam = params.get('tab') as TabId | null;
-		if (tabParam) this.tab = tabParam;
+		if (!this.isHomePage()) return;
+
+		const isValidUrl = this.initFromUrl();
+		if (!isValidUrl) return;
+
+		this.syncUrl();
 
 		reaction(
 			() => this.tab,
-			(tab) => {
-				const url = new URL(window.location.href);
-				url.searchParams.set('tab', tab);
-				window.history.replaceState({}, '', url);
-			}
+			() => this.syncUrl()
 		);
 	}
 }

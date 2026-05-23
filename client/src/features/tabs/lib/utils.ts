@@ -38,5 +38,32 @@ export const downloadAsZip = async (files: File[]) => {
 
 	const content = await zip.generateAsync({ type: 'blob' });
 
-	saveAs(content, 'renamed.zip');
+	const now = new Date();
+	const formatter = new Intl.DateTimeFormat('ru-RU', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		hour12: false,
+	});
+
+	const formattedDate = formatter
+		.format(now)
+		.replace(/(\d{2})\.(\d{2})\.(\d{4}),/, '$3-$2-$1')
+		.replace(/:/g, '-')
+		.replace(/, /, '_');
+
+	saveAs(content, `Renamed_${formattedDate}.zip`);
+};
+
+export const formatFileSize = (bytes: number): string => {
+	if (bytes === 0) return '0 B';
+
+	const k = 1024;
+	const sizes = ['B', 'KB', 'MB', 'GB'];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };

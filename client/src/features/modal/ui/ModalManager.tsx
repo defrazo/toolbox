@@ -4,7 +4,7 @@ import { useStore } from '@/app/providers';
 
 import { Modal } from '.';
 
-const ModalManager = () => {
+export const ModalManager = observer(() => {
 	const { modalStore } = useStore();
 
 	const modal = modalStore.modal;
@@ -19,6 +19,4 @@ const ModalManager = () => {
 			{modal.content}
 		</Modal>
 	);
-};
-
-export default observer(ModalManager);
+});

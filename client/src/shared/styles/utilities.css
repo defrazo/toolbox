@@ -3,6 +3,14 @@
 		@apply rounded-xl border border-(--border-color);
 	}
 
+	.core-pad {
+		@apply p-2 lg:p-3 2xl:p-5;
+	}
+
+	.core-gap {
+		@apply gap-2 lg:gap-3 2xl:gap-4;
+	}
+
 	.active-btn {
 		@apply pointer-events-auto bg-(image:--gradient-primary) font-medium text-(--accent-primary-text) transition duration-200 ease-out hover:-translate-y-px hover:shadow-(--shadow-primary);
 	}

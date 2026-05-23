@@ -13,7 +13,8 @@
 	"result": {
 		"label": "Your short link",
 		"copy": "Copy",
-		"copied": "Link copied!"
+		"copied": "Link copied!",
+		"error": "Something went wrong"
 	},
 	"share": {
 		"title": "Share via",

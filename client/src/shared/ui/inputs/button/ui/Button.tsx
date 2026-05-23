@@ -1,13 +1,10 @@
-import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from 'react';
 
 import { getComponentStyles, sizes, variants } from '@/shared/lib/design';
 import { cn } from '@/shared/lib/utils';
 import { Preloader } from '@/shared/ui';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-	navigateTo?: string;
-	href?: string;
 	loading?: boolean;
 	active?: boolean;
 	leftIcon?: ReactNode;
@@ -16,78 +13,53 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: keyof typeof variants.button;
 	size?: keyof typeof sizes.button;
 	error?: boolean;
-	target?: string;
-	rel?: string;
 }
 
-const Button = ({
-	navigateTo,
-	href,
-	onClick,
-	loading = false,
-	active = false,
-	leftIcon,
-	centerIcon,
-	rightIcon,
-	children,
-	variant = 'default',
-	size = 'md',
-	error = false,
-	className,
-	target,
-	rel,
-	...props
-}: ButtonProps) => {
-	const navigate = useNavigate();
-	const isDisabled = props.disabled || loading;
-	const styles = getComponentStyles({ variant, size, active, error, disabled: isDisabled, component: 'button' });
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+	(
+		{
+			loading = false,
+			active = false,
+			leftIcon,
+			centerIcon,
+			rightIcon,
+			children,
+			variant = 'default',
+			size = 'md',
+			error = false,
+			className,
+			disabled,
+			...props
+		},
+		ref
+	) => {
+		const isDisabled = disabled || loading;
 
-	const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-		if (isDisabled) return e.preventDefault();
+		const styles = getComponentStyles({
+			variant,
+			size,
+			active,
+			error,
+			disabled: isDisabled,
+			component: 'button',
+		});
 
-		if (navigateTo) {
-			e.preventDefault();
-			navigate(navigateTo);
-		}
+		const content = loading ? (
+			<Preloader className="size-6 border-3 border-t-(--border-color)" />
+		) : (
+			<>
+				{leftIcon && <span className="mr-2">{leftIcon}</span>}
+				{centerIcon ? centerIcon : children}
+				{rightIcon && <span className="ml-2">{rightIcon}</span>}
+			</>
+		);
 
-		onClick?.(e);
-	};
-
-	if (href) {
 		return (
-			<a className={cn(styles, className, 'group')} href={href} rel={rel} target={target}>
-				{loading ? (
-					<Preloader className="size-6 border-3 border-t-(--border-color)" />
-				) : (
-					<>
-						{leftIcon && <span className="mr-2">{leftIcon}</span>}
-						{centerIcon ? <span>{centerIcon}</span> : children}
-						{rightIcon && <span className="ml-2">{rightIcon}</span>}
-					</>
-				)}
-			</a>
+			<button ref={ref} className={cn(styles, className, 'group')} disabled={isDisabled} type="button" {...props}>
+				{content}
+			</button>
 		);
 	}
+);
 
-	return (
-		<button
-			className={cn(styles, className, 'group')}
-			disabled={isDisabled}
-			type="button"
-			onClick={handleClick}
-			{...props}
-		>
-			{loading ? (
-				<Preloader className="size-6 border-3 border-t-(--border-color)" />
-			) : (
-				<>
-					{leftIcon && <span className="mr-2">{leftIcon}</span>}
-					{centerIcon ? centerIcon : children}
-					{rightIcon && <span className="ml-2">{rightIcon}</span>}
-				</>
-			)}
-		</button>
-	);
-};
-
-export default Button;
+Button.displayName = 'Button';

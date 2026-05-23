@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { FileLock, ShieldCheck } from 'lucide-react';
 
-import { TOOLS } from '@/entities/tool';
+import { TOOLS_LIST } from '@/entities/tool';
 import { Logo } from '@/shared/ui';
 
 export const AuthSidebar = () => {
@@ -15,7 +15,7 @@ export const AuthSidebar = () => {
 	};
 
 	const displayFeatures = [
-		...TOOLS.map((tool) => ({ ...tool, ...toolOverrides[tool.id] })),
+		...TOOLS_LIST.map((tool) => ({ ...tool, ...toolOverrides[tool.id] })),
 		{
 			title: tAuth(($) => $.sidebar.features.security.title),
 			subtitle: tAuth(($) => $.sidebar.features.security.subtitle),
@@ -24,8 +24,8 @@ export const AuthSidebar = () => {
 	];
 
 	return (
-		<div className="relative z-0 h-full w-lg pl-4 select-none">
-			<div className="relative z-10 flex h-full flex-col gap-16 rounded-l-xl border-t border-b border-l border-(--border-color) p-12">
+		<div className="relative z-0 h-full min-w-0 pl-4 select-none xl:w-lg">
+			<div className="relative z-10 hidden h-full flex-col gap-16 rounded-l-xl border-t border-b border-l border-(--border-color) p-12 lg:flex">
 				<Logo />
 				<div className="flex flex-col gap-6">
 					<h1 className="text-4xl font-bold whitespace-pre-line text-(--accent-primary-text)">
@@ -35,9 +35,9 @@ export const AuthSidebar = () => {
 					<h2 className="text-lg text-(--color-secondary)">{tAuth(($) => $.sidebar.title.subtitle)}</h2>
 				</div>
 				<div className="flex flex-1 flex-col gap-10">
-					{displayFeatures.map(({ title, subtitle, icon: Icon }, idx) => {
+					{displayFeatures.map(({ title, subtitle, icon: Icon }) => {
 						return (
-							<div key={idx} className="flex items-center gap-4">
+							<div key={title} className="flex items-center gap-4">
 								<div className="aspect-square size-14 rounded-xl bg-(--accent-primary-dark) p-3">
 									<Icon className="size-full text-(--color-accent)" />
 								</div>

@@ -1,0 +1,25 @@
+{
+	"title": {
+		"line": "Page not found",
+		"line1": "Page",
+		"line2Accent": "not found"
+	},
+	"subtitle": "It looks like this page doesn’t exist.\nIt may have been removed or moved",
+	"actionsTitle": "What can you do?",
+
+	"buttons": {
+		"home": {
+			"title": "Go to homepage",
+			"subtitle": "Return to the start page"
+		},
+		"back": {
+			"title": "Go back",
+			"subtitle": "Return to the previous page"
+		}
+	},
+
+	"help": {
+		"title": "Need help?",
+		"contact": "Contact support"
+	}
+}

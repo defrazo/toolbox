@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
 import { type Language, languageOptions } from '@/shared/config/i18n';
-import { Select } from '@/shared/ui';
+import { SelectExt } from '@/shared/ui';
 
-const LanguageSelect = () => {
+export const LanguageSelect = ({ className }: { className?: string }) => {
 	const { i18n } = useTranslation();
 
 	const currentLanguage = i18n.resolvedLanguage as Language;
@@ -13,8 +13,8 @@ const LanguageSelect = () => {
 	};
 
 	return (
-		<Select
-			className="w-36"
+		<SelectExt
+			className={className}
 			options={languageOptions}
 			placeholder="Выберите"
 			value={currentLanguage}
@@ -22,5 +22,3 @@ const LanguageSelect = () => {
 		/>
 	);
 };
-
-export default LanguageSelect;

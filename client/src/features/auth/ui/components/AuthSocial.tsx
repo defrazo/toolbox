@@ -27,7 +27,7 @@ export const AuthSocial = ({ type }: AuthSocialProps) => {
 	return (
 		<>
 			<Button
-				className="h-10 w-full bg-(--bg-secondary) text-sm hover:text-(--accent-text) md:text-base"
+				className="h-10 w-full bg-(--bg-secondary) text-sm md:text-base"
 				rightIcon={<IconGoogle className="size-5" />}
 				title={t(($) => $.tooltips.developer)}
 			>
@@ -35,7 +35,7 @@ export const AuthSocial = ({ type }: AuthSocialProps) => {
 			</Button>
 			{type === 'login' && (
 				<Button
-					className="h-10 w-full bg-(--bg-secondary) text-sm hover:text-(--accent-text) hover:opacity-100 md:text-base"
+					className="h-10 w-full bg-(--bg-secondary) text-sm hover:opacity-100 md:text-base"
 					rightIcon={<IconMask className="size-5" />}
 					onClick={handleDemo}
 				>

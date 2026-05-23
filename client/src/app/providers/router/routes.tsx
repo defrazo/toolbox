@@ -36,10 +36,6 @@ export const routes: RouteObject[] = [
 	},
 	{
 		path: '*',
-		element: (
-			<Layout>
-				<NotFoundPage />
-			</Layout>
-		),
+		element: <NotFoundPage />,
 	},
 ];

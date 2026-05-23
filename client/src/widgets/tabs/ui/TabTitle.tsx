@@ -1,18 +1,20 @@
+import type { LucideIcon } from 'lucide-react';
+
 interface TabTitleProps {
 	title: string;
 	subtitle: string;
-	icon: React.ElementType;
+	icon: LucideIcon;
 }
 
 export const TabTitle = ({ title, subtitle, icon: Icon }: TabTitleProps) => {
 	return (
-		<div className="flex h-12 items-center gap-4">
-			<div className="rounded-xl bg-(--accent-primary-dark) p-3">
-				<Icon className="size-8 text-(--color-accent)" />
+		<div className="core-gap flex h-8 items-center md:h-12">
+			<div className="rounded-xl bg-(--accent-primary-dark) p-2 lg:p-3">
+				<Icon className="size-5 text-(--color-accent) md:size-8" />
 			</div>
-			<div className="flex h-full flex-col justify-between pt-0.5 select-none">
-				<h1 className="text-2xl leading-4 font-semibold xl:text-3xl">{title}</h1>
-				<span className="leading-4 text-(--color-secondary)">{subtitle}</span>
+			<div className="flex flex-col justify-between select-none">
+				<h1 className="text-lg font-semibold md:text-2xl md:leading-tight xl:text-3xl">{title}</h1>
+				<span className="hidden text-sm text-(--color-secondary) md:block xl:text-base">{subtitle}</span>
 			</div>
 		</div>
 	);

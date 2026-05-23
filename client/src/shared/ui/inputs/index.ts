@@ -1,4 +1,4 @@
-export { default as Button } from './button';
-export { default as Input } from './input';
-export { default as Link } from './link';
-export { default as Select } from './select-extended';
+export { Button, ButtonLink } from './button';
+export { Input } from './input';
+export { Link } from './link';
+export { SelectExt } from './select-extended';

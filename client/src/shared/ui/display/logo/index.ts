@@ -1,1 +1,1 @@
-export { default } from './ui';
+export { Logo } from './ui';

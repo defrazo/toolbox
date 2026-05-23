@@ -1,1 +1,1 @@
-export { default } from './ui';
+export { Button, ButtonLink } from './ui';

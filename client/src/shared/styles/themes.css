@@ -57,6 +57,7 @@
 	--shadow-primary: 0 6px 30px rgba(91, 92, 255, 0.45), 0 0 25px rgba(77, 163, 255, 0.35);
 
 	/* Особые стили */
+	--bg-blob: #7a5cff;
 	--bg-mobile-sidebar: #252525;
 	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
 	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);
@@ -119,7 +120,9 @@
 	--shadow: 0 1px 2px 0px rgb(40 66 75 / 22%);
 
 	/* Особые стили */
-	--bg-mobile-sidebar: #d5d5d5;
+	/* --bg-mobile-sidebar: #d5d5d5; */
+	--bg-blob: transparent;
+	--bg-mobile-sidebar: #252525;
 	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
 	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);
 }

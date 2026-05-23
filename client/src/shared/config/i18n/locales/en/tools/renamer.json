@@ -9,6 +9,8 @@
 		"addFiles": "Add files",
 		"uploadFiles": "Upload files",
 		"download": "Download",
+		"dropFiles": "Drop files or click here",
+		"hint": "Up to 100 files. Maximum file size: 500 MB.",
 		"clear": "Clear"
 	},
 	"rename": {
@@ -24,5 +26,12 @@
 		"selectedFiles_zero": "No files selected",
 		"selectedFiles_one": "{{count}} file selected",
 		"selectedFiles_other": "{{count}} files selected"
+	},
+	"errors": {
+		"tooLarge": "File \"{{file}}\" exceeds the 500 MB limit",
+		"tooMany": "File limit reached",
+		"tooMany_one": "{{count}} file was not uploaded – limit exceeded",
+		"tooMany_few": "{{count}} files were not uploaded – limit exceeded",
+		"tooMany_many": "{{count}} files were not uploaded – limit exceeded"
 	}
 }
