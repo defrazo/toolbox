@@ -77,7 +77,7 @@ export const ToolsSection = () => {
 								</span>
 							</div>
 						</div>
-						<div className="mt-4 mb-3 h-px w-full bg-(--border-color) 2xl:mx-5 2xl:mt-0 2xl:mb-0 2xl:h-full 2xl:w-px" />
+						<div className="my-2 size-0 bg-(--border-color) 2xl:mx-5 2xl:mt-0 2xl:mb-0 2xl:h-full 2xl:w-px" />
 						<div className="flex flex-1 flex-col items-center gap-2 xl:flex-row xl:items-start">
 							{steps.map(({ id, title, subtitle, icon }, idx) => {
 								const Icon = toolsIconMap[icon];
@@ -85,11 +85,11 @@ export const ToolsSection = () => {
 									<React.Fragment key={id}>
 										<div
 											key={id}
-											className="flex w-full flex-1 flex-col items-center gap-2 pt-2.5 md:max-w-80 xl:w-auto xl:max-w-52"
+											className="flex w-full flex-1 flex-col items-center gap-2 md:max-w-80 xl:w-auto xl:max-w-52 xl:pt-2.5"
 										>
 											<div className="core-border relative w-full bg-(--accent-primary-dark)/30 p-4 2xl:p-6">
 												<Icon className="mx-auto size-14 text-(--color-accent) 2xl:size-16" />
-												<div className="absolute top-1 left-1 flex size-6 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-(--color-accent)/70 text-sm font-bold text-(--accent-primary-text) backdrop-blur-md 2xl:size-8">
+												<div className="absolute top-1 left-1 flex size-5 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-(--color-accent)/70 text-sm font-bold text-(--accent-primary-text) backdrop-blur-md 2xl:size-8">
 													{idx + 1}
 												</div>
 											</div>

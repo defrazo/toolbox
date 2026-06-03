@@ -1,14 +1,17 @@
 import axios from 'axios';
 
+import { TOKEN_KEY } from '../config';
+
 export const api = axios.create({
-	baseURL: '/',
-	withCredentials: true,
+	baseURL: '/api',
+	timeout: 30000,
+	headers: { Accept: 'application/json' },
+});
 
-	headers: {
-		'X-Requested-With': 'XMLHttpRequest',
-		Accept: 'application/json',
-	},
+api.interceptors.request.use((config) => {
+	const token = localStorage.getItem(TOKEN_KEY);
 
-	xsrfCookieName: 'XSRF-TOKEN',
-	xsrfHeaderName: 'X-XSRF-TOKEN',
+	if (token) config.headers.Authorization = `Bearer ${token}`;
+
+	return config;
 });

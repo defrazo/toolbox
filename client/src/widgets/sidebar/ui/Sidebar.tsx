@@ -17,7 +17,7 @@ export const Sidebar = () => {
 	const [isMinimized, setIsMinimized] = useState(false);
 
 	return (
-		<div className="flex h-full w-fit flex-col gap-4 px-4 ease-in-out">
+		<div className="flex h-full w-fit flex-col gap-4 pr-4 ease-in-out">
 			<div
 				className={cn(
 					'flex h-12 w-full items-center gap-2 transition-[width] duration-500',

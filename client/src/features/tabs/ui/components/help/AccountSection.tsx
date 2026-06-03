@@ -42,7 +42,7 @@ export const AccountSection = () => {
 				{tips.map(({ id, title, text, icon: Icon }) => (
 					<div
 						key={id}
-						className="core-border flex flex-1 flex-col items-center gap-2 bg-(--bg-secondary)/50 px-4 py-3 shadow-(--shadow)"
+						className="core-border flex flex-1 flex-col items-center gap-2 bg-(--bg-secondary)/50 px-3 py-3 shadow-(--shadow) 2xl:px-4"
 					>
 						<div className="mr-auto flex items-center gap-2">
 							<Icon className="mt-0.5 size-5 shrink-0 text-(--color-accent)" />

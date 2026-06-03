@@ -1,52 +1,95 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail } from 'lucide-react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { CircleAlert, LoaderCircle, MailCheck } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
-import { cn } from '@/shared/lib/utils';
-import { validateEmail } from '@/shared/lib/validators';
-import { Button, Input } from '@/shared/ui';
+import type { User } from '@/entities/user';
+import { api } from '@/shared/api';
+import { Button } from '@/shared/ui';
+
+type VerifiedData = { user: User; token: string };
+
+type Status = 'loading' | 'success' | 'error';
 
 export const VerifyEmailForm = observer(() => {
 	const { t } = useTranslation('auth');
+	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
+	const { userStore, authStore } = useStore();
 
-	const [email, setEmail] = useState('');
+	const { id, hash } = useParams();
+	const [searchParams] = useSearchParams();
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const [status, setStatus] = useState<Status>('loading');
+	const [verifiedData, setVerifiedData] = useState<VerifiedData | null>(null);
 
-		try {
-			await validateEmail(email);
-			// await authStore.verifyEmail(email, password);
-		} catch (error: any) {
-			notifyStore.setNotice(error.message || t(($) => $.verifyEmail.error), 'error');
+	const type = searchParams.get('type') ?? 'register';
+
+	const endpoint = type === 'pending' ? `/user/email/verify/${id}/${hash}` : `/email/verify/${id}/${hash}`;
+
+	useEffect(() => {
+		const expires = searchParams.get('expires');
+		const signature = searchParams.get('signature');
+
+		if (!id || !hash || !expires || !signature) {
+			setStatus('error');
+			return;
 		}
-	};
+
+		api.get(endpoint, { params: { expires, signature } })
+			.then((response) => {
+				if (type === 'pending') userStore.setUser(response.data.user);
+				else setVerifiedData(response.data);
+				setStatus('success');
+			})
+			.catch(() => setStatus('error'));
+	}, [id, hash, type, endpoint]);
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" name="verify-email-form" onSubmit={handleSubmit}>
-			<Input
-				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
-				leftIcon={
-					<div className="border-r border-(--border-color)">
-						<Mail className="mr-2 ml-1 size-5" />
-					</div>
-				}
-				placeholder={t(($) => $.fields.email.placeholder)}
-				value={email}
-				onChange={(e) => setEmail(e.target.value.trim())}
-			/>
+		<div className="flex flex-col items-center gap-2 select-none">
+			<div className="rounded-full border-3 border-(--color-accent) p-2 shadow-(--shadow-secondary) lg:p-3">
+				{status === 'loading' && <LoaderCircle className="size-8 animate-spin text-(--color-accent)" />}
+				{status === 'success' && <MailCheck className="size-8 text-(--color-accent)" />}
+				{status === 'error' && <CircleAlert className="size-8 text-(--color-accent)" />}
+			</div>
+			<h2 className="text-center text-2xl font-semibold">{t(($) => $.screens.verifyEmail.title)}</h2>
+			{status === 'loading' && (
+				<p className="text-justify text-(--color-secondary)">{t(($) => $.screens.verifyEmail.loading)}</p>
+			)}
+			{status === 'success' && (
+				<>
+					<p className="text-center whitespace-pre-line text-(--color-secondary)">
+						{t(($) => $.screens.verifyEmail.successMessage)}
+					</p>
+					<Button
+						className="active-btn mt-4 h-10 w-full"
+						disabled={type !== 'pending' && !verifiedData}
+						onClick={() => {
+							if (type !== 'pending') {
+								if (!verifiedData) return;
 
-			<Button
-				className={cn('mt-4 h-10 w-full bg-(--bg-secondary)', email !== '' && 'active-btn')}
-				loading={authStore.isLoading}
-				type="submit"
-			>
-				{t(($) => $.verifyEmail.submit)}
-			</Button>
-		</form>
+								authStore.setSession(verifiedData.user, verifiedData.token);
+							}
+
+							navigate('/');
+						}}
+					>
+						{t(($) => $.screens.verifyEmail.successButton)}
+					</Button>
+				</>
+			)}
+			{status === 'error' && (
+				<>
+					<p className="text-justify text-(--color-secondary)">
+						{t(($) => $.screens.verifyEmail.errorMessage)}
+					</p>
+					<Button className="active-btn mt-4 h-10 w-full" onClick={() => navigate('/email/verify')}>
+						{t(($) => $.screens.verifyEmail.errorButton)}
+					</Button>
+				</>
+			)}
+		</div>
 	);
 });

@@ -1,6 +1,4 @@
 export { validateEmail } from './email';
-export { validateLogin } from './login';
-export { validateName } from './name';
-export { validatePasswords } from './password';
-export { validatePhone } from './phone';
+export { validateInvite } from './invite';
+export { validatePassword } from './password';
 export { validateUsername } from './username';

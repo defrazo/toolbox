@@ -1,0 +1,41 @@
+{
+	"title": "Consent to the Processing of Personal Data",
+	"description": "By creating an account, you consent to the processing of the personal data you provide to the extent necessary for the operation of the service.",
+
+	"dataProcessing": {
+		"title": "What Data May Be Processed",
+		"email": "Email address;",
+		"username": "Username;",
+		"auth": "Authentication and session data required for account functionality.",
+		"passwords": "User passwords are stored in a hashed form and are not accessible to the service owner in plain text."
+	},
+
+	"purpose": {
+		"title": "Purpose of Data Processing",
+		"registration": "User registration and authentication;",
+		"account": "Providing account functionality;",
+		"recovery": "Account recovery;",
+		"verification": "Email address verification;",
+		"security": "Ensuring service security and preventing abuse."
+	},
+
+	"thirdParty": {
+		"title": "Third-Party Data Sharing",
+		"text": "Personal data is not sold or shared with third parties. The service uses Resend (resend.com) to send emails, which requires transferring the user's email address. Data may also be disclosed where required by applicable law."
+	},
+
+	"storage": {
+		"title": "Data Retention and Deletion",
+		"text": "Data is stored for as long as the account remains active. Users may request deletion of their account and associated data by contacting the service owner. Requests will be processed within 30 calendar days."
+	},
+
+	"access": {
+		"title": "Limited Access Mode",
+		"text": "ToolBox operates in an invite-only access mode and is provided for personal use, testing, and evaluation of its functionality."
+	},
+
+	"contact": {
+		"title": "Contact",
+		"text": "For questions regarding personal data processing or account deletion, please contact the service owner at:"
+	}
+}

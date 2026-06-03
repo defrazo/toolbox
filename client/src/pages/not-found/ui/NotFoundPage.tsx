@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ExternalLink, HelpCircle, HomeIcon, Undo2 } from 'lucide-react';
 
 import { NotFound } from '@/shared/assets/images';
+import { CONTACT_EMAIL } from '@/shared/config';
 import { usePageTitle } from '@/shared/lib/hooks';
 import { Logo } from '@/shared/ui';
 
@@ -82,7 +83,7 @@ const NotFoundPage = () => {
 						</div>
 						<a
 							className="flex items-center gap-2 text-(--color-accent) hover:underline"
-							href="mailto:defrazo@inbox.ru"
+							href={`mailto:${CONTACT_EMAIL}`}
 						>
 							{t(($) => $.help.contact)}
 							<ExternalLink className="hidden size-5 md:block" />

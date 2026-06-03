@@ -1,1 +1,1 @@
-export { login, logout } from './authApi';
+export { forgotPassword, login, logout, register, resendEmail, resetPassword, verifyInvite } from './auth';

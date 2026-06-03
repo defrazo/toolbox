@@ -5,6 +5,7 @@
 		"pageTitle": "Rename files",
 		"pageSubtitle": "Bulk rename files in just a few clicks"
 	},
+
 	"upload": {
 		"addFiles": "Add files",
 		"uploadFiles": "Upload files",
@@ -13,12 +14,14 @@
 		"hint": "Up to 100 files. Maximum file size: 500 MB.",
 		"clear": "Clear"
 	},
+
 	"rename": {
 		"title": "New name",
 		"prefixPlaceholder": "part before number",
 		"suffixPlaceholder": "part after number",
 		"numberSign": "№"
 	},
+
 	"files": {
 		"before": "Before",
 		"after": "After",
@@ -27,6 +30,7 @@
 		"selectedFiles_one": "{{count}} file selected",
 		"selectedFiles_other": "{{count}} files selected"
 	},
+
 	"errors": {
 		"tooLarge": "File \"{{file}}\" exceeds the 500 MB limit",
 		"tooMany": "File limit reached",

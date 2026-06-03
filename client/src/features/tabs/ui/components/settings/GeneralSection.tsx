@@ -9,6 +9,7 @@ import { SelectExt } from '@/shared/ui';
 
 export const GeneralSection = observer(() => {
 	const { t } = useTranslation('settings');
+
 	const { themeStore } = useStore();
 
 	const onChangeTheme = (theme: Theme) => {

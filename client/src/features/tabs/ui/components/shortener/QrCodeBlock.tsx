@@ -1,10 +1,13 @@
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QRCode } from 'react-qr-code';
 import { Download } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
 export const QrCodeBlock = ({ value }: { value: string }) => {
+	const { t } = useTranslation('shortener');
+
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const handleDownload = () => {
@@ -37,7 +40,7 @@ export const QrCodeBlock = ({ value }: { value: string }) => {
 	};
 
 	return (
-		<div className="mx-auto flex flex-col items-center gap-3">
+		<div className="core-gap mx-auto flex flex-col items-center">
 			<div ref={containerRef} className="rounded-xl bg-white p-2">
 				<QRCode bgColor="transparent" fgColor="#000" size={128} value={value} />
 			</div>
@@ -48,7 +51,7 @@ export const QrCodeBlock = ({ value }: { value: string }) => {
 				variant="ghost"
 				onClick={handleDownload}
 			>
-				Скачать QR
+				{t(($) => $.share.downloadQr)}
 			</Button>
 		</div>
 	);

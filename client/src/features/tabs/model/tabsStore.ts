@@ -1,8 +1,8 @@
 import { makeAutoObservable, reaction } from 'mobx';
 
-const VALID_TABS = ['home', 'renamer', 'shortener', 'settings', 'help'] as const;
-
 export type TabId = (typeof VALID_TABS)[number];
+
+const VALID_TABS = ['home', 'renamer', 'shortener', 'settings', 'help'] as const;
 
 const isValidTab = (value: string): value is TabId => {
 	return VALID_TABS.includes(value as TabId);
@@ -17,7 +17,9 @@ export class TabsStore {
 
 	private initFromUrl(): boolean {
 		const params = new URLSearchParams(window.location.search);
+
 		const tabParam = params.get('tab');
+
 		const hasUnknownParams = [...params.keys()].some((key) => key !== 'tab');
 
 		if (hasUnknownParams) {
@@ -53,8 +55,7 @@ export class TabsStore {
 
 		if (!this.isHomePage()) return;
 
-		const isValidUrl = this.initFromUrl();
-		if (!isValidUrl) return;
+		if (!this.initFromUrl()) return;
 
 		this.syncUrl();
 

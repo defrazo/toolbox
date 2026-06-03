@@ -1,11 +1,6 @@
-export const shortenUrl = async (url: string) => {
-	const res = await fetch('/api/shorten', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ url }),
-	});
+import { api } from '@/shared/api';
 
-	const data = await res.json();
-
+export const shortenUrl = async (url: string): Promise<string> => {
+	const { data } = await api.post('/shorten', { url });
 	return data.short_url;
 };

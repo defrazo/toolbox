@@ -1,6 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 
-import { DEFAULT_AVATAR, type User } from '.';
+import { type AvatarId, AVATARS } from '@/shared/assets/images/avatars';
+
+import type { User } from '.';
 
 export class UserStore {
 	user: User | null = null;
@@ -17,31 +19,28 @@ export class UserStore {
 		return this.user?.email;
 	}
 
-	get avatar() {
-		return this.user?.avatar ?? DEFAULT_AVATAR;
+	get avatarId(): AvatarId {
+		return this.user?.avatar ?? 'avatar0';
 	}
 
-	get role() {
-		return this.user?.role ?? 'user';
+	get avatar() {
+		return AVATARS[this.avatarId];
+	}
+
+	get pendingEmail() {
+		return this.user?.pending_email ?? null;
+	}
+
+	get hasPendingEmail() {
+		return !!this.user?.pending_email;
+	}
+
+	get isDemo() {
+		return this.user?.is_demo ?? false;
 	}
 
 	setUser(user: User | null) {
 		this.user = user;
-	}
-
-	updateUsername(username: string) {
-		if (!this.user) return;
-		this.user = { ...this.user, username };
-	}
-
-	updateEmail(email: string) {
-		if (!this.user) return;
-		this.user = { ...this.user, email };
-	}
-
-	updateAvatar(avatar: string) {
-		if (!this.user) return;
-		this.user = { ...this.user, avatar };
 	}
 
 	clear() {

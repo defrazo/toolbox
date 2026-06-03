@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import { type ComponentType, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Home, LifeBuoy, type LucideIcon, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -81,17 +81,27 @@ const TabContainer = observer(() => {
 
 	usePageTitle(title);
 
+	useEffect(() => {
+		const tab = document.getElementById('tab-scroll');
+		if (!tab) return;
+
+		tab.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+
+		requestAnimationFrame(() => tab.scrollTo({ top: 0, left: 0, behavior: 'instant' }));
+	}, [activeTab]);
+
 	return (
 		<div className="core-border relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)">
 			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
 				<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px]" />
-
 				{layout !== 'page' && (
 					<div className="bottom-0 left-0 hidden size-100 -translate-x-1/2 translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px] xl:absolute" />
 				)}
 			</div>
-
-			<div className="hide-scrollbar relative z-20 flex size-full min-h-0 flex-col overflow-x-hidden overflow-y-auto">
+			<div
+				className="hide-scrollbar relative z-20 flex size-full min-h-0 flex-col overflow-x-hidden overflow-y-auto [-webkit-overflow-scrolling:touch]"
+				id="tab-scroll"
+			>
 				<div
 					className={cn(
 						'flex w-full flex-1 flex-col gap-4 p-3 lg:mx-auto lg:gap-6 2xl:gap-8',
@@ -101,7 +111,6 @@ const TabContainer = observer(() => {
 					{activeTab !== 'home' && <TabTitle icon={icon} subtitle={subtitle} title={title} />}
 					<TabComponent />
 				</div>
-
 				{activeTab === 'home' && <TabFooter />}
 			</div>
 		</div>

@@ -20,7 +20,7 @@ export const TabRenamer = () => {
 const TabRenamerContent = () => {
 	const { t } = useTranslation('renamer');
 
-	const { files, prefix, setPrefix, suffix, setSuffix, preview, reset, handleIncomingFiles } = useRenamerContext();
+	const { files, prefix, setPrefix, suffix, setSuffix, preview, handleIncomingFiles, reset } = useRenamerContext();
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 

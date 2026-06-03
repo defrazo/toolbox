@@ -1,2 +1,2 @@
-export { getUser, updateProfile } from './api';
-export { UserStore } from './model';
+export { getUser, resendPendingEmail, updateEmail, updatePassword, updateProfile } from './api';
+export { type User, UserStore } from './model';

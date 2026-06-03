@@ -1,25 +1,30 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AuthFormHeader, AuthSocial, RegisterForm } from '@/features/auth';
+import { AuthFormHeader, RegisterForm } from '@/features/auth';
 import { usePageTitle } from '@/shared/lib/hooks';
-import { AuthDivider } from '@/shared/ui';
 
-import { AuthFooterLink, AuthWrapper } from './components';
+import { AuthFooterLink, AuthWrapper, PrivacyConsent } from './components';
 
 export const RegisterPage = () => {
 	const { t } = useTranslation('auth');
 
-	const title = t(($) => $.register.title);
+	const [isPrivacyAccepted, setIsPrivacyAccepted] = useState(false);
+
+	const title = t(($) => $.screens.register.title);
 
 	usePageTitle(title);
 
 	return (
 		<AuthWrapper>
 			<AuthFormHeader title={title} />
-			<AuthSocial type="register" />
-			<AuthDivider />
-			<RegisterForm />
-			<AuthFooterLink linkText={t(($) => $.register.login)} text={t(($) => $.register.hasAccount)} to="/login" />
+			<RegisterForm isPrivacyAccepted={isPrivacyAccepted} />
+			<PrivacyConsent checked={isPrivacyAccepted} onChange={setIsPrivacyAccepted} />
+			<AuthFooterLink
+				linkText={t(($) => $.screens.register.login)}
+				text={t(($) => $.screens.register.hasAccount)}
+				to="/login"
+			/>
 		</AuthWrapper>
 	);
 };

@@ -3,12 +3,14 @@
 		"title": "Help",
 		"subtitle": "Learn more about your tools"
 	},
+
 	"sections": {
 		"intro": "Getting started",
 		"tools": "Tools",
 		"account": "Account settings",
 		"faq": "Frequently asked questions"
 	},
+
 	"intro": {
 		"toolbox": {
 			"title": "What is ToolBox?",
@@ -19,6 +21,7 @@
 			"desc": "On the left is the navigation panel with tools and sections. In the center is the workspace. In settings you can change the theme, avatar, language, and more."
 		}
 	},
+
 	"tools": {
 		"renamer": {
 			"title": "File Renamer",
@@ -75,6 +78,7 @@
 			]
 		}
 	},
+
 	"account": {
 		"avatar": {
 			"title": "Avatar",
@@ -93,6 +97,7 @@
 			"text": "Choose the appropriate option from the dropdown list."
 		}
 	},
+
 	"faq": [
 		{
 			"id": "renamer-download",

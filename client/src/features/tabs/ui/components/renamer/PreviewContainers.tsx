@@ -46,7 +46,7 @@ export const PreviewContainers = () => {
 						<div className={cn('mt-0.5 size-3 rounded-full', statusColor)} />
 						<span className="text-lg leading-4 select-none">{title}</span>
 					</div>
-					<div className="hide-scrollbar max-h-64 min-h-32 flex-1 overflow-y-auto rounded-lg bg-(--bg-tertiary)/70 md:max-h-none">
+					<div className="hide-scrollbar max-h-64 min-h-32 flex-1 overflow-y-auto rounded-lg bg-(--bg-tertiary)/70 md:max-h-[66vh] lg:max-h-none">
 						{preview.map((file, idx) => (
 							<div
 								key={`${file.oldName}-${idx}`}

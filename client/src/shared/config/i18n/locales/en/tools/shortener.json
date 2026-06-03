@@ -5,22 +5,26 @@
 		"pageTitle": "Shorten link",
 		"pageSubtitle": "Quickly create short links for your tasks"
 	},
+
 	"input": {
 		"label": "Long URL",
 		"placeholder": "Enter a URL you want to shorten",
 		"shorten": "Shorten"
 	},
+
 	"result": {
 		"label": "Your short link",
 		"copy": "Copy",
 		"copied": "Link copied!",
 		"error": "Something went wrong"
 	},
+
 	"share": {
 		"title": "Share via",
 		"vk": "VK",
 		"telegram": "Telegram",
 		"whatsapp": "WhatsApp",
-		"qr": "QR Code"
+		"qr": "QR Code",
+		"downloadQr": "Download QR"
 	}
 }

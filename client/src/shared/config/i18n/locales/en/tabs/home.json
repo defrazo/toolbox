@@ -3,10 +3,12 @@
 		"title": "Home",
 		"subtitle": "Start working with tools"
 	},
+
 	"greeting": {
 		"title": "Hi",
 		"subtitle": "What are we going to do today?"
 	},
+
 	"tools": {
 		"title": "Popular tools",
 		"placeholder": {
@@ -18,6 +20,7 @@
 			"soon": "Coming soon"
 		}
 	},
+
 	"shortcuts": {
 		"title": "Quick actions",
 		"upload": {
@@ -33,10 +36,12 @@
 			"subtitle": "View guide"
 		}
 	},
+
 	"promo": {
 		"title": "ToolBox – your tasks, our tools",
 		"subtitle": "A simple, fast and convenient set of everyday tools"
 	},
+
 	"errors": {
 		"paste": "Failed to paste URL from clipboard",
 		"empty": "Clipboard is empty"

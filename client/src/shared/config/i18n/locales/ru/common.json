@@ -1,3 +1,6 @@
 {
-	"user": { "default": "Пользователь" }
+	"user": {
+		"default": "Пользователь"
+	},
+	"loadingApp": "Загрузка ToolBox"
 }

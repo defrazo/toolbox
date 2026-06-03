@@ -20,6 +20,7 @@ export const IntroSection = () => {
 			icon: Route,
 		},
 	];
+
 	return (
 		<section className="core-gap flex flex-1 flex-col">
 			<SectionTitle>{t(($) => $.sections.intro)}</SectionTitle>

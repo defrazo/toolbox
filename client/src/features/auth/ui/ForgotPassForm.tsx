@@ -5,28 +5,38 @@ import { Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
-import { cn } from '@/shared/lib/utils';
-import { validateEmail } from '@/shared/lib/validators';
 import { Button, Input } from '@/shared/ui';
+
+import { useAuth } from '../model';
 
 export const ForgotPassForm = observer(() => {
 	const { t } = useTranslation('auth');
+	const navigate = useNavigate();
 
 	const { authStore, notifyStore } = useStore();
-	const navigate = useNavigate();
+	const { checkEmail } = useAuth(t);
 
 	const [email, setEmail] = useState('');
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		try {
-			await validateEmail(email);
-			// await authStore.forgotPass(email, password);
+		if (!checkEmail(email)) return;
 
-			navigate('/');
-		} catch (error: any) {
-			notifyStore.setNotice(error.message || t(($) => $.forgotPass.error), 'error');
+		try {
+			await authStore.forgotPassword(email);
+
+			notifyStore.setNotice(
+				t(($) => $.success.forgotPass),
+				'success'
+			);
+
+			navigate('/login');
+		} catch {
+			notifyStore.setNotice(
+				t(($) => $.errors.default),
+				'error'
+			);
 		}
 	};
 
@@ -39,16 +49,17 @@ export const ForgotPassForm = observer(() => {
 						<Mail className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder={t(($) => $.fields.email.placeholder)}
+				placeholder={t(($) => $.common.fields.email.placeholder)}
+				type="email"
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 			/>
 			<Button
-				className={cn('mt-4 h-10 w-full bg-(--bg-secondary)', email !== '' && 'active-btn')}
+				className="active-btn mt-4 h-10 w-full bg-(--bg-secondary)"
 				loading={authStore.isLoading}
 				type="submit"
 			>
-				{t(($) => $.forgotPass.submit)}
+				{t(($) => $.screens.forgotPass.submit)}
 			</Button>
 		</form>
 	);

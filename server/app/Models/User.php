@@ -2,27 +2,56 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+use App\Notifications\PasswordChangedNotification;
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailNotification;
+use App\Notifications\VerifyPendingEmailNotification;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Notification;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['username', 'email', 'pending_email', 'password', 'avatar', 'is_demo'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
+    use HasApiTokens;
     use HasFactory;
     use Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function sendPasswordChangedNotification(): void
+    {
+        $this->notify(new PasswordChangedNotification);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
+
+    public function sendPendingEmailVerificationNotification(): void
+    {
+        if (!$this->pending_email) {
+            return;
+        }
+
+        Notification::route('mail', $this->pending_email)
+            ->notify(new VerifyPendingEmailNotification(
+                $this->id,
+                $this->pending_email,
+            ));
+    }
+
     protected function casts(): array
     {
         return [

@@ -1,1 +1,1 @@
-export { passwordRules } from './utils';
+export { getAuthErrorMessage } from './utils';

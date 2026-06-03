@@ -16,7 +16,6 @@ export const LanguageSelect = ({ className }: { className?: string }) => {
 		<SelectExt
 			className={className}
 			options={languageOptions}
-			placeholder="Выберите"
 			value={currentLanguage}
 			onChange={onChangeLanguage}
 		/>

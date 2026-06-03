@@ -6,6 +6,7 @@ import { useEscapeClose } from '../model';
 
 export const ImageViewer = observer(({ src, alt }: { src: string; alt?: string }) => {
 	const { modalStore } = useStore();
+
 	useEscapeClose(() => modalStore.closeModal());
 
 	return (

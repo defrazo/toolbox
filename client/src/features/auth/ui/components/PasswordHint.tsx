@@ -1,15 +1,25 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { passwordRules } from '../../lib';
-
 interface PasswordHintProps {
 	password: string;
 	showHint: boolean;
-	onValidityChange: (isValid: boolean) => void;
 }
 
-export const PasswordHint = ({ password, showHint, onValidityChange }: PasswordHintProps) => {
+type PasswordRule = {
+	id: 'minLength' | 'uppercase' | 'lowercase' | 'number' | 'latinOnly';
+	test: (pass: string) => boolean;
+};
+
+const passwordRules: PasswordRule[] = [
+	{ id: 'minLength', test: (pass) => pass.length >= 8 },
+	{ id: 'uppercase', test: (pass) => /[A-Z]/.test(pass) },
+	{ id: 'lowercase', test: (pass) => /[a-z]/.test(pass) },
+	{ id: 'number', test: (pass) => /\d/.test(pass) },
+	{ id: 'latinOnly', test: (pass) => !/[А-Яа-яЁё]/.test(pass) },
+];
+
+export const PasswordHint = ({ password, showHint }: PasswordHintProps) => {
 	const { t } = useTranslation('auth');
 
 	const allRulesPassed = passwordRules.every((rule) => rule.test(password));
@@ -17,8 +27,7 @@ export const PasswordHint = ({ password, showHint, onValidityChange }: PasswordH
 
 	useEffect(() => {
 		if (!password) return;
-		onValidityChange?.(allRulesPassed);
-	}, [allRulesPassed, onValidityChange]);
+	}, [allRulesPassed]);
 
 	if (!visible) return null;
 
@@ -29,7 +38,7 @@ export const PasswordHint = ({ password, showHint, onValidityChange }: PasswordH
 					const passed = rule.test(password);
 					return (
 						<li key={idx} className={passed ? 'text-(--status-success)' : 'text-(--status-error)'}>
-							{passed ? '✔' : '✖'} {t(($) => $.passHint[rule.id])}
+							{passed ? '✔' : '✖'} {t(($) => $.common.passHint[rule.id])}
 						</li>
 					);
 				})}

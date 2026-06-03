@@ -17,7 +17,7 @@ export const Logo = ({ className, setIsSidebarOpen }: LogoProps) => {
 				(tabsStore.setTab('home'), setIsSidebarOpen?.(false));
 			}}
 		>
-			<img alt="Логотип" className="size-6" decoding="async" loading="lazy" src={IconLogo} />
+			<img alt="Логотип" className="no-touch-callout size-6" decoding="async" loading="lazy" src={IconLogo} />
 			<h1 className="text-2xl">
 				<span className="text-(--accent-primary-text)">Tool</span>
 				<span className="text-(--color-accent)">Box</span>

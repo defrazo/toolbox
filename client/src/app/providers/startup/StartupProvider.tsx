@@ -7,7 +7,7 @@ import { PreloaderExt } from '@/shared/ui';
 import StoreProvider, { useStore } from '../store';
 
 const AppInitializer = observer(() => {
-	const { themeStore, authStore } = useStore();
+	const { authStore, themeStore } = useStore();
 
 	useEffect(() => {
 		const init = async () => {
@@ -16,9 +16,9 @@ const AppInitializer = observer(() => {
 		};
 
 		void init();
-	}, []);
+	}, [authStore, themeStore]);
 
-	if (authStore.isLoading) return <PreloaderExt />;
+	if (authStore.isInitializing) return <PreloaderExt />;
 
 	return (
 		<div className="relative flex h-dvh w-full flex-col">

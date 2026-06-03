@@ -17,14 +17,14 @@ export const AuthSidebar = () => {
 	const displayFeatures = [
 		...TOOLS_LIST.map((tool) => ({ ...tool, ...toolOverrides[tool.id] })),
 		{
-			title: tAuth(($) => $.sidebar.features.security.title),
-			subtitle: tAuth(($) => $.sidebar.features.security.subtitle),
+			title: tAuth(($) => $.sidebar.security.title),
+			subtitle: tAuth(($) => $.sidebar.security.subtitle),
 			icon: FileLock,
 		},
 	];
 
 	return (
-		<div className="relative z-0 h-full min-w-0 pl-4 select-none xl:w-lg">
+		<div className="relative z-0 h-full min-w-0 select-none xl:w-lg">
 			<div className="relative z-10 hidden h-full flex-col gap-16 rounded-l-xl border-t border-b border-l border-(--border-color) p-12 lg:flex">
 				<Logo />
 				<div className="flex flex-col gap-6">
@@ -51,7 +51,7 @@ export const AuthSidebar = () => {
 				</div>
 				<div className="flex gap-2 text-(--color-disabled)">
 					<ShieldCheck />
-					<span className="">{tAuth(($) => $.sidebar.privacy)}</span>
+					<span>{tAuth(($) => $.sidebar.privacy)}</span>
 				</div>
 			</div>
 			<div className="absolute top-1/3 left-0 size-100 -translate-x-1/2 rounded-full bg-[#7a5cff]/40 blur-[120px]" />

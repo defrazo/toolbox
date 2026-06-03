@@ -3,12 +3,15 @@
 		"title": "Settings",
 		"subtitle": "Customize the app for yourself"
 	},
+
 	"account": {
 		"title": "Account",
 		"avatar": {
 			"alt": "User avatar",
 			"optionAlt": "Avatar {{number}}",
-			"apply": "Apply avatar"
+			"apply": "Apply avatar",
+			"success": "Avatar updated successfully!",
+			"error": "Failed to update avatar"
 		},
 		"password": {
 			"change": "Change password",
@@ -19,6 +22,7 @@
 			"confirm": "Repeat new password"
 		}
 	},
+
 	"general": {
 		"title": "General",
 		"theme": {
@@ -28,5 +32,19 @@
 			"light": "Light"
 		},
 		"language": { "label": "Language" }
+	},
+
+	"success": {
+		"avatar": "Avatar updated successfully!",
+		"username": "Username updated successfully!",
+		"email": "E-mail updated successfully!",
+		"password": "Password updated successfully!"
+	},
+
+	"errors": {
+		"avatar": "Failed to update avatar",
+		"username": "Failed to update username",
+		"email": "Failed to update email",
+		"password": "Failed to update password"
 	}
 }

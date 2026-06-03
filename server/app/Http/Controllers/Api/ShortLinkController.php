@@ -4,31 +4,25 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShortLink;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class ShortLinkController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'url' => 'required|url',
-        ]);
+        $validated = $request->validate(['url' => ['required', 'url']]);
 
-        $code = Str::random(6);
-
-        while (ShortLink::where('code', $code)->exists()) {
-            $code = Str::random(6);
-        }
+        $code = ShortLink::generateUniqueCode();
 
         $link = ShortLink::create([
             'code' => $code,
-            'original_url' => $request->url,
+            'original_url' => $validated['url'],
         ]);
 
         return response()->json([
-            'short_url' => url('/' . $code),
-            'code' => $code,
+            'short_url' => url("/{$link->code}"),
+            'code' => $link->code,
         ]);
     }
 }

@@ -9,21 +9,21 @@ import { AuthWrapper } from './components';
 export const ForgotPassPage = () => {
 	const { t } = useTranslation('auth');
 
-	const title = t(($) => $.forgotPass.title);
+	const title = t(($) => $.screens.forgotPass.title);
 
 	usePageTitle(title);
 
 	return (
 		<AuthWrapper>
 			<AuthFormHeader title={title} />
-			<p className="text-justify">{t(($) => $.forgotPass.description)}</p>
-			<p className="text-justify text-(--color-disabled)">{t(($) => $.forgotPass.hint)}</p>
+			<p className="text-justify">{t(($) => $.screens.forgotPass.description)}</p>
+			<p className="text-justify text-(--color-disabled)">{t(($) => $.screens.forgotPass.hint)}</p>
 			<ForgotPassForm />
 			<Link
 				className="cursor-pointer font-semibold text-(--color-tertiary) transition-colors hover:text-(--accent-primary-hover)"
 				to="/login"
 			>
-				{t(($) => $.forgotPass.back)}
+				{t(($) => $.screens.forgotPass.back)}
 			</Link>
 		</AuthWrapper>
 	);

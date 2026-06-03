@@ -5,7 +5,7 @@ export const PromoCard = () => {
 	const { t } = useTranslation('home');
 
 	return (
-		<div className="core-pad hidden h-fit flex-col items-start rounded-xl border border-transparent bg-(--accent-primary)/10 transition-colors select-none hover:border-(--accent-primary-hover-op) xl:flex">
+		<div className="core-pad hidden h-fit flex-col items-start rounded-xl border border-(--accent-primary-hover-op)/50 bg-(--accent-primary)/10 transition-colors select-none xl:flex">
 			<div className="flex items-center gap-2">
 				<Blocks className="size-10 text-(--color-accent)" />
 				<div className="flex flex-col gap-2">

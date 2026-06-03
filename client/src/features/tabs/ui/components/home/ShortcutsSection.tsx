@@ -6,7 +6,7 @@ import { useStore } from '@/app/providers';
 export const ShortcutsSection = () => {
 	const { t: tHome } = useTranslation('home');
 
-	const { tabsStore, notifyStore } = useStore();
+	const { notifyStore, tabsStore } = useStore();
 
 	const uploadAction = () => {
 		tabsStore.setTab('renamer');

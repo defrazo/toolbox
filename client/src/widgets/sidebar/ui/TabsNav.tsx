@@ -32,7 +32,7 @@ export const TabsNav = observer(({ isMinimized, onTabClick }: { isMinimized?: bo
 					<Button
 						key={id}
 						className={cn(
-							'core-border h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary) xl:text-base',
+							'core-border h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:text-base',
 							isMinimized ? 'w-12' : 'xl:w-60',
 							isActive && 'bg-(image:--gradient-primary)'
 						)}

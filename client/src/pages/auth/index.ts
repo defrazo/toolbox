@@ -1,1 +1,1 @@
-export { ForgotPassPage, LoginPage, RegisterPage, ResetPassPage, VerifyEmailPage } from './ui';
+export { ForgotPassPage, LoginPage, RegisterPage, ResendEmailPage, ResetPassPage, VerifyEmailPage } from './ui';

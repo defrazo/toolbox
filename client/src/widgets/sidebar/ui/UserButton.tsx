@@ -24,13 +24,13 @@ export const UserButton = observer(
 			<Button
 				ref={ref}
 				className={cn(
-					'core-border group h-12 w-full justify-start bg-(--bg-secondary) p-2 text-left shadow-(--shadow) transition-all duration-500 ease-out group-hover:bg-(--accent-primary-hover) hover:-translate-y-px hover:border-(--accent-primary-hover) hover:shadow-(--shadow-primary)',
+					'core-border group h-12 w-full justify-start bg-(--bg-secondary) p-2 text-left shadow-(--shadow) transition-all duration-500 ease-out group-hover:bg-(--accent-primary-hover) hover:-translate-y-px hover:border-(--accent-primary-hover)',
 					isMinimized ? 'w-12' : 'xl:w-60'
 				)}
 				leftIcon={
 					<img
 						alt={userStore.username ?? tCommon(($) => $.user.default)}
-						className="size-7.5 min-w-7.5 rounded-full border border-(--border-color)"
+						className="no-touch-callout size-7.5 min-w-7.5 rounded-full border border-(--border-color)"
 						src={userStore.avatar}
 					/>
 				}

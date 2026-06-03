@@ -55,6 +55,7 @@
 	/* Тени */
 	--shadow: none;
 	--shadow-primary: 0 6px 30px rgba(91, 92, 255, 0.45), 0 0 25px rgba(77, 163, 255, 0.35);
+	--shadow-secondary: 0 3px 15px rgba(91, 92, 255, 0.45), 0 0 15px rgba(77, 163, 255, 0.35);
 
 	/* Особые стили */
 	--bg-blob: #7a5cff;
@@ -118,9 +119,10 @@
 
 	/* Тени */
 	--shadow: 0 1px 2px 0px rgb(40 66 75 / 22%);
+	--shadow-primary: 0 6px 30px rgba(91, 92, 255, 0.45), 0 0 25px rgba(77, 163, 255, 0.35);
+	--shadow-secondary: 0 3px 15px rgba(91, 92, 255, 0.45), 0 0 15px rgba(77, 163, 255, 0.35);
 
 	/* Особые стили */
-	/* --bg-mobile-sidebar: #d5d5d5; */
 	--bg-blob: transparent;
 	--bg-mobile-sidebar: #252525;
 	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);

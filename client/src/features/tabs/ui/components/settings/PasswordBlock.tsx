@@ -1,42 +1,82 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeClosed, Lock, LockKeyhole, LockOpen } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
 
-import { PasswordHint } from '@/features/auth';
+import { useStore } from '@/app/providers';
+import { updatePassword } from '@/entities/user';
+import { getAuthErrorMessage, PasswordHint, useAuth } from '@/features/auth';
 import { cn } from '@/shared/lib/utils';
 import { Button, Divider, Input } from '@/shared/ui';
 
 import { Row } from '.';
 
-export const PasswordBlock = () => {
+export const PasswordBlock = observer(() => {
 	const { t: tSettings } = useTranslation('settings');
 	const { t: tAuth } = useTranslation('auth');
+
+	const { notifyStore } = useStore();
+	const { checkPassword } = useAuth(tAuth);
+
+	const [isLoading, setIsLoading] = useState(false);
 
 	const [visiblePass, setVisiblePass] = useState(false);
 	const [showPass, setShowPass] = useState(false);
 	const [showHint, setShowHint] = useState(false);
 
-	const [tempPassOld, setTempPassOld] = useState('');
-	const [tempPassNew, setTempPassNew] = useState('');
-	const [tempPassNewConfirm, setTempPassNewConfirm] = useState('');
-	const [isPassValid, setIsPassValid] = useState(false);
+	const [passOld, setPassOld] = useState('');
+	const [passNew, setPassNew] = useState('');
+	const [passConfirm, setPassConfirm] = useState('');
+
+	const canSavePassword = passOld !== '' && passNew !== '' && passConfirm === passNew;
 
 	const PassIcon = showPass ? EyeClosed : Eye;
-	const canSavePassword = tempPassNew !== '' && tempPassNewConfirm === tempPassNew && isPassValid;
 
-	const applyAvatar = () => {
+	const applyPassword = async () => {
 		if (!canSavePassword) return;
-		setShowPass(false);
+		if (!checkPassword(passNew)) return;
+
+		if (passNew !== passConfirm) {
+			notifyStore.setNotice(
+				tAuth(($) => $.errors.invalid.passwordMismatch),
+				'info'
+			);
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			await updatePassword({
+				current_password: passOld,
+				password: passNew,
+				password_confirmation: passConfirm,
+			});
+
+			notifyStore.setNotice(
+				tSettings(($) => $.success.password),
+				'success'
+			);
+
+			setPassOld('');
+			setPassNew('');
+			setPassConfirm('');
+			setShowPass(false);
+			setVisiblePass(false);
+		} catch (error: any) {
+			const code = error?.response?.data?.code;
+			notifyStore.setNotice(getAuthErrorMessage(tAuth, code), 'error');
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
 		<>
-			<Row icon={Lock} label={tAuth(($) => $.fields.password.label)}>
+			<Row icon={Lock} label={tAuth(($) => $.common.fields.password.label)}>
 				<Button
-					className={cn(
-						'w-full hover:shadow-(--shadow) lg:w-fit lg:min-w-72',
-						canSavePassword && 'active-btn'
-					)}
+					className={cn('w-full hover:shadow-(--shadow) lg:w-fit lg:min-w-72')}
+					disabled={isLoading}
 					onClick={() => setVisiblePass((prev) => !prev)}
 				>
 					{visiblePass
@@ -51,7 +91,7 @@ export const PasswordBlock = () => {
 						<Input
 							className="lg:ml-auto lg:w-72"
 							id="pass-old"
-							placeholder={tAuth(($) => $.fields.password.placeholder)}
+							placeholder={tAuth(($) => $.common.fields.password.placeholder)}
 							rightIcon={
 								<PassIcon
 									className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -59,8 +99,8 @@ export const PasswordBlock = () => {
 								/>
 							}
 							type={showPass ? 'text' : 'password'}
-							value={tempPassOld}
-							onChange={(e) => setTempPassOld(e.target.value)}
+							value={passOld}
+							onChange={(e) => setPassOld(e.target.value)}
 						/>
 					</Row>
 					<Row htmlFor="pass-new" icon={LockKeyhole} label={tSettings(($) => $.account.password.new)}>
@@ -68,7 +108,7 @@ export const PasswordBlock = () => {
 							<Input
 								className="lg:ml-auto lg:w-72"
 								id="pass-new"
-								placeholder={tAuth(($) => $.fields.password.placeholder)}
+								placeholder={tAuth(($) => $.common.fields.password.placeholder)}
 								rightIcon={
 									<PassIcon
 										className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -76,16 +116,12 @@ export const PasswordBlock = () => {
 									/>
 								}
 								type={showPass ? 'text' : 'password'}
-								value={tempPassNew}
+								value={passNew}
 								onBlur={() => setShowHint(false)}
-								onChange={(e) => setTempPassNew(e.target.value)}
+								onChange={(e) => setPassNew(e.target.value)}
 								onFocus={() => setShowHint(true)}
 							/>
-							<PasswordHint
-								password={tempPassNew}
-								showHint={showHint}
-								onValidityChange={setIsPassValid}
-							/>
+							<PasswordHint password={passNew} showHint={showHint} />
 						</div>
 					</Row>
 					<Row
@@ -96,7 +132,7 @@ export const PasswordBlock = () => {
 						<Input
 							className="lg:ml-auto lg:w-72"
 							id="pass-new-confirm"
-							placeholder={tAuth(($) => $.fields.passConfirm.placeholder)}
+							placeholder={tAuth(($) => $.common.fields.passConfirm.placeholder)}
 							rightIcon={
 								<PassIcon
 									className="mr-1 ml-2 size-5 cursor-pointer hover:text-(--accent-primary-hover)"
@@ -104,14 +140,18 @@ export const PasswordBlock = () => {
 								/>
 							}
 							type={showPass ? 'text' : 'password'}
-							value={tempPassNewConfirm}
-							onChange={(e) => setTempPassNewConfirm(e.target.value)}
+							value={passConfirm}
+							onChange={(e) => setPassConfirm(e.target.value)}
 						/>
 					</Row>
 					<Button
-						className="col-span-4 mx-auto mt-2 max-w-64 hover:shadow-(--shadow)"
-						disabled={!canSavePassword}
-						onClick={applyAvatar}
+						className={cn(
+							'col-span-4 mx-auto mt-2 w-full hover:shadow-(--shadow) xl:w-64',
+							canSavePassword && 'active-btn'
+						)}
+						disabled={isLoading || !canSavePassword}
+						loading={isLoading}
+						onClick={applyPassword}
 					>
 						{tSettings(($) => $.account.password.save)}
 					</Button>
@@ -119,4 +159,4 @@ export const PasswordBlock = () => {
 			)}
 		</>
 	);
-};
+});

@@ -22,17 +22,19 @@ export const useRenamer = () => {
 	const [suffix, setSuffix] = useState('');
 
 	const preview = useMemo(() => {
-		return files.map((file, i) => ({
+		return files.map((file, idx) => ({
 			oldName: file.name,
-			newName: buildName(prefix, suffix, i, file.name),
+			newName: buildName(prefix, suffix, idx, file.name),
 		}));
 	}, [files, prefix, suffix]);
 
 	const addFiles = (incomingFiles: File[]): AddFilesResult => {
 		const validBySize = incomingFiles.filter((file) => file.size <= MAX_SIZE);
+
 		const rejectedBySize = incomingFiles.filter((file) => file.size > MAX_SIZE);
 
 		const remainingSlots = Math.max(MAX_FILES - files.length, 0);
+
 		const accepted = validBySize.slice(0, remainingSlots);
 
 		setFiles((prev) => [...prev, ...accepted]);
@@ -62,6 +64,7 @@ export const useRenamer = () => {
 
 	const handleIncomingFiles = (incoming: File[]) => {
 		const result = addFiles(incoming);
+
 		notifyAddFiles(result);
 	};
 
@@ -77,9 +80,11 @@ export const useRenamer = () => {
 		setPrefix,
 		suffix,
 		setSuffix,
+
 		preview,
+
 		addFiles,
-		reset,
 		handleIncomingFiles,
+		reset,
 	};
 };

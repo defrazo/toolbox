@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import ReactDOM from 'react-dom';
+import { ChevronLeft, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-
-import { IconBack, IconClose } from '@/shared/assets/icons';
 
 import { useEscapeClose } from '../model';
 
@@ -19,12 +18,11 @@ export const Modal = observer(({ children, onBack, onClose }: ModalProps) => {
 		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
 			<div className="core-border max-w-fit flex-col rounded-4xl bg-(--bg-secondary) p-12 shadow-2xl">
 				<div className="top-4 flex h-4 w-full justify-between">
-					{onBack && <IconBack className="w-5 cursor-pointer hover:text-(--accent-hover)" onClick={onBack} />}
+					{onBack && (
+						<ChevronLeft className="w-5 cursor-pointer hover:text-(--accent-hover)" onClick={onBack} />
+					)}
 					{onClose && (
-						<IconClose
-							className="ml-auto w-5 cursor-pointer hover:text-(--accent-hover)"
-							onClick={onClose}
-						/>
+						<X className="ml-auto w-5 cursor-pointer hover:text-(--accent-hover)" onClick={onClose} />
 					)}
 				</div>
 				<div>{children}</div>

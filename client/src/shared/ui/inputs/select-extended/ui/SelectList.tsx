@@ -98,7 +98,7 @@ export const SelectList = ({
 									return <Icon className="size-6" />;
 								})()
 							))}
-						<span className="">{option.label}</span>
+						<span>{option.label}</span>
 						{visibleKey && <span>{option.key}</span>}
 					</div>
 				</li>
