@@ -1,6 +1,8 @@
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
+import type { ShortLink, ShortLinkDb } from '../model';
+
 type ShareType = 'tg' | 'wa' | 'vk' | 'ok';
 
 // === SHORTENER ===
@@ -16,6 +18,31 @@ export const share = (type: ShareType, url: string) => {
 
 	window.open(links[type], '_blank', 'noopener,noreferrer');
 };
+
+export const getTtl = (createdAtIso: string, now: number) => {
+	const createdMs = Date.parse(createdAtIso);
+	if (Number.isNaN(createdMs)) return null;
+
+	const diffMs = createdMs + 86400000 - now;
+	if (diffMs <= 0) return null;
+
+	const hours = Math.floor(diffMs / 3600000);
+	const minutes = Math.floor((diffMs % 3600000) / 60000);
+
+	return hours > 0 ? `${hours} ч ${minutes} м` : `${minutes} м`;
+};
+
+export const mapLinkFromDb = (data: ShortLinkDb): ShortLink => ({
+	id: data.id,
+	code: data.code,
+	shortUrl: data.short_url,
+	originalUrl: data.original_url,
+	clicks: data.clicks,
+	createdAt: data.created_at,
+	locked: data.locked,
+});
+
+export const mapLinksFromDb = (data: ShortLinkDb[]): ShortLink[] => data.map(mapLinkFromDb);
 
 // === RENAMER ===
 export const formatIndex = (idx: number) => String(idx + 1).padStart(2, '0');

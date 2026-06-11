@@ -2,7 +2,7 @@ import { makeAutoObservable, reaction } from 'mobx';
 
 export type TabId = (typeof VALID_TABS)[number];
 
-const VALID_TABS = ['home', 'renamer', 'shortener', 'settings', 'help'] as const;
+const VALID_TABS = ['home', 'renamer', 'shortener', 'links', 'settings', 'help'] as const;
 
 const isValidTab = (value: string): value is TabId => {
 	return VALID_TABS.includes(value as TabId);

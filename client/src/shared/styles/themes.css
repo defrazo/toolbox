@@ -59,6 +59,7 @@
 
 	/* Особые стили */
 	--bg-blob: #7a5cff;
+	--bg-dropdown: #252525;
 	--bg-mobile-sidebar: #252525;
 	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
 	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);
@@ -124,6 +125,7 @@
 
 	/* Особые стили */
 	--bg-blob: transparent;
+	--bg-dropdown: #ebebeb;
 	--bg-mobile-sidebar: #252525;
 	--gradient-primary: linear-gradient(135deg, #7c5cff, #6d5dfc, #4da3ff);
 	--gradient-primary-hover: linear-gradient(135deg, #8f72ff 0%, #7c5cff 45%, #58b6ff 100%);

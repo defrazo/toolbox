@@ -40,4 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user/password', [UserController::class, 'updatePassword']);
 
     Route::post('/shorten', [ShortLinkController::class, 'store']);
+
+    Route::get('/links', [ShortLinkController::class, 'index']);
+    Route::patch('/links/{shortLink}', [ShortLinkController::class, 'update']);
+    Route::delete('/links/{shortLink}', [ShortLinkController::class, 'destroy']);
 });

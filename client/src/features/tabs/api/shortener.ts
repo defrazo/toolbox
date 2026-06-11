@@ -1,6 +1,10 @@
 import { api } from '@/shared/api';
 
-export const shortenUrl = async (url: string): Promise<string> => {
-	const { data } = await api.post('/shorten', { url });
-	return data.short_url;
+import { mapLinkFromDb } from '../lib';
+import type { ApiResponse, ShortLink, ShortLinkDb } from '../model';
+
+export const shortenApi = async (url: string): Promise<ShortLink> => {
+	const { data } = await api.post<ApiResponse<ShortLinkDb>>('/shorten', { url });
+
+	return mapLinkFromDb(data.data);
 };

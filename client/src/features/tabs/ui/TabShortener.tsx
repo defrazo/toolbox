@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'lucide-react';
+import { History, Link } from 'lucide-react';
 
 import { useStore } from '@/app/providers';
 import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, Input } from '@/shared/ui';
 
-import { shortenUrl } from '../api';
+import { shortenApi } from '../api';
 import { ResultBlock } from './components/shortener';
 
 export const TabShortener = () => {
 	const { t } = useTranslation('shortener');
-	const { notifyStore } = useStore();
+	const { notifyStore, tabsStore } = useStore();
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [url, setUrl] = useState('');
@@ -23,8 +23,8 @@ export const TabShortener = () => {
 		setIsLoading(true);
 
 		try {
-			const result = await shortenUrl(url);
-			setShortUrl(result);
+			const link = await shortenApi(url);
+			setShortUrl(link.shortUrl);
 		} catch {
 			notifyStore.setNotice(
 				t(($) => $.result.error),
@@ -41,8 +41,8 @@ export const TabShortener = () => {
 	};
 
 	useEffect(() => {
-		const handler = (e: CustomEvent) => {
-			setUrl(e.detail);
+		const handler = (event: CustomEvent) => {
+			setUrl(event.detail);
 			setShortUrl('');
 		};
 
@@ -86,6 +86,13 @@ export const TabShortener = () => {
 				</form>
 			</div>
 			{shortUrl && <ResultBlock shortUrl={shortUrl} />}
+			<Button
+				className="mx-auto w-full text-(--color-secondary) xl:w-72"
+				leftIcon={<History />}
+				onClick={() => tabsStore.setTab('links')}
+			>
+				{t(($) => $.result.recent)}
+			</Button>
 		</>
 	);
 };

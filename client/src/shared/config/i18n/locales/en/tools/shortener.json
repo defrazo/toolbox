@@ -16,7 +16,8 @@
 		"label": "Your short link",
 		"copy": "Copy",
 		"copied": "Link copied!",
-		"error": "Something went wrong"
+		"error": "Something went wrong",
+		"recent": "View recent links"
 	},
 
 	"share": {
@@ -25,6 +26,6 @@
 		"telegram": "Telegram",
 		"whatsapp": "WhatsApp",
 		"qr": "QR Code",
-		"downloadQr": "Download QR"
+		"downloadQr": "Save QR"
 	}
 }
