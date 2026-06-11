@@ -1,11 +1,11 @@
 import { type ComponentType, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Home, LifeBuoy, type LucideIcon, Settings } from 'lucide-react';
+import { History, Home, LifeBuoy, type LucideIcon, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
 import { type Layout, type ToolId, TOOLS } from '@/entities/tool';
-import { TabHelp, TabHome, type TabId, TabRenamer, TabSettings, TabShortener } from '@/features/tabs';
+import { TabHelp, TabHome, type TabId, TabLinks, TabRenamer, TabSettings, TabShortener } from '@/features/tabs';
 import { usePageTitle } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
@@ -23,6 +23,7 @@ const LAYOUT_CLASSES: Record<Layout, string> = {
 	page: 'lg:p-6 2xl:p-12 lg:justify-between',
 	workspace: 'lg:max-w-3xl lg:p-6 ',
 	screen: 'lg:h-full lg:max-w-3xl lg:p-6',
+	fullscreen: 'lg:h-full lg:p-6 2xl:p-12 lg:justify-between',
 };
 
 const TabContainer = observer(() => {
@@ -31,6 +32,7 @@ const TabContainer = observer(() => {
 	const { t: tHelp } = useTranslation('help');
 	const { t: tRenamer } = useTranslation('renamer');
 	const { t: tShortener } = useTranslation('shortener');
+	const { t: tLinks } = useTranslation('links');
 
 	const { tabsStore } = useStore();
 
@@ -58,6 +60,13 @@ const TabContainer = observer(() => {
 			subtitle: tHome(($) => $.meta.subtitle),
 			icon: Home,
 			layout: 'page',
+		},
+		links: {
+			component: TabLinks,
+			title: tLinks(($) => $.meta.title),
+			subtitle: tLinks(($) => $.meta.subtitle),
+			icon: History,
+			layout: 'fullscreen',
 		},
 		settings: {
 			component: TabSettings,
@@ -94,6 +103,9 @@ const TabContainer = observer(() => {
 		<div className="core-border relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)">
 			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
 				<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px]" />
+				{(layout === 'workspace' || layout === 'screen') && (
+					<div className="absolute bottom-0 left-0 size-100 -translate-x-1/2 translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px]" />
+				)}
 				{layout !== 'page' && (
 					<div className="bottom-0 left-0 hidden size-100 -translate-x-1/2 translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px] xl:absolute" />
 				)}
@@ -104,7 +116,7 @@ const TabContainer = observer(() => {
 			>
 				<div
 					className={cn(
-						'flex w-full flex-1 flex-col gap-4 p-3 lg:mx-auto lg:gap-6 2xl:gap-8',
+						'relative flex w-full flex-1 flex-col gap-4 p-3 lg:mx-auto lg:gap-6 2xl:gap-8',
 						LAYOUT_CLASSES[layout]
 					)}
 				>

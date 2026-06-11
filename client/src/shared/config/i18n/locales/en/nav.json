@@ -11,6 +11,7 @@
 	},
 	"userMenu": {
 		"user": "User",
+		"links": "Recent links",
 		"settings": "Settings",
 		"help": "Help",
 		"logout": "Log out"

@@ -5,7 +5,7 @@ import { Download } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
-export const QrCodeBlock = ({ value }: { value: string }) => {
+export const QrCodeBlock = ({ value, onDownloaded }: { value: string; onDownloaded?: () => void }) => {
 	const { t } = useTranslation('shortener');
 
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -35,17 +35,19 @@ export const QrCodeBlock = ({ value }: { value: string }) => {
 			a.download = 'qrcode.png';
 			a.href = canvas.toDataURL('image/png');
 			a.click();
+
+			onDownloaded?.();
 		};
 		img.src = url;
 	};
 
 	return (
-		<div className="core-gap mx-auto flex flex-col items-center">
+		<div className="mx-auto flex flex-col items-center gap-2">
 			<div ref={containerRef} className="rounded-xl bg-white p-2">
-				<QRCode bgColor="transparent" fgColor="#000" size={128} value={value} />
+				<QRCode bgColor="transparent" fgColor="#000" size={112} value={value} />
 			</div>
 			<Button
-				className="w-36"
+				className="w-32"
 				leftIcon={<Download className="size-4" />}
 				size="sm"
 				variant="ghost"

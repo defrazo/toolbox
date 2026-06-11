@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LifeBuoy, LogOut, Mail, Settings } from 'lucide-react';
+import { History, LifeBuoy, LogOut, Mail, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -21,6 +21,16 @@ export const UserMenu = observer(({ isMenuOpen, setIsMenuOpen, setIsSidebarOpen,
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	const navButtons = [
+		{
+			id: 'links',
+			title: t(($) => $.userMenu.links),
+			icon: History,
+			action: () => {
+				tabsStore.setTab('links');
+				setIsMenuOpen(false);
+				setIsSidebarOpen?.(false);
+			},
+		},
 		{
 			id: 'settings',
 			title: t(($) => $.userMenu.settings),

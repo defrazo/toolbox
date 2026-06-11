@@ -11,6 +11,12 @@ class RedirectController extends Controller
     {
         $link = ShortLink::where('code', $code)->firstOrFail();
 
-        return redirect($link->original_url);
+        if ($link->isExpired()) {
+            abort(410, 'SHORT_LINK_EXPIRED');
+        }
+
+        $link->incrementClicks();
+
+        return redirect()->away($link->original_url);
     }
 }

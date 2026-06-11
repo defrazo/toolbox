@@ -1,1 +1,10 @@
-export { buildName, buildRenamedFiles, downloadAsZip, formatFileSize, share } from './utils';
+export {
+	buildName,
+	buildRenamedFiles,
+	downloadAsZip,
+	formatFileSize,
+	getTtl,
+	mapLinkFromDb,
+	mapLinksFromDb,
+	share,
+} from './utils';

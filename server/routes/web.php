@@ -13,4 +13,5 @@ Route::get('/reset-password/{token}', function (Request $request, string $token)
 })->name('password.reset');
 
 Route::get('/{code}', RedirectController::class)
-    ->where('code', '[a-zA-Z0-9]+');
+    ->where('code', '[A-Za-z0-9]{6}')
+    ->name('redirect');

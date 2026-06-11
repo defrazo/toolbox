@@ -7,22 +7,21 @@ use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use App\Notifications\VerifyPendingEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['username', 'email', 'pending_email', 'password', 'avatar', 'is_demo'])]
-#[Hidden(['password', 'remember_token'])]
-
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
+
+    protected $fillable = ['username', 'email', 'pending_email', 'password', 'avatar', 'is_demo'];
+
+    protected $hidden = ['password', 'remember_token'];
 
     public function sendPasswordResetNotification($token): void
     {

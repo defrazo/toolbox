@@ -1,0 +1,55 @@
+{
+	"meta": {
+		"title": "Recent links",
+		"subtitle": "Manage links and view click statistics"
+	},
+
+	"table": {
+		"title": {
+			"shortUrl": "Short link",
+			"originalUrl": "Original link",
+			"createdAt": "Created",
+			"ttl": "Until deletion",
+			"clicks": "Clicks",
+			"actions": "Actions"
+		},
+		"hint": {
+			"shortUrl": "Copy short link",
+			"originalUrl": "Copy original link",
+			"createdAt": "This link is not deleted (pinned)",
+			"expired": "Expired",
+			"lock": "Pin",
+			"lockOpen": "Unpin",
+			"open": "Open in new tab",
+			"qr": "Show QR code",
+			"delete": "Delete link"
+		}
+	},
+
+	"footer": {
+		"demoInfo": "Guest links are automatically deleted after 24 hours.",
+		"userInfo": "Unpinned links are automatically deleted after 24 hours.",
+		"refresh": "Refresh"
+	},
+
+	"confirm": {
+		"question": "Delete link?",
+		"delete": "Delete",
+		"cancel": "Cancel"
+	},
+
+	"empty": {
+		"title": "No links yet",
+		"subtitle": "Create your first link to see it here"
+	},
+
+	"success": {
+		"qrDownloaded": "QR code saved",
+		"linkCopied": "Link copied",
+		"deletingLink": "Deleting link..."
+	},
+
+	"errors": {
+		"default": "Something went wrong"
+	}
+}
