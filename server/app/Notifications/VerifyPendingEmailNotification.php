@@ -38,22 +38,24 @@ class VerifyPendingEmailNotification extends Notification implements ShouldQueue
 
     protected function verificationUrl(): string
     {
-        $hash = sha1($this->pendingEmail);
-
         $signedBackendUrl = URL::temporarySignedRoute(
             'pending-email.verify',
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
-            ['id' => $this->userId, 'hash' => $hash],
-            absolute: true,
+            [
+                'id' => $this->userId,
+                'hash' => sha1($this->pendingEmail),
+                'type' => 'pending',
+            ],
+            absolute: false,
         );
 
         $query = parse_url($signedBackendUrl, PHP_URL_QUERY);
 
         return sprintf(
-            '%s/email/verify/%s/%s?%s&type=pending',
+            '%s/email/verify/%s/%s?%s',
             rtrim(config('app.frontend_url'), '/'),
             $this->userId,
-            $hash,
+            sha1($this->pendingEmail),
             $query,
         );
     }

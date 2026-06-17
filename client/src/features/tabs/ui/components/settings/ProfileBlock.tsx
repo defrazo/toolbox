@@ -68,7 +68,7 @@ export const ProfileBlock = observer(() => {
 
 			notifyStore.setNotice(
 				tSettings(($) => $.success.email),
-				'success'
+				'info'
 			);
 		} catch (error: any) {
 			const code = error?.response?.data?.code;

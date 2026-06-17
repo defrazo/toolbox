@@ -18,14 +18,14 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // Email verification
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-    ->middleware(['signed', 'throttle:6,1'])
+    ->middleware(['signed:relative', 'throttle:6,1'])
     ->name('verification.verify');
 Route::post('/email/resend', [AuthController::class, 'resendVerification'])
     ->middleware('throttle:3,1');
 
 // Pending email verification
 Route::get('/user/email/verify/{id}/{hash}', [UserController::class, 'verifyPendingEmail'])
-    ->middleware('signed')
+    ->middleware('signed:relative')
     ->name('pending-email.verify');
 Route::post('/user/email/resend', [UserController::class, 'resendPendingEmail'])
     ->middleware(['auth:sanctum', 'throttle:3,1']);

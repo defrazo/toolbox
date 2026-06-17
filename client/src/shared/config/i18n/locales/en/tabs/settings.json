@@ -37,7 +37,7 @@
 	"success": {
 		"avatar": "Avatar updated successfully!",
 		"username": "Username updated successfully!",
-		"email": "E-mail updated successfully!",
+		"email": "E-mail change initiated",
 		"password": "Password updated successfully!"
 	},
 
