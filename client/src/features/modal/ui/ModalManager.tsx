@@ -11,11 +11,7 @@ export const ModalManager = observer(() => {
 	if (!modal || modal.type === 'none') return null;
 
 	return (
-		<Modal
-			onBack={modal.back}
-			onClose={modalStore.closeModal}
-			{...(modal.position && { position: modal.position })}
-		>
+		<Modal onClose={modal.type === 'confirm' ? undefined : (modal.onClose ?? modalStore.closeModal)}>
 			{modal.content}
 		</Modal>
 	);
