@@ -121,10 +121,6 @@ class UserController extends Controller
 
     public function verifyPendingEmail(Request $request, int $id, string $hash): JsonResponse
     {
-        if (!$request->hasValidSignature()) {
-            abort(403);
-        }
-
         $user = User::findOrFail($id);
 
         if (!$user->pending_email) {

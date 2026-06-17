@@ -38,7 +38,7 @@ export const VerifyEmailForm = observer(() => {
 			return;
 		}
 
-		api.get(endpoint, { params: { expires, signature } })
+		api.get(endpoint, { params: Object.fromEntries(searchParams.entries()) })
 			.then((response) => {
 				if (type === 'pending') userStore.setUser(response.data.user);
 				else setVerifiedData(response.data);

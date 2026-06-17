@@ -26,14 +26,15 @@ class VerifyEmailNotification extends VerifyEmail implements ShouldQueue
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),
+                'type' => 'register',
             ],
-            absolute: true,
+            absolute: false,
         );
 
         $query = parse_url($signedBackendUrl, PHP_URL_QUERY);
 
         return sprintf(
-            '%s/email/verify/%s/%s?%s&type=register',
+            '%s/email/verify/%s/%s?%s',
             rtrim(config('app.frontend_url'), '/'),
             $notifiable->getKey(),
             sha1($notifiable->getEmailForVerification()),
