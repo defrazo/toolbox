@@ -14,7 +14,7 @@ export const AuthDemo = observer(() => {
 
 	const handleDemo = async () => {
 		try {
-			await authStore.login('Demo@email.com', '12345678');
+			await authStore.login('demo@example.com', 'DemoPassword123');
 
 			navigate('/');
 		} catch {
