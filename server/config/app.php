@@ -8,6 +8,7 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'short_link_domain' => env('SHORT_LINK_DOMAIN', env('APP_URL')),
 
     'timezone' => 'UTC',
     'locale' => env('APP_LOCALE', 'en'),

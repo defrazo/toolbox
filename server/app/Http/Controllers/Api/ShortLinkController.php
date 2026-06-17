@@ -61,10 +61,12 @@ class ShortLinkController extends Controller
 
     private function toResponse(ShortLink $link): array
     {
+        $shortLinkDomain = rtrim(config('app.short_link_domain'), '/');
+
         return [
             'id' => $link->id,
             'code' => $link->code,
-            'short_url' => url("/{$link->code}"),
+            'short_url' => "{$shortLinkDomain}/{$link->code}",
             'original_url' => $link->original_url,
             'clicks' => $link->clicks,
             'locked' => $link->locked,
