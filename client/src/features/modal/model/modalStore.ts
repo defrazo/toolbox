@@ -10,33 +10,14 @@ export class ModalStore {
 		return this.modal?.type;
 	}
 
-	setModal(
-		content: ReactNode,
-		type: ModalType = 'modal',
-		options?: { back?: () => void; position?: { top: number; left: number }; onClose?: () => void }
-	): void {
-		this.modal = {
-			content,
-			type,
-			back: options?.back,
-			position: options?.position,
-			onClose: options?.onClose,
-		};
-
+	setModal(content: ReactNode, type: ModalType = 'modal', options?: { onClose?: () => void }): void {
+		this.modal = { content, type, onClose: options?.onClose };
 		document.body.style.overflow = 'hidden';
 	}
 
 	closeModal(): void {
 		this.modal = null;
 		document.body.style.overflow = '';
-	}
-
-	setBack(handler: () => void): void {
-		if (this.modal) this.modal.back = handler;
-	}
-
-	resetBack(): void {
-		if (this.modal) this.modal.back = undefined;
 	}
 
 	constructor() {

@@ -3,7 +3,7 @@ import { makeAutoObservable, reaction } from 'mobx';
 import type { Theme } from '.';
 
 export class ThemeStore {
-	theme: Theme = 'system';
+	theme: Theme = 'dark';
 
 	get currentTheme(): 'Светлая' | 'Темная' {
 		return this.theme === 'light' ? 'Светлая' : 'Темная';

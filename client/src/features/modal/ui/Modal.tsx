@@ -1,33 +1,29 @@
 import type { ReactNode } from 'react';
 import ReactDOM from 'react-dom';
-import { ChevronLeft, X } from 'lucide-react';
-import { observer } from 'mobx-react-lite';
+import { X } from 'lucide-react';
 
 import { useEscapeClose } from '../model';
 
-interface ModalProps {
-	children: ReactNode;
-	onBack?: () => void;
-	onClose?: () => void;
-}
-
-export const Modal = observer(({ children, onBack, onClose }: ModalProps) => {
+export const Modal = ({ children, onClose }: { children: ReactNode; onClose?: () => void }) => {
 	useEscapeClose(onClose);
 
 	return ReactDOM.createPortal(
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-			<div className="core-border max-w-fit flex-col rounded-4xl bg-(--bg-secondary) p-12 shadow-2xl">
-				<div className="top-4 flex h-4 w-full justify-between">
-					{onBack && (
-						<ChevronLeft className="w-5 cursor-pointer hover:text-(--accent-hover)" onClick={onBack} />
-					)}
-					{onClose && (
-						<X className="ml-auto w-5 cursor-pointer hover:text-(--accent-hover)" onClick={onClose} />
-					)}
-				</div>
-				<div>{children}</div>
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center bg-(--bg-overlay) p-4 backdrop-blur-[2px]"
+			onClick={onClose}
+		>
+			<div
+				className="core-border core-gap flex w-full max-w-md flex-col bg-(--bg-secondary) p-3 text-center backdrop-blur-md"
+				onClick={(event) => event.stopPropagation()}
+			>
+				{onClose && (
+					<div className="flex w-full justify-end">
+						<X className="size-5 cursor-pointer hover:text-(--accent-hover)" onClick={onClose} />
+					</div>
+				)}
+				{children}
 			</div>
 		</div>,
 		document.body
 	);
-});
+};

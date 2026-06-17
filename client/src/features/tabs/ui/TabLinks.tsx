@@ -13,12 +13,11 @@ import { ConfirmDialog, EmptyState, LinksFooter, LinksTable } from './components
 export const TabLinks = observer(() => {
 	const { t } = useTranslation('links');
 
-	const { userStore, notifyStore } = useStore();
+	const { userStore, modalStore, notifyStore } = useStore();
 
 	const [isFetching, setIsFetching] = useState(false);
 	const [pendingId, setPendingId] = useState<number | null>(null);
 
-	const [deleteLink, setDeleteLink] = useState<number | null>(null);
 	const [links, setLinks] = useState<ShortLink[]>([]);
 
 	const tableTitles = [
@@ -29,6 +28,20 @@ export const TabLinks = observer(() => {
 		{ id: 'clicks', title: t(($) => $.table.title.clicks), style: 'text-center' },
 		{ id: 'actions', title: t(($) => $.table.title.actions), style: 'text-center' },
 	];
+
+	const openDeleteConfirm = (id: number) => {
+		const link = links.find((link) => link.id === id);
+		if (!link) return;
+
+		modalStore.setModal(
+			<ConfirmDialog
+				link={link.shortUrl}
+				onCancel={() => modalStore.closeModal()}
+				onConfirm={() => handleDelete(id)}
+			/>,
+			'confirm'
+		);
+	};
 
 	const fetchLinks = async () => {
 		if (isFetching) return;
@@ -85,7 +98,6 @@ export const TabLinks = observer(() => {
 			await linksApi.deleteLink(id);
 
 			setLinks((prev) => prev.filter((link) => link.id !== id));
-			setDeleteLink(null);
 		} catch {
 			notifyStore.setNotice(
 				t((t) => t.errors.default),
@@ -93,7 +105,7 @@ export const TabLinks = observer(() => {
 			);
 		} finally {
 			setPendingId(null);
-			setDeleteLink(null);
+			modalStore.closeModal();
 		}
 	};
 
@@ -122,18 +134,10 @@ export const TabLinks = observer(() => {
 						<Preloader className="size-15 border-(--accent-primary) border-t-(--border-color)" />
 					</div>
 				) : (
-					<LinksTable links={links} pendingId={pendingId} onDelete={setDeleteLink} onLock={handleLock} />
+					<LinksTable links={links} pendingId={pendingId} onDelete={openDeleteConfirm} onLock={handleLock} />
 				)}
 			</div>
 			<LinksFooter isDemo={userStore.isDemo} isLoading={isFetching} onRefresh={fetchLinks} />
-			{deleteLink !== null && (
-				<ConfirmDialog
-					isPending={pendingId !== null}
-					link={links.find((link) => link.id === deleteLink)?.shortUrl}
-					onCancel={() => setDeleteLink(null)}
-					onConfirm={() => handleDelete(deleteLink)}
-				/>
-			)}
 		</>
 	);
 });

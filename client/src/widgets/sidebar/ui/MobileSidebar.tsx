@@ -21,7 +21,7 @@ export const MobileSidebar = () => {
 		<>
 			<Button
 				centerIcon={<Menu className="size-7" />}
-				className="absolute top-0 right-0 z-50 rounded-2xl rounded-tl-none rounded-br-none border border-(--border-color) bg-(--bg-secondary) p-2 shadow-md backdrop-blur-md lg:hidden"
+				className="absolute top-0 right-0 z-50 rounded-xl rounded-tl-none rounded-br-none border border-(--border-color) bg-(--bg-secondary) p-2 shadow-md backdrop-blur-md lg:hidden"
 				variant="custom"
 				onClick={() => setIsSidebarOpen(true)}
 			/>
