@@ -1,9 +1,3 @@
-# OS
-.DS_Store
-Thumbs.db
-
-dist 
-
 # IDE
 .idea
 .cursor/
@@ -11,3 +5,10 @@ dist
 .nova
 .vscode/*
 !.vscode/extensions.json
+
+# misc
+.DS_Store
+Thumbs.db
+.env.production
+*.tar
+dist 

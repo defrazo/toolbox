@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('links:cleanup-expired')
-    ->hourly()
+    ->dailyAt('03:00')
     ->name('links.cleanup-expired');

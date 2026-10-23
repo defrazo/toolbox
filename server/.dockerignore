@@ -7,3 +7,6 @@ storage/framework/views/*
 .git
 .vscode
 .idea
+.env
+.env.*
+!.env.example
