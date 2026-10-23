@@ -1,3 +1,4 @@
+import IconApps from './apps.svg?react';
 import IconMask from './mask.svg?react';
 
-export { IconMask };
+export { IconApps, IconMask };
