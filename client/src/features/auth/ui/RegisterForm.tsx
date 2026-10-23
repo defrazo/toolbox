@@ -7,7 +7,6 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '@/app/providers';
 import { Button, Input } from '@/shared/ui';
 
-import { verifyInvite } from '../api';
 import { getAuthErrorMessage } from '../lib';
 import { useAuth } from '../model';
 import { PasswordHint } from '.';
@@ -27,7 +26,6 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 
 	const [showPass, setShowPass] = useState(false);
 	const [showHint, setShowHint] = useState(false);
-	const [isVerifying, setIsVerifying] = useState(false);
 
 	const PassIcon = showPass ? EyeClosed : Eye;
 
@@ -56,12 +54,12 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			return;
 		}
 
-		try {
-			setIsVerifying(true);
-			const { data } = await verifyInvite(inviteCode);
-			setIsVerifying(false);
+		if (authStore.isLoading) return;
 
-			await authStore.register(username, email, password, passConfirm, data.invite_token, isPrivacyAccepted);
+		try {
+			const inviteToken = await authStore.verifyInvite(inviteCode);
+
+			await authStore.register(username, email, password, passConfirm, inviteToken, isPrivacyAccepted);
 
 			notifyStore.setNotice(
 				t(($) => $.success.register),
@@ -72,8 +70,6 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 
 			navigate('/email/verify', { state: { email } });
 		} catch (error: any) {
-			setIsVerifying(false);
-
 			const code = error?.response?.data?.code;
 			notifyStore.setNotice(getAuthErrorMessage(t, code), 'error');
 		}
@@ -160,7 +156,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Button
 				className="active-btn mt-4 h-10 w-full bg-(--bg-secondary)"
-				loading={isVerifying || authStore.isLoading}
+				loading={authStore.isLoading}
 				type="submit"
 			>
 				{t(($) => $.screens.register.submit)}

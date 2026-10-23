@@ -1,45 +1,56 @@
-import { api } from '@/shared/api';
+import { api, csrf } from '@/shared/api';
 
-type RegisterDto = {
-	username: string;
-	email: string;
-	password: string;
-	password_confirmation: string;
-	invite_token: string;
-	privacy_accepted: boolean;
-};
+import type { AuthResponse, AuthSessionResponse, RegisterPayload, ResetPasswordPayload } from '.';
 
-type ResetPasswordDto = {
-	email: string;
-	token: string;
-	password: string;
-	password_confirmation: string;
-};
+export const authApi = {
+	async verifyInvite(inviteCode: string): Promise<string> {
+		await csrf();
 
-export const register = (data: RegisterDto) => {
-	return api.post('/register', data);
-};
+		const { data } = await api.post<{ invite_token: string }>('/invite/verify', { invite_code: inviteCode.trim() });
+		return data.invite_token;
+	},
 
-export const login = (email: string, password: string) => {
-	return api.post('/login', { email, password });
-};
+	async verifyEmail(id: string, hash: string, params: Record<string, string>): Promise<AuthResponse> {
+		await csrf();
 
-export const logout = () => {
-	return api.post('/logout');
-};
+		const { data } = await api.get<AuthResponse>(`/email/verify/${id}/${hash}`, { params });
+		return data;
+	},
 
-export const verifyInvite = async (inviteCode: string) => {
-	return api.post('/invite/verify', { invite_code: inviteCode });
-};
+	async register(payload: RegisterPayload): Promise<void> {
+		await csrf();
+		await api.post('/register', payload);
+	},
 
-export const resendEmail = (email: string) => {
-	return api.post('/email/resend', { email });
-};
+	async login(email: string, password: string): Promise<AuthResponse> {
+		await csrf();
 
-export const forgotPassword = (email: string) => {
-	return api.post('/forgot-password', { email });
-};
+		const { data } = await api.post<AuthResponse>('/login', { email: email.trim().toLowerCase(), password });
+		return data;
+	},
 
-export const resetPassword = (data: ResetPasswordDto) => {
-	return api.post('/reset-password', data);
+	async getSession(): Promise<AuthSessionResponse> {
+		const { data } = await api.get<AuthSessionResponse>('/auth/session');
+		return data;
+	},
+
+	async logout(): Promise<void> {
+		await csrf();
+		await api.post('/logout');
+	},
+
+	async resendVerification(email: string): Promise<void> {
+		await csrf();
+		await api.post('/email/resend', { email: email.trim().toLowerCase() });
+	},
+
+	async forgotPassword(email: string): Promise<void> {
+		await csrf();
+		await api.post('/forgot-password', { email: email.trim().toLowerCase() });
+	},
+
+	async resetPassword(payload: ResetPasswordPayload): Promise<void> {
+		await csrf();
+		await api.post('/reset-password', { ...payload, email: payload.email.trim().toLowerCase() });
+	},
 };
