@@ -5,49 +5,29 @@ import svgr from 'vite-plugin-svgr';
 import path from 'path';
 
 export default defineConfig({
-	base: '/',
 	plugins: [react(), svgr(), tailwindcss()],
-	resolve: {
-		alias: {
-			'@': path.resolve(__dirname, 'src'),
-		},
-	},
-	build: {
-		outDir: 'dist',
-	},
+	resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
 	server: {
 		host: '0.0.0.0',
-		port: 3000,
-		open: true,
-		hmr: {
-			host: '192.168.31.168',
-			port: 3000,
-			clientPort: 3000,
-		},
+		port: 3001,
+		strictPort: true,
 		proxy: {
-			'/sanctum': {
-				target: 'http://localhost:8000',
-				changeOrigin: true,
-			},
+			'/api': { target: 'http://localhost:8001', changeOrigin: true },
+			'/sanctum': { target: 'http://localhost:8001', changeOrigin: true },
+			'/auth/onemate': { target: 'http://localhost:8001', changeOrigin: true },
 			'/login': {
-				target: 'http://localhost:8000',
+				target: 'http://localhost:8001',
 				changeOrigin: true,
 				bypass(req) {
 					if (req.method === 'GET') return '/index.html';
 				},
 			},
 			'/logout': {
-				target: 'http://localhost:8000',
+				target: 'http://localhost:8001',
 				changeOrigin: true,
 				bypass(req) {
-					if (req.method === 'GET') {
-						return '/index.html';
-					}
+					if (req.method === 'GET') return '/index.html';
 				},
-			},
-			'/api': {
-				target: 'http://localhost:8000',
-				changeOrigin: true,
 			},
 		},
 	},
