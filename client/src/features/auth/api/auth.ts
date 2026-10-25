@@ -22,10 +22,10 @@ export const authApi = {
 		await api.post('/register', payload);
 	},
 
-	async login(email: string, password: string): Promise<AuthResponse> {
+	async login(login: string, password: string): Promise<AuthResponse> {
 		await csrf();
 
-		const { data } = await api.post<AuthResponse>('/login', { email: email.trim().toLowerCase(), password });
+		const { data } = await api.post<AuthResponse>('/login', { login: login.trim().toLowerCase(), password });
 		return data;
 	},
 

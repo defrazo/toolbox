@@ -50,7 +50,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'invite_token' => ['required', 'string'],
             'privacy_accepted' => ['accepted'],
-            'username' => ['required', 'string', 'min:2', 'max:32', 'regex:/^[a-zA-Z0-9_-]+$/'],
+            'username' => ['required', 'string', 'min:2', 'max:32', 'regex:/^[a-zA-Z0-9_-]+$/', 'unique:users,username'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255', 'unique:users,email'],
             'password' => [
                 'required',
@@ -98,25 +98,40 @@ class AuthController extends Controller
 
     public function login(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'email' => ['required', 'email'],
+        $validator = Validator::make($request->all(), [
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::guard('web')->attempt($data)) {
-            return response()->json(['code' => 'INVALID_CREDENTIALS'], 422);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 'INVALID_CREDENTIALS',
+            ], 422);
         }
 
-        $user = Auth::guard('web')->user();
+        $data = $validator->validated();
+
+        $login = mb_strtolower(trim($data['login']));
+
+        $user = User::query()
+            ->whereRaw('LOWER(email) = ?', [$login])
+            ->orWhereRaw('LOWER(username) = ?', [$login])
+            ->first();
+
+        if (!$user || !$user->password || !Hash::check($data['password'], $user->password)) {
+            return response()->json([
+                'code' => 'INVALID_CREDENTIALS',
+            ], 422);
+        }
 
         if (!$user->hasVerifiedEmail()) {
-            Auth::guard('web')->logout();
-
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-
-            return response()->json(['code' => 'EMAIL_NOT_VERIFIED'], 403);
+            return response()->json([
+                'code' => 'EMAIL_NOT_VERIFIED',
+                'email' => $user->email,
+            ], 403);
         }
+
+        Auth::guard('web')->login($user);
 
         $request->session()->regenerate();
 

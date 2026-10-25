@@ -66,11 +66,11 @@ export class AuthStore {
 		}
 	}
 
-	async login(email: string, password: string): Promise<void> {
+	async login(login: string, password: string): Promise<void> {
 		this.isLoading = true;
 
 		try {
-			const { user } = await authApi.login(email, password);
+			const { user } = await authApi.login(login.trim(), password);
 			this.setSession(user);
 		} finally {
 			runInAction(() => (this.isLoading = false));

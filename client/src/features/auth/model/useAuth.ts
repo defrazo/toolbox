@@ -1,7 +1,13 @@
 import type { TFunction } from 'i18next';
 
 import { useStore } from '@/app/providers';
-import { validateEmail, validateInvite, validatePassword, validateUsername } from '@/shared/lib/validators';
+import {
+	validateEmail,
+	validateInvite,
+	validateLogin,
+	validatePassword,
+	validateUsername,
+} from '@/shared/lib/validators';
 
 export const useAuth = (t: TFunction<'auth'>) => {
 	const { notifyStore } = useStore();
@@ -40,6 +46,22 @@ export const useAuth = (t: TFunction<'auth'>) => {
 		return true;
 	};
 
+	const checkLogin = (value: string) => {
+		const result = validateLogin(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.login));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.login));
+			return false;
+		}
+
+		return true;
+	};
+
 	const checkPassword = (value: string) => {
 		const result = validatePassword(value);
 
@@ -72,5 +94,5 @@ export const useAuth = (t: TFunction<'auth'>) => {
 		return true;
 	};
 
-	return { checkUsername, checkEmail, checkPassword, checkInvite };
+	return { checkUsername, checkLogin, checkEmail, checkPassword, checkInvite };
 };

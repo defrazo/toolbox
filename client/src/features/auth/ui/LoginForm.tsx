@@ -15,7 +15,7 @@ export const LoginForm = observer(() => {
 	const navigate = useNavigate();
 
 	const { authStore, notifyStore } = useStore();
-	const { checkEmail, checkPassword } = useAuth(t);
+	const { checkLogin } = useAuth(t);
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -26,8 +26,15 @@ export const LoginForm = observer(() => {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		if (!checkEmail(email)) return;
-		if (!checkPassword(password)) return;
+		if (!checkLogin(email)) return;
+
+		if (!password.trim()) {
+			notifyStore.setNotice(
+				t(($) => $.errors.empty.password),
+				'info'
+			);
+			return;
+		}
 
 		try {
 			await authStore.login(email, password);
@@ -61,8 +68,8 @@ export const LoginForm = observer(() => {
 						<Mail className="mr-2 ml-1 size-5" />
 					</div>
 				}
-				placeholder={t(($) => $.common.fields.email.placeholder)}
-				type="email"
+				placeholder={t(($) => $.common.fields.login.placeholder)}
+				type="text"
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 			/>
