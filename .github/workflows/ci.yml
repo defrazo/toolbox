@@ -40,23 +40,11 @@ jobs:
           extensions: pdo, pdo_pgsql, redis
           coverage: none
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-
       - name: Copy .env
         run: cp .env.example .env
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Install Node dependencies
-        run: npm install
-
       - name: Generate app key
         run: php artisan key:generate
-
-      - name: Build assets
-        run: npm run build
