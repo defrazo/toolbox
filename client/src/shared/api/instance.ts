@@ -1,17 +1,17 @@
 import axios from 'axios';
 
-import { TOKEN_KEY } from '../config';
-
 export const api = axios.create({
 	baseURL: '/api',
 	timeout: 30000,
+	withCredentials: true,
+	withXSRFToken: true,
 	headers: { Accept: 'application/json' },
 });
 
-api.interceptors.request.use((config) => {
-	const token = localStorage.getItem(TOKEN_KEY);
-
-	if (token) config.headers.Authorization = `Bearer ${token}`;
-
-	return config;
-});
+export const csrf = async (): Promise<void> => {
+	await axios.get('/sanctum/csrf-cookie', {
+		withCredentials: true,
+		withXSRFToken: true,
+		headers: { Accept: 'application/json' },
+	});
+};

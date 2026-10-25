@@ -2,7 +2,15 @@ import type { RouteObject } from 'react-router-dom';
 
 import { Layout } from '@/app/layouts';
 import { AuthSidebar } from '@/features/auth';
-import { ForgotPassPage, LoginPage, RegisterPage, ResendEmailPage, ResetPassPage, VerifyEmailPage } from '@/pages/auth';
+import {
+	AccountLinkPage,
+	ForgotPassPage,
+	LoginPage,
+	RegisterPage,
+	ResendEmailPage,
+	ResetPassPage,
+	VerifyEmailPage,
+} from '@/pages/auth';
 import MainPage from '@/pages/main';
 import NotFoundPage from '@/pages/not-found';
 import PrivacyPolicyPage from '@/pages/privacy-policy';
@@ -28,6 +36,7 @@ export const routes: RouteObject[] = [
 				children: [
 					{ path: '/login', element: <LoginPage /> },
 					{ path: '/register', element: <RegisterPage /> },
+					{ path: '/account-link', element: <AccountLinkPage /> },
 					{ path: '/forgot-password', element: <ForgotPassPage /> },
 					{ path: '/reset-password', element: <ResetPassPage /> },
 				],

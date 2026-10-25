@@ -1,4 +1,5 @@
-export { AuthDemo, AuthFormHeader, AuthSidebar, PasswordHint } from './components';
+export { AccountLinkForm } from './AccountLinkForm';
+export { AuthDemo, AuthFormHeader, AuthOneMate, AuthSidebar, PasswordHint } from './components';
 export { ForgotPassForm } from './ForgotPassForm';
 export { LoginForm } from './LoginForm';
 export { RegisterForm } from './RegisterForm';

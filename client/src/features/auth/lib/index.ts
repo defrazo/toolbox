@@ -1,1 +1,2 @@
-export { getAuthErrorMessage } from './utils';
+export * from './auth-channel';
+export * from './utils';

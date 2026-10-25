@@ -27,6 +27,7 @@ export const ResultBlock = ({ shortUrl }: { shortUrl: string }) => {
 						<Input
 							className="h-12 xl:h-14"
 							disabled={!shortUrl}
+							id="short-url"
 							leftIcon={<Link className="mx-2 size-4" />}
 							readOnly
 							value={shortUrl}

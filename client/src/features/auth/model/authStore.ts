@@ -1,49 +1,77 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import type { User } from '@/entities/user';
-import { getUser, UserStore } from '@/entities/user';
-import { TOKEN_KEY } from '@/shared/config';
+import type { UserStore } from '@/entities/user';
 
-import { forgotPassword, login, logout, register, resendEmail, resetPassword } from '../api';
+import { authApi } from '../api';
+import { authChannel } from '../lib';
 
 export class AuthStore {
+	private authVersion = 0;
+	private initialized = false;
+
 	isInitializing = true;
 	isLoading = false;
 
-	get isAuth() {
+	get isAuth(): boolean {
 		return !!this.userStore.user;
 	}
 
-	setSession(user: User, token: string) {
-		localStorage.setItem(TOKEN_KEY, token);
-		this.userStore.setUser(user);
-	}
-
-	async fetchUser() {
-		if (!localStorage.getItem(TOKEN_KEY)) {
-			this.userStore.clear();
-			runInAction(() => (this.isInitializing = false));
-			return;
-		}
+	async fetchUser(): Promise<void> {
+		const version = this.authVersion;
 
 		try {
-			const { data } = await getUser();
-			this.userStore.setUser(data);
-		} catch {
-			this.userStore.clear();
+			const { authenticated, user } = await authApi.getSession();
+
+			if (version !== this.authVersion) return;
+
+			runInAction(() => {
+				if (authenticated && user) this.setSession(user);
+				else this.clearSession();
+			});
 		} finally {
 			runInAction(() => (this.isInitializing = false));
 		}
 	}
 
-	async login(email: string, password: string) {
-		runInAction(() => (this.isLoading = true));
+	async verifyInvite(inviteCode: string): Promise<string> {
+		return authApi.verifyInvite(inviteCode.trim());
+	}
+
+	async verifyEmail(id: string, hash: string, params: Record<string, string>): Promise<boolean> {
+		if (this.isLoading) return false;
+
+		this.isLoading = true;
 
 		try {
-			const { data } = await login(email, password);
-			this.setSession(data.user, data.token);
-		} catch (error) {
-			throw error;
+			const { user } = await authApi.verifyEmail(id, hash, params);
+			this.setSession(user);
+			return true;
+		} finally {
+			runInAction(() => (this.isLoading = false));
+		}
+	}
+
+	async confirmOneMateLink(password: string): Promise<void> {
+		if (this.isLoading) return;
+
+		this.isLoading = true;
+
+		try {
+			await authApi.confirmOneMateLink(password);
+			await this.fetchUser();
+
+			if (!this.isAuth) throw new Error('Не удалось восстановить сессию после привязки');
+		} finally {
+			runInAction(() => (this.isLoading = false));
+		}
+	}
+
+	async login(login: string, password: string): Promise<void> {
+		this.isLoading = true;
+
+		try {
+			const { user } = await authApi.login(login.trim(), password);
+			this.setSession(user);
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
@@ -53,79 +81,101 @@ export class AuthStore {
 		username: string,
 		email: string,
 		password: string,
-		passwordConfirmation: string,
-		invite_token: string,
-		isPrivacyAccepted: boolean
-	) {
-		runInAction(() => (this.isLoading = true));
+		passwordConfirm: string,
+		inviteToken: string,
+		privacyAccepted: boolean
+	): Promise<void> {
+		this.isLoading = true;
 
 		try {
-			await register({
-				username,
-				email,
+			await authApi.register({
+				username: username.trim(),
+				email: email.trim().toLowerCase(),
 				password,
-				password_confirmation: passwordConfirmation,
-				invite_token,
-				privacy_accepted: isPrivacyAccepted,
+				password_confirmation: passwordConfirm,
+				invite_token: inviteToken,
+				privacy_accepted: privacyAccepted,
 			});
-		} catch (error) {
-			throw error;
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
 	}
 
-	async logout() {
-		try {
-			await logout();
-		} finally {
-			localStorage.removeItem(TOKEN_KEY);
-			this.userStore.clear();
-		}
-	}
-
-	async resendVerificationEmail(email: string) {
-		runInAction(() => (this.isLoading = true));
+	async resendVerificationEmail(email: string): Promise<void> {
+		this.isLoading = true;
 
 		try {
-			await resendEmail(email);
+			await authApi.resendVerification(email);
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
 	}
 
-	async forgotPassword(email: string) {
-		runInAction(() => (this.isLoading = true));
+	async forgotPassword(email: string): Promise<void> {
+		this.isLoading = true;
 
 		try {
-			await forgotPassword(email);
+			await authApi.forgotPassword(email);
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
 	}
 
-	async resetPassword(email: string, token: string, password: string, passwordConfirmation: string) {
-		runInAction(() => (this.isLoading = true));
+	async resetPassword(email: string, token: string, password: string, passwordConfirm: string): Promise<void> {
+		this.isLoading = true;
 
 		try {
-			await resetPassword({
-				email,
-				token,
-				password,
-				password_confirmation: passwordConfirmation,
-			});
-		} catch (error) {
-			throw error;
+			await authApi.resetPassword({ email, token, password, password_confirmation: passwordConfirm });
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
 	}
 
-	constructor(private userStore: UserStore) {
-		makeAutoObservable(this);
+	async logout(): Promise<void> {
+		this.authVersion++;
+
+		try {
+			await authApi.logout();
+			authChannel.postMessage({ type: 'logout' });
+		} finally {
+			this.clearSession();
+		}
 	}
 
-	async init() {
-		await this.fetchUser();
+	private handleAuthMessage(event: MessageEvent): void {
+		if (event.data?.type !== 'logout') return;
+		this.clearSession();
+	}
+
+	private setSession(user: NonNullable<UserStore['user']>): void {
+		this.authVersion++;
+		this.userStore.setUser(user);
+	}
+
+	private clearSession(): void {
+		this.authVersion++;
+		this.userStore.clear();
+	}
+
+	constructor(private readonly userStore: UserStore) {
+		makeAutoObservable<this, 'authVersion' | 'initialized'>(
+			this,
+			{ authVersion: false, initialized: false },
+			{ autoBind: true }
+		);
+	}
+
+	init(): void {
+		if (this.initialized) return;
+		this.initialized = true;
+
+		authChannel.addEventListener('message', this.handleAuthMessage);
+
+		void this.fetchUser().catch();
+	}
+
+	dispose(): void {
+		authChannel.removeEventListener('message', this.handleAuthMessage);
+		this.initialized = false;
 	}
 }

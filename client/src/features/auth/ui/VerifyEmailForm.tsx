@@ -1,15 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CircleAlert, LoaderCircle, MailCheck } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
-import type { User } from '@/entities/user';
 import { api } from '@/shared/api';
 import { Button } from '@/shared/ui';
-
-type VerifiedData = { user: User; token: string };
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -23,29 +20,54 @@ export const VerifyEmailForm = observer(() => {
 	const [searchParams] = useSearchParams();
 
 	const [status, setStatus] = useState<Status>('loading');
-	const [verifiedData, setVerifiedData] = useState<VerifiedData | null>(null);
+	const verifiedRef = useRef(false);
 
-	const type = searchParams.get('type') ?? 'register';
-
-	const endpoint = type === 'pending' ? `/user/email/verify/${id}/${hash}` : `/email/verify/${id}/${hash}`;
+	const type = searchParams.get('type') === 'pending' ? 'pending' : 'register';
+	const query = searchParams.toString();
 
 	useEffect(() => {
-		const expires = searchParams.get('expires');
-		const signature = searchParams.get('signature');
+		if (verifiedRef.current) return;
 
-		if (!id || !hash || !expires || !signature) {
+		const params = Object.fromEntries(new URLSearchParams(query).entries());
+
+		if (!id || !hash || !params.expires || !params.signature) {
 			setStatus('error');
 			return;
 		}
 
-		api.get(endpoint, { params: Object.fromEntries(searchParams.entries()) })
-			.then((response) => {
-				if (type === 'pending') userStore.setUser(response.data.user);
-				else setVerifiedData(response.data);
+		verifiedRef.current = true;
+
+		let cancelled = false;
+
+		const verify = async () => {
+			try {
+				if (type === 'pending') {
+					const { data } = await api.get<{ user: NonNullable<typeof userStore.user> }>(
+						`/user/email/verify/${id}/${hash}`,
+						{ params }
+					);
+
+					if (cancelled) return;
+
+					userStore.setUser(data.user);
+				} else {
+					await authStore.verifyEmail(id, hash, params);
+
+					if (cancelled) return;
+				}
+
 				setStatus('success');
-			})
-			.catch(() => setStatus('error'));
-	}, [id, hash, type, endpoint]);
+			} catch {
+				if (!cancelled) setStatus('error');
+			}
+		};
+
+		void verify();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [id, hash, query, type, authStore, userStore]);
 
 	return (
 		<div className="flex flex-col items-center gap-2 select-none">
@@ -63,19 +85,7 @@ export const VerifyEmailForm = observer(() => {
 					<p className="text-center whitespace-pre-line text-(--color-secondary)">
 						{t(($) => $.screens.verifyEmail.successMessage)}
 					</p>
-					<Button
-						className="active-btn mt-4 h-10 w-full"
-						disabled={type !== 'pending' && !verifiedData}
-						onClick={() => {
-							if (type !== 'pending') {
-								if (!verifiedData) return;
-
-								authStore.setSession(verifiedData.user, verifiedData.token);
-							}
-
-							navigate('/');
-						}}
-					>
+					<Button className="active-btn mt-4 h-10 w-full" onClick={() => navigate('/')}>
 						{t(($) => $.screens.verifyEmail.successButton)}
 					</Button>
 				</>

@@ -1,75 +1,81 @@
-[![React](https://img.shields.io/badge/React-19-blue)](#)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6.x-blue)](#)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.x-38B2AC)](#)
-[![MobX](https://img.shields.io/badge/MobX-6.x-orange)](#)
-[![Vite](https://img.shields.io/badge/Vite-8.x-646CFF)](#)
-[![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20)](#)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.x-336791)](#)
-[![version](https://badgen.net/badge/version/v1.0.0?icon=tag&scale=1)](#)
+[![React](https://img.shields.io/badge/React-19-149ECA)](#технологический-стек)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6)](#технологический-стек)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4)](#технологический-стек)
+[![MobX](https://img.shields.io/badge/MobX-7.x-FF9955)](#технологический-стек)
+[![Vite](https://img.shields.io/badge/Vite-8.x-646CFF)](#технологический-стек)
+[![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20)](#технологический-стек)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](#технологический-стек)
+[![Version](https://img.shields.io/badge/version-1.5.0-e98224)](#)
+
+<div align="center">
 
 # ToolBox – твои инструменты в одном месте
 
-**ToolBox** – fullstack-платформа специализированных веб-инструментов для решения прикладных задач. Проект объединяет отдельные сервисы в единую экосистему с общей авторизацией, пользовательским профилем и масштабируемой архитектурой.
+</div>
 
-> [!IMPORTANT]
->
-> Посмотреть проект в деле:
->
-> [![ToolBox](https://img.shields.io/badge/ToolBox-Перейти_на_сайт-4F46E5?style=for-the-badge&logo=google-chrome&logoColor=white)](https://toolbox.letunoff.ru)
+**ToolBox** – веб-приложение, объединяющее специализированные инструменты для решения повседневных задач в едином рабочем пространстве.
+
+<p align="center">
+  <a href="https://toolbox.letunoff.ru">
+    <img src="https://img.shields.io/badge/Открыть_ToolBox-7c5cff?style=for-the-badge" alt="Открыть ToolBox">
+  </a>
+</p>
+
+<div align="center">
+  <img src="./docs/screenshots/home.webp" alt="Home" width="800">
+</div>
+
+## Модули
+
+### Переименование файлов
+
+**Пакетный переименователь** для массового изменения имён файлов по заданному шаблону с предварительным просмотром результатов.
+
+- загрузка файлов через drag & drop или диалог выбора;
+- настройка префикса, суффикса и порядковой нумерации;
+- предварительный просмотр новых имён до скачивания;
+- скачивание обработанных файлов одним ZIP-архивом.
+
+### Сокращение ссылок
+
+**Менеджер коротких ссылок** для создания, хранения и управления сокращёнными URL.
+
+- сокращение исходных URL;
+- просмотр и управление историей созданных ссылок;
+- возможность быстро поделиться ссылкой или QR-кодом;
+- открытие, удаление и закрепление ссылок;
+- сохранение данных между сессиями.
 
 ## Технологический стек
 
 ### Frontend
 
-- **React** + **TypeScript** – компонентная архитектура и строгая типизация;
-- **FSD (Feature-Sliced Design)** – четкое разделение ответственности и масштабируемая структура;
+- **React** и **TypeScript** – компонентная архитектура и строгая типизация;
+- **FSD (Feature-Sliced Design)** – чёткое разделение ответственности и масштабируемая структура;
 - **Tailwind CSS** – единый визуальный стиль и быстрая адаптивная вёрстка;
 - **MobX** – реактивное управление состоянием с лаконичным синтаксисом;
 - **Vite** – быстрый запуск и оптимизированная сборка.
 
 ### Backend
 
-- **Laravel** – REST API и серверная бизнес-логика;
-- **Sanctum** – безопасная cookie-based аутентификация;
-- **PostgreSQL** – хранение и управление данными приложения;
-- **Resend** – отправка транзакционных email-уведомлений;
-- **Redis** – кэширование данных и обработка фоновых задач.
+- **Laravel** и **Sanctum** – серверная бизнес-логика, REST API и сессионная аутентификация;
+- **PostgreSQL** – реляционное хранение данных и управление связями между сущностями;
+- **Laravel Queues** и **Scheduler** – асинхронное выполнение задач и автоматизация периодических процессов.
 
 ### DevOps & Infrastructure
 
-- **Docker** – контейнеризация приложений и унификация окружения;
-- **Docker Compose** – управление многоконтейнерной инфраструктурой;
+- **Docker** и **Docker Compose** – контейнеризация приложений и унификация окружения;
 - **Nginx** – reverse proxy и раздача приложений;
 - **VPS** – деплой и администрирование проекта.
 
 ## Возможности
 
-- регистрация и авторизация пользователей;
-- подтверждение и смена e-mail, восстановление и смена пароля;
-- персональный профиль пользователя;
-- интернационализация (i18n);
-- светлая и тёмная тема;
-- адаптивный интерфейс для desktop и mobile;
-- защищённые маршруты для авторизованных пользователей;
-- масштабируемая система подключения новых инструментов.
-
-## Модули
-
-**Пакетный переименователь файлов** – массовое переименование файлов по заданному шаблону.
-
-- загрузка произвольного набора файлов через drag & drop или диалог;
-- задание префикса и суффикса относительно порядкового номера через маску;
-- мгновенный предпросмотр итоговых имён до скачивания;
-- скачивание переименованных файлов одним ZIP-архивом.
-
-**Сократитель ссылок** – генерация коротких ссылок с полноценным менеджером истории.
-
-- создание короткой ссылки из любого URL в один клик;
-- отдельная таблица истории всех сокращённых ссылок;
-- возможность быстро поделиться ссылкой или QR-кодом;
-- быстрые действия для каждой записи: открыть, скопировать, удалить, показать QR-код;
-- закрепление ссылок от удаления для постоянного пользования;
-- хранение ссылок на сервере с сохранением между сессиями.
+- **Авторизация** – регистрация, вход по email и через OneMate по OAuth 2.0;
+- **Учётная запись** – управление профилем, смена пароля и восстановление доступа;
+- **Связанные приложения** – привязка и отключение OneMate без потери доступа к аккаунту ToolBox;
+- **Интерфейс** – адаптивная вёрстка для всех устройств, светлая и тёмная темы;
+- **Локализация** – поддержка нескольких языков интерфейса;
+- **Демо-режим** – знакомство с возможностями без регистрации.
 
 ## Скриншоты
 
@@ -77,20 +83,11 @@
   <summary>Показать</summary>
   <p align="center">
     <img src="./docs/screenshots/auth.webp" alt="Auth" width="800">
-    <br>
-    <img src="./docs/screenshots/home.webp" alt="Home" width="800">
-    <br>
     <img src="./docs/screenshots/renamer.webp" alt="Renamer" width="800">
-    <br>
     <img src="./docs/screenshots/shortener.webp" alt="Shortener" width="800">
   </p>
 </details>
 
 ## Автор
 
-> [!TIP]
->
-> #### Евгений Летунов
->
-> [![Евгений Летунов](https://img.shields.io/badge/%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D0%B8%D0%B9_%D0%9B%D0%B5%D1%82%D1%83%D0%BD%D0%BE%D0%B2-Frontend_Dev-0A66C2?style=for-the-badge&logo=react&logoColor=white)](https://letunoff.ru)
-> [![Telegram](https://img.shields.io/badge/@defrazo-Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/defrazo)
+[![Евгений Летунов](https://img.shields.io/badge/%D0%95%D0%B2%D0%B3%D0%B5%D0%BD%D0%B8%D0%B9_%D0%9B%D0%B5%D1%82%D1%83%D0%BD%D0%BE%D0%B2-Fullstack_Dev-0A66C2?style=for-the-badge&logo=github&logoColor=white)](https://letunoff.ru) [![Telegram](https://img.shields.io/badge/@defrazo-Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/defrazo)

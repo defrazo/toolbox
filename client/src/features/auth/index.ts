@@ -1,8 +1,10 @@
 export { getAuthErrorMessage } from './lib';
 export { AuthStore, emailCooldown, useAuth } from './model';
 export {
+	AccountLinkForm,
 	AuthDemo,
 	AuthFormHeader,
+	AuthOneMate,
 	AuthSidebar,
 	ForgotPassForm,
 	LoginForm,

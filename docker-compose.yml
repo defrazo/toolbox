@@ -1,3 +1,5 @@
+name: toolbox
+
 services:
   frontend:
     build:
@@ -17,14 +19,11 @@ services:
     container_name: toolbox-backend
     restart: unless-stopped
     env_file:
-      - ./server/.env
-      - ./server/.env.docker
+      - ./.env.production
     volumes:
       - backend_public:/var/www/html/public
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
   backend-nginx:
@@ -44,7 +43,7 @@ services:
     container_name: toolbox-postgres
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./.env.production
     environment:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
@@ -59,30 +58,17 @@ services:
       timeout: 5s
       retries: 10
 
-  redis:
-    image: redis:7-alpine
-    container_name: toolbox-redis
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   queue:
     image: toolbox-backend:latest
     container_name: toolbox-queue
     restart: unless-stopped
     env_file:
-      - ./server/.env
-      - ./server/.env.docker
-    command: php artisan queue:work --tries=3 --timeout=30
+      - ./.env.production
+    command: php artisan queue:work --sleep=5 --tries=3 --timeout=30
     depends_on:
       backend:
         condition: service_started
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
   scheduler:
@@ -90,15 +76,12 @@ services:
     container_name: toolbox-scheduler
     restart: unless-stopped
     env_file:
-      - ./server/.env
-      - ./server/.env.docker
+      - ./.env.production
     command: php artisan schedule:work
     depends_on:
       backend:
         condition: service_started
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
 volumes:

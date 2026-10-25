@@ -7,7 +7,7 @@ export const AuthWrapper = ({ children }: PropsWithChildren) => {
 
 	return (
 		<div className="hide-scrollbar relative flex h-full min-h-0 w-full flex-1 cursor-default flex-col gap-4 overflow-x-hidden overflow-y-auto rounded-xl border border-[#fafafa12] p-3 shadow-(--shadow) md:p-6 lg:rounded-l-none">
-			<div className="core-gap my-auto flex flex-col items-center justify-center rounded-xl border-[#fafafa12] p-0 text-(--accent-primary-text) sm:m-auto sm:w-lg sm:p-12 xl:border xl:bg-[#fafafa0d]/50">
+			<div className="my-auto flex flex-col items-center justify-center gap-3 rounded-xl border-[#fafafa12] p-0 text-(--accent-primary-text) sm:m-auto sm:w-lg sm:p-12 xl:border xl:bg-[#fafafa0d]/50">
 				{children}
 			</div>
 			{device === 'mobile' ? (

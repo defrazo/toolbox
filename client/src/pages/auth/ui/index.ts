@@ -1,3 +1,4 @@
+export { AccountLinkPage } from './AccountLinkPage';
 export { ForgotPassPage } from './ForgotPassPage';
 export { LoginPage } from './LoginPage';
 export { RegisterPage } from './RegisterPage';

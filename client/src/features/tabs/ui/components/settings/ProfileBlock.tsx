@@ -90,6 +90,7 @@ export const ProfileBlock = observer(() => {
 			<Row icon={CircleUserRound} label={tAuth(($) => $.common.fields.username.label)}>
 				<Input
 					className="lg:ml-auto lg:w-72"
+					id="username"
 					placeholder={tAuth(($) => $.common.fields.username.placeholder)}
 					rightIcon={
 						canSaveUsername && (
@@ -111,6 +112,7 @@ export const ProfileBlock = observer(() => {
 				<Input
 					className="lg:ml-auto lg:w-72"
 					disabled={isEmailLocked}
+					id="email"
 					placeholder={tAuth(($) => $.common.fields.email.placeholder)}
 					rightIcon={
 						isEmailLocked ? (

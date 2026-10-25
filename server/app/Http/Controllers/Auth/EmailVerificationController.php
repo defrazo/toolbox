@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EmailVerificationController extends Controller
+{
+    public function verifyEmail(Request $request, string $id, string $hash): JsonResponse
+    {
+        $user = User::findOrFail($id);
+
+        if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+            return response()->json(['code' => 'INVALID_VERIFICATION'], 422);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+
+            event(new Verified($user));
+        }
+
+        Auth::guard('web')->login($user);
+
+        $request->session()->regenerate();
+
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || $user->hasVerifiedEmail()) {
+            return response()->json(['code' => 'OK']);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['code' => 'OK']);
+    }
+}

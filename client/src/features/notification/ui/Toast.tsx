@@ -32,7 +32,7 @@ export const Toast = ({ toastId, type, message, options }: ToastProps) => {
 				)}
 			>
 				<div className={cn('size-8 py-1', iconColor(type))}>{Icon}</div>
-				<div className="flex-1 pr-2 text-center text-sm">
+				<div className="flex-1 pr-2 text-sm">
 					{message}
 					{options?.description && <p className="opacity-75">{options.description}</p>}
 				</div>

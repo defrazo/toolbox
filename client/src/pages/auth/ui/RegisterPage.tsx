@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AuthFormHeader, RegisterForm } from '@/features/auth';
+import { AuthFormHeader, AuthOneMate, RegisterForm } from '@/features/auth';
 import { usePageTitle } from '@/shared/lib/hooks';
+import { AuthDivider } from '@/shared/ui';
 
 import { AuthFooterLink, AuthWrapper, PrivacyConsent } from './components';
 
@@ -18,6 +19,8 @@ export const RegisterPage = () => {
 	return (
 		<AuthWrapper>
 			<AuthFormHeader title={title} />
+			<AuthOneMate />
+			<AuthDivider />
 			<RegisterForm isPrivacyAccepted={isPrivacyAccepted} />
 			<PrivacyConsent checked={isPrivacyAccepted} onChange={setIsPrivacyAccepted} />
 			<AuthFooterLink

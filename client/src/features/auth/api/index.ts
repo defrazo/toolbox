@@ -1,1 +1,2 @@
-export { forgotPassword, login, logout, register, resendEmail, resetPassword, verifyInvite } from './auth';
+export * from './auth';
+export type * from './types';

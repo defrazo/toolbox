@@ -7,7 +7,6 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '@/app/providers';
 import { Button, Input } from '@/shared/ui';
 
-import { verifyInvite } from '../api';
 import { getAuthErrorMessage } from '../lib';
 import { useAuth } from '../model';
 import { PasswordHint } from '.';
@@ -27,11 +26,10 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 
 	const [showPass, setShowPass] = useState(false);
 	const [showHint, setShowHint] = useState(false);
-	const [isVerifying, setIsVerifying] = useState(false);
 
 	const PassIcon = showPass ? EyeClosed : Eye;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!checkUsername(username)) return;
@@ -56,12 +54,12 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			return;
 		}
 
-		try {
-			setIsVerifying(true);
-			const { data } = await verifyInvite(inviteCode);
-			setIsVerifying(false);
+		if (authStore.isLoading) return;
 
-			await authStore.register(username, email, password, passConfirm, data.invite_token, isPrivacyAccepted);
+		try {
+			const inviteToken = await authStore.verifyInvite(inviteCode);
+
+			await authStore.register(username, email, password, passConfirm, inviteToken, isPrivacyAccepted);
 
 			notifyStore.setNotice(
 				t(($) => $.success.register),
@@ -72,17 +70,16 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 
 			navigate('/email/verify', { state: { email } });
 		} catch (error: any) {
-			setIsVerifying(false);
-
 			const code = error?.response?.data?.code;
 			notifyStore.setNotice(getAuthErrorMessage(t, code), 'error');
 		}
 	};
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" name="register-form" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-3" name="register-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="username"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<User className="mr-2 ml-1 size-5" />
@@ -95,6 +92,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="email"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Mail className="mr-2 ml-1 size-5" />
@@ -108,6 +106,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			<div className="relative">
 				<Input
 					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+					id="password"
 					leftIcon={
 						<div className="border-r border-(--border-color)">
 							<Lock className="mr-2 ml-1 size-5" />
@@ -130,6 +129,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			</div>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="password-confirm"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Lock className="mr-2 ml-1 size-5" />
@@ -148,6 +148,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="invite-code"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<KeyRound className="mr-2 ml-1 size-5" />
@@ -160,7 +161,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Button
 				className="active-btn mt-4 h-10 w-full bg-(--bg-secondary)"
-				loading={isVerifying || authStore.isLoading}
+				loading={authStore.isLoading}
 				type="submit"
 			>
 				{t(($) => $.screens.register.submit)}
