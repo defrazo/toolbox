@@ -14,6 +14,10 @@
 	@apply pointer-events-auto bg-(image:--gradient-primary) font-medium text-(--accent-primary-text) transition duration-200 ease-out hover:-translate-y-px hover:shadow-(--shadow-primary);
 }
 
+@utility trim {
+	text-box: trim-both cap alphabetic;
+}
+
 @utility hide-scrollbar {
 	scrollbar-width: none;
 	-ms-overflow-style: none;

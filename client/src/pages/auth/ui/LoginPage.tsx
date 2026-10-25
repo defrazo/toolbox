@@ -58,7 +58,7 @@ export const LoginPage = () => {
 	return (
 		<AuthWrapper>
 			<AuthFormHeader title={title} />
-			<div className="flex w-full flex-col gap-2">
+			<div className="flex w-full flex-col gap-3">
 				<AuthOneMate />
 				<AuthDemo />
 			</div>

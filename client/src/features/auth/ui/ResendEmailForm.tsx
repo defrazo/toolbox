@@ -59,7 +59,7 @@ export const ResendEmailForm = observer(() => {
 	}, [cooldown]);
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" name="resend-email-form" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-3" name="resend-email-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				disabled={isCooldown}

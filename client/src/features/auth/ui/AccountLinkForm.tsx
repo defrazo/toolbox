@@ -27,7 +27,7 @@ export const AccountLinkForm = observer(() => {
 		if (!password.trim()) {
 			notifyStore.setNotice(
 				t(($) => $.errors.empty.password),
-				'error'
+				'info'
 			);
 			return;
 		}
@@ -61,7 +61,7 @@ export const AccountLinkForm = observer(() => {
 	};
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" name="account-link-form" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-3" name="account-link-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				leftIcon={

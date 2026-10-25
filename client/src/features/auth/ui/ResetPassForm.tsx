@@ -55,7 +55,7 @@ export const ResetPassForm = observer(({ email, token }: { email: string; token:
 	};
 
 	return (
-		<form className="flex w-full max-w-md flex-col gap-4" name="reset-pass-form" onSubmit={handleSubmit}>
+		<form className="flex w-full max-w-md flex-col gap-3" name="reset-pass-form" onSubmit={handleSubmit}>
 			<div className="relative">
 				<Input
 					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"

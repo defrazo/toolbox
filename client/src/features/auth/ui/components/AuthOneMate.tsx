@@ -10,15 +10,13 @@ export const AuthOneMate = observer(() => {
 
 	const { authStore } = useStore();
 
-	const handleLogin = () => {
-		window.location.assign('/auth/onemate');
-	};
+	const handleLogin = () => window.location.assign('/auth/onemate');
 
 	return (
 		<Button
 			className="h-10 w-full bg-(--bg-secondary) text-sm md:text-base"
 			loading={authStore.isLoading}
-			rightIcon={<IconOneMate className="mt-0.5 size-6" />}
+			rightIcon={<IconOneMate className="mt-0.5 size-5.5" />}
 			onClick={handleLogin}
 		>
 			{t(($) => $.common.social.onemate)}
