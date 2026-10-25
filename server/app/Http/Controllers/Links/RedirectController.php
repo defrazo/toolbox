@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Links;
 
 use App\Models\ShortLink;
 use Illuminate\Http\RedirectResponse;

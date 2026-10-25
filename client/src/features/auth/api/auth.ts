@@ -29,6 +29,11 @@ export const authApi = {
 		return data;
 	},
 
+	async confirmOneMateLink(password: string): Promise<void> {
+		await csrf();
+		await api.post('/auth/onemate/link/confirm', { password });
+	},
+
 	async getSession(): Promise<AuthSessionResponse> {
 		const { data } = await api.get<AuthSessionResponse>('/auth/session');
 		return data;

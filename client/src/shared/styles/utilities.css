@@ -1,32 +1,30 @@
-@layer utilities {
-	.core-border {
-		@apply rounded-xl border border-(--border-color);
-	}
+@utility core-border {
+	@apply rounded-xl border border-(--border-color);
+}
 
-	.core-pad {
-		@apply p-2 lg:p-3 2xl:p-5;
-	}
+@utility core-pad {
+	@apply p-2 lg:p-3 2xl:p-5;
+}
 
-	.core-gap {
-		@apply gap-2 lg:gap-3 2xl:gap-4;
-	}
+@utility core-gap {
+	@apply gap-2 lg:gap-3 2xl:gap-4;
+}
 
-	.active-btn {
-		@apply pointer-events-auto bg-(image:--gradient-primary) font-medium text-(--accent-primary-text) transition duration-200 ease-out hover:-translate-y-px hover:shadow-(--shadow-primary);
-	}
+@utility active-btn {
+	@apply pointer-events-auto bg-(image:--gradient-primary) font-medium text-(--accent-primary-text) transition duration-200 ease-out hover:-translate-y-px hover:shadow-(--shadow-primary);
+}
 
-	.hide-scrollbar {
-		scrollbar-width: none;
-		-ms-overflow-style: none;
-	}
+@utility hide-scrollbar {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
 
-	.hide-scrollbar::-webkit-scrollbar {
+	&::-webkit-scrollbar {
 		display: none;
 	}
+}
 
-	.no-touch-callout {
-		@apply select-none;
-		-webkit-touch-callout: none;
-		-webkit-tap-highlight-color: transparent;
-	}
+@utility no-touch-callout {
+	@apply select-none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
 }

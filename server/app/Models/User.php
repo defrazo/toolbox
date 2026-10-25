@@ -8,6 +8,7 @@ use App\Notifications\VerifyEmailNotification;
 use App\Notifications\VerifyPendingEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Notification;
@@ -19,7 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use Notifiable;
 
-    protected $fillable = ['username', 'email', 'pending_email', 'password', 'avatar', 'is_demo'];
+    protected $fillable = ['username', 'email', 'pending_email', 'password', 'avatar', 'is_demo', 'email_verified_at'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -57,5 +58,10 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function oauthAccounts(): HasMany
+    {
+        return $this->hasMany(OAuthAccount::class);
     }
 }

@@ -39,11 +39,9 @@ class AuthController extends Controller
 
     public function session(Request $request): JsonResponse
     {
-        $user = $request->user('sanctum');
-
         return response()->json([
-            'authenticated' => $user !== null,
-            'user' => $user,
+            'authenticated' => $request->user('sanctum') !== null,
+            'user' => $request->user('sanctum'),
         ]);
     }
 

@@ -1,10 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\ShortLinkController;
-use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\OneMateAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Internal\ConnectedAccountController;
+use App\Http\Controllers\Links\ShortLinkController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Middleware\VerifyInternalToken;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -18,6 +21,9 @@ Route::get('/auth/session', [AuthController::class, 'session'])
     ->middleware('throttle:60,1');
 
 Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:5,1');
+
+Route::post('/auth/onemate/link/confirm', [OneMateAuthController::class, 'confirmLink'])
     ->middleware('throttle:5,1');
 
 // Password
@@ -38,6 +44,17 @@ Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 've
 Route::get('/user/email/verify/{id}/{hash}', [UserController::class, 'verifyPendingEmail'])
     ->middleware('signed:relative')
     ->name('pending-email.verify');
+
+// Internal
+Route::middleware([VerifyInternalToken::class, 'throttle:60,1'])
+    ->prefix('internal')
+    ->group(function () {
+        Route::get('/onemate/accounts/{providerUserId}', [ConnectedAccountController::class, 'show'])
+            ->whereUuid('providerUserId');
+
+        Route::delete('/onemate/accounts/{providerUserId}', [ConnectedAccountController::class, 'destroy'])
+            ->whereUuid('providerUserId');
+    });
 
 // Protected
 Route::middleware('auth:sanctum')->group(function () {

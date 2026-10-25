@@ -51,6 +51,21 @@ export class AuthStore {
 		}
 	}
 
+	async confirmOneMateLink(password: string): Promise<void> {
+		if (this.isLoading) return;
+
+		this.isLoading = true;
+
+		try {
+			await authApi.confirmOneMateLink(password);
+			await this.fetchUser();
+
+			if (!this.isAuth) throw new Error('Не удалось восстановить сессию после привязки');
+		} finally {
+			runInAction(() => (this.isLoading = false));
+		}
+	}
+
 	async login(email: string, password: string): Promise<void> {
 		this.isLoading = true;
 
