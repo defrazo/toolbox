@@ -6,7 +6,7 @@ import { useStore } from '@/app/providers';
 import { TabId } from '@/features/tabs';
 import { IconApps } from '@/shared/assets/icons';
 import { cn } from '@/shared/lib/utils';
-import { Button, ButtonLink } from '@/shared/ui';
+import { Button, ButtonLink, Divider } from '@/shared/ui';
 
 const MAIN_TABS = [
 	{ id: 'home', titleKey: 'home', icon: House },
@@ -52,9 +52,10 @@ export const TabsNav = observer(({ isMinimized, onTabClick }: { isMinimized?: bo
 					</Button>
 				);
 			})}
+			<Divider />
 			<ButtonLink
 				className={cn(
-					'core-border mt-auto h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:text-base',
+					'core-border h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:text-base',
 					isMinimized ? 'w-12' : 'xl:w-60'
 				)}
 				href="https://onemate.letunoff.ru/"

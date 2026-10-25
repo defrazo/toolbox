@@ -29,7 +29,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 
 	const PassIcon = showPass ? EyeClosed : Eye;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!checkUsername(username)) return;
@@ -79,6 +79,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 		<form className="flex w-full max-w-md flex-col gap-3" name="register-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="username"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<User className="mr-2 ml-1 size-5" />
@@ -91,6 +92,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="email"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Mail className="mr-2 ml-1 size-5" />
@@ -104,6 +106,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			<div className="relative">
 				<Input
 					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+					id="password"
 					leftIcon={
 						<div className="border-r border-(--border-color)">
 							<Lock className="mr-2 ml-1 size-5" />
@@ -126,6 +129,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			</div>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="password-confirm"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Lock className="mr-2 ml-1 size-5" />
@@ -144,6 +148,7 @@ export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted
 			/>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="invite-code"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<KeyRound className="mr-2 ml-1 size-5" />

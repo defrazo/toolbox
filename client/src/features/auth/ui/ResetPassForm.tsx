@@ -26,7 +26,7 @@ export const ResetPassForm = observer(({ email, token }: { email: string; token:
 
 	const PassIcon = showPassword ? EyeClosed : Eye;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!checkPassword(password)) return;
@@ -60,6 +60,7 @@ export const ResetPassForm = observer(({ email, token }: { email: string; token:
 				<Input
 					className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 					disabled={authStore.isLoading}
+					id="password"
 					leftIcon={
 						<div className="border-r border-(--border-color)">
 							<Lock className="mr-2 ml-1 size-5" />
@@ -83,6 +84,7 @@ export const ResetPassForm = observer(({ email, token }: { email: string; token:
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				disabled={authStore.isLoading}
+				id="password-confirm"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Lock className="mr-2 ml-1 size-5" />

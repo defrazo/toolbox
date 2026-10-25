@@ -27,7 +27,7 @@ export const ResendEmailForm = observer(() => {
 
 	const isCooldown = cooldown > 0;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!checkEmail(email)) return;
@@ -63,6 +63,7 @@ export const ResendEmailForm = observer(() => {
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
 				disabled={isCooldown}
+				id="email"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Mail className="mr-2 ml-1 size-5" />

@@ -19,7 +19,7 @@ export const AccountLinkForm = observer(() => {
 
 	const PassIcon = showPass ? EyeClosed : Eye;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (authStore.isLoading) return;
@@ -64,6 +64,7 @@ export const AccountLinkForm = observer(() => {
 		<form className="flex w-full max-w-md flex-col gap-3" name="account-link-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="password"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Lock className="mr-2 ml-1 size-5" />

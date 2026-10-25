@@ -17,16 +17,16 @@ export const LoginForm = observer(() => {
 	const { authStore, notifyStore } = useStore();
 	const { checkLogin } = useAuth(t);
 
-	const [email, setEmail] = useState('');
+	const [login, setLogin] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPass, setShowPass] = useState(false);
 
 	const PassIcon = showPass ? EyeClosed : Eye;
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
-		if (!checkLogin(email)) return;
+		if (!checkLogin(login)) return;
 
 		if (!password.trim()) {
 			notifyStore.setNotice(
@@ -37,7 +37,7 @@ export const LoginForm = observer(() => {
 		}
 
 		try {
-			await authStore.login(email, password);
+			await authStore.login(login, password);
 
 			notifyStore.setNotice(
 				t(($) => $.success.login),
@@ -52,8 +52,8 @@ export const LoginForm = observer(() => {
 			);
 
 			if (code === 'EMAIL_NOT_VERIFIED') {
-				sessionStorage.setItem('pendingVerificationEmail', email);
-				navigate('/email/verify', { state: { email } });
+				sessionStorage.setItem('pendingVerificationEmail', login);
+				navigate('/email/verify', { state: { login } });
 				return;
 			}
 		}
@@ -63,6 +63,7 @@ export const LoginForm = observer(() => {
 		<form className="flex w-full max-w-md flex-col gap-3" name="login-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="login"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Mail className="mr-2 ml-1 size-5" />
@@ -70,11 +71,12 @@ export const LoginForm = observer(() => {
 				}
 				placeholder={t(($) => $.common.fields.login.placeholder)}
 				type="text"
-				value={email}
-				onChange={(e) => setEmail(e.target.value)}
+				value={login}
+				onChange={(e) => setLogin(e.target.value)}
 			/>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="password"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Lock className="mr-2 ml-1 size-5" />

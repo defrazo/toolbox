@@ -62,6 +62,7 @@ const TabRenamerContent = () => {
 					<div className="relative flex w-full flex-1 flex-col items-center gap-2 md:flex-row">
 						<Input
 							className={cn('text-center', prefix === '' && 'pr-2')}
+							id="prefix"
 							placeholder={t(($) => $.rename.prefixPlaceholder)}
 							rightIcon={<ClearInputButton hidden={prefix === ''} onClick={() => setPrefix('')} />}
 							value={prefix}
@@ -70,6 +71,7 @@ const TabRenamerContent = () => {
 						<span className="hidden text-xl select-none md:block">№</span>
 						<Input
 							className={cn('text-center', suffix === '' && 'pr-2')}
+							id="suffix"
 							placeholder={t(($) => $.rename.suffixPlaceholder)}
 							rightIcon={<ClearInputButton hidden={suffix === ''} onClick={() => setSuffix('')} />}
 							value={suffix}

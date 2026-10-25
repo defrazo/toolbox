@@ -18,7 +18,7 @@ export const ForgotPassForm = observer(() => {
 
 	const [email, setEmail] = useState('');
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
 		if (!checkEmail(email)) return;
@@ -44,6 +44,7 @@ export const ForgotPassForm = observer(() => {
 		<form className="flex w-full max-w-md flex-col gap-3" name="forgot-pass-form" onSubmit={handleSubmit}>
 			<Input
 				className="border border-(--border-color) bg-(--bg-secondary)/50 pl-11.5 hover:border-(--accent-primary-hover)"
+				id="email"
 				leftIcon={
 					<div className="border-r border-(--border-color)">
 						<Mail className="mr-2 ml-1 size-5" />
