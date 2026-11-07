@@ -2,12 +2,14 @@
 	"sidebar": {
 		"subtitle": "Ваш набор инструментов",
 		"items": {
+			"compare": "Сравнение",
 			"home": "Главная",
 			"renamer": "Переименовать файлы",
 			"shortener": "Сократить ссылку",
 			"settings": "Настройки",
 			"help": "Справка",
-			"onemate": "OneMate"
+			"onemate": "OneMate",
+			"images": "Изображения"
 		}
 	},
 	"userMenu": {

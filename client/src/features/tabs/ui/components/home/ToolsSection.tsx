@@ -17,6 +17,8 @@ type DisplayTool = {
 };
 
 export const ToolsSection = () => {
+	const { t: tCompare } = useTranslation('compare');
+	const { t: tImages } = useTranslation('images');
 	const { t: tHome } = useTranslation('home');
 	const { t: tRenamer } = useTranslation('renamer');
 	const { t: tShortener } = useTranslation('shortener');
@@ -24,6 +26,8 @@ export const ToolsSection = () => {
 	const { tabsStore } = useStore();
 
 	const toolOverrides = {
+		compare: { title: tCompare(($) => $.meta.title), subtitle: tCompare(($) => $.meta.subtitle) },
+		images: { title: tImages(($) => $.meta.title), subtitle: tImages(($) => $.meta.subtitle) },
 		renamer: { title: tRenamer(($) => $.meta.title), subtitle: tRenamer(($) => $.meta.subtitle) },
 		shortener: { title: tShortener(($) => $.meta.title), subtitle: tShortener(($) => $.meta.subtitle) },
 	};
@@ -42,7 +46,7 @@ export const ToolsSection = () => {
 	return (
 		<div className="flex flex-col gap-3 select-none xl:gap-4">
 			<h2 className="text-lg font-semibold xl:text-2xl">{tHome(($) => $.tools.title)}</h2>
-			<div className="flex flex-col gap-3 xl:flex-row xl:gap-6">
+			<div className="grid grid-cols-1 gap-3 xl:grid-cols-3 xl:gap-6 2xl:grid-cols-5">
 				{displayTools.map(({ id, title, subtitle, icon: Icon, isDisabled }) => (
 					<div
 						key={id}
