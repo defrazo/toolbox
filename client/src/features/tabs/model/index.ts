@@ -2,6 +2,8 @@ export * from './constants';
 export * from './renamer-context';
 export * from './tabsStore';
 export type * from './types';
+export * from './useCrop';
+export * from './useCropResize';
 export * from './useDropzone';
 export * from './useImages';
 export * from './useLinksTable';

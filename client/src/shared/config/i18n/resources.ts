@@ -1,8 +1,10 @@
 import {
 	authEn,
 	commonEn,
+	compareEn,
 	helpEn,
 	homeEn,
+	imagesEn,
 	linksEn,
 	navEn,
 	notFoundEn,
@@ -14,8 +16,10 @@ import {
 import {
 	authRu,
 	commonRu,
+	compareRu,
 	helpRu,
 	homeRu,
+	imagesRu,
 	linksRu,
 	navRu,
 	notFoundRu,
@@ -29,6 +33,8 @@ export const defaultNS = 'common';
 
 export const resources = {
 	ru: {
+		compare: compareRu,
+		images: imagesRu,
 		auth: authRu,
 		common: commonRu,
 		help: helpRu,
@@ -42,6 +48,8 @@ export const resources = {
 		shortener: shortenerRu,
 	},
 	en: {
+		compare: compareEn,
+		images: imagesEn,
 		auth: authEn,
 		common: commonEn,
 		help: helpEn,

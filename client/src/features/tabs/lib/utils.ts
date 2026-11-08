@@ -94,3 +94,15 @@ export const formatFileSize = (bytes: number): string => {
 
 	return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
+
+export const formatSizeChange = (before: number, after: number, locale: string) => {
+	if (before <= 0) return '0%';
+
+	const percent = ((after - before) / before) * 100;
+
+	return `${percent.toLocaleString(locale, {
+		minimumFractionDigits: 1,
+		maximumFractionDigits: 1,
+		signDisplay: 'always',
+	})}%`;
+};

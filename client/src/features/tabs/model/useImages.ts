@@ -34,7 +34,14 @@ const errorCode = (error: unknown, fallback: ImageError): ImageError => {
 	return IMAGE_ERRORS.includes(code as ImageError) ? (code as ImageError) : fallback;
 };
 
-export const useImages = (notify: (error: 'limit' | 'download') => void, mode: Mode = 'converter') => {
+const isSupportedFile = (file: File, mode: Mode) => {
+	const accept = mode === 'converter' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT;
+	const extension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+
+	return accept.split(',').includes(extension);
+};
+
+export const useImages = (notify: (error: ImageError | 'limit' | 'download') => void, mode: Mode = 'converter') => {
 	const [files, setFiles] = useState<ImageFile[]>([]);
 	const [format, setFormatState] = useState<ImageFormat>('png');
 	const [quality, setQualityState] = useState(80);
@@ -116,6 +123,19 @@ export const useImages = (notify: (error: 'limit' | 'download') => void, mode: M
 		try {
 			for (const file of incoming) {
 				if (!mounted.current || operation !== generation.current) break;
+
+				if (!isSupportedFile(file, mode)) {
+					notify(
+						mode === 'resize'
+							? 'resizeUnsupported'
+							: mode === 'vectorize'
+								? 'vectorUnsupported'
+								: mode === 'compression'
+									? 'compressionUnsupported'
+									: 'unsupported'
+					);
+					continue;
+				}
 
 				if (rows.current.length >= IMAGES.MAX_FILES) {
 					limited = true;

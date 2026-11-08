@@ -116,7 +116,7 @@
 		},
 		{
 			"id": "shortener-error",
-			"question": "The link is not shortening — what should I do?",
+			"question": "The link is not shortening – what should I do?",
 			"answer": "Make sure the URL starts with https:// and is a valid address. If the error persists, try again later."
 		}
 	]

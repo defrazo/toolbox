@@ -60,6 +60,7 @@ export const IMAGES = {
 			width: 100,
 			height: 100,
 		} satisfies PercentCrop,
+		MIN_SIZE: 4,
 		FORMATS: ['png', 'jpg', 'webp'] as const satisfies readonly CropFormat[],
 		ASPECTS: [
 			'free',

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { FolderPen, House, Link } from 'lucide-react';
+import { Columns2, FolderPen, House, Image, Link } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -10,6 +10,8 @@ import { Button, ButtonLink, Divider } from '@/shared/ui';
 
 const MAIN_TABS = [
 	{ id: 'home', titleKey: 'home', icon: House },
+	{ id: 'images', titleKey: 'images', icon: Image },
+	{ id: 'compare', titleKey: 'compare', icon: Columns2 },
 	{ id: 'renamer', titleKey: 'renamer', icon: FolderPen },
 	{ id: 'shortener', titleKey: 'shortener', icon: Link },
 ] as const;

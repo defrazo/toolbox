@@ -31,9 +31,8 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 		}
 
 		modalStore.setModal(
-			<div className="flex flex-col gap-4">
-				<p>{t(($) => $.switchMode.question)}</p>
-
+			<div className="flex flex-col gap-4 select-none">
+				<span>{t(($) => $.switchMode.question)}</span>
 				<div className="flex gap-3">
 					<Button
 						className="flex-1"
@@ -44,7 +43,6 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 					>
 						{t(($) => $.switchMode.confirm)}
 					</Button>
-
 					<Button className="flex-1" onClick={() => modalStore.closeModal()}>
 						{t(($) => $.switchMode.cancel)}
 					</Button>
@@ -83,7 +81,7 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 		<div
 			ref={tabsRef}
 			aria-label={t(($) => $.mode)}
-			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 gap-1 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) xl:flex xl:h-12 xl:overflow-x-auto"
+			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) not-xl:gap-1 xl:flex xl:h-12 xl:overflow-x-auto"
 			role="group"
 		>
 			{MODES.map((value) => (

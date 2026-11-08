@@ -1,11 +1,36 @@
 import ImageTracer from 'imagetracerjs';
 
-import { IMAGES, type VectorTraceRequest } from '../../model';
+import { IMAGES } from '../../model/constants';
+import type { VectorTraceRequest } from '../../model/types';
+
+// const DETAILS = {
+// 	low: { ltres: 3, qtres: 3, pathomit: 24, roundcoords: 1 },
+// 	medium: { ltres: 1, qtres: 1, pathomit: 8, roundcoords: 1 },
+// 	high: { ltres: 0.25, qtres: 0.25, pathomit: 0, roundcoords: 2 },
+// };
 
 const DETAILS = {
-	low: { ltres: 3, qtres: 3, pathomit: 24, roundcoords: 1 },
-	medium: { ltres: 1, qtres: 1, pathomit: 8, roundcoords: 1 },
-	high: { ltres: 0.25, qtres: 0.25, pathomit: 0, roundcoords: 2 },
+	low: {
+		ltres: 2,
+		qtres: 2,
+		pathomit: 20,
+		roundcoords: 1,
+		blurradius: 2,
+	},
+	medium: {
+		ltres: 1,
+		qtres: 1,
+		pathomit: 12,
+		roundcoords: 2,
+		blurradius: 2,
+	},
+	high: {
+		ltres: 0.5,
+		qtres: 0.5,
+		pathomit: 4,
+		roundcoords: 2,
+		blurradius: 1,
+	},
 };
 
 self.onmessage = ({ data }: MessageEvent<VectorTraceRequest>) => {
@@ -13,8 +38,8 @@ self.onmessage = ({ data }: MessageEvent<VectorTraceRequest>) => {
 		const svg = ImageTracer.imagedataToSVG(data.image, {
 			...DETAILS[data.settings.detail],
 			numberofcolors: data.settings.colors,
-			colorsampling: 2,
-			colorquantcycles: 3,
+			colorsampling: 0,
+			colorquantcycles: 5,
 			layering: 0,
 			strokewidth: 0,
 			viewbox: true,
@@ -36,7 +61,6 @@ self.onmessage = ({ data }: MessageEvent<VectorTraceRequest>) => {
 		].join('');
 
 		const buffer = new TextEncoder().encode(output).buffer;
-
 		if (buffer.byteLength > IMAGES.VECTOR.MAX_BYTES) throw new Error('vectorSize');
 
 		self.postMessage({ buffer }, { transfer: [buffer] });

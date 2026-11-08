@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
-import { IMAGE_FORMATS } from '../../../../lib';
-import type { useImages } from '../../../../model';
-import { Select } from '../Select';
+import { SelectExt } from '@/shared/ui';
+
+import { IMAGES, type useImages } from '../../../../model';
 
 type ImagesState = ReturnType<typeof useImages>;
 
@@ -13,20 +13,16 @@ export const ConverterSettings = ({ busy, format, setFormat }: ConverterSettings
 	const { t } = useTranslation('images');
 
 	return (
-		<>
+		<div className="flex min-w-0 flex-col gap-1">
 			<span className="text-sm text-(--color-secondary)">{t(($) => $.output)}</span>
-			<Select
-				className="min-w-36"
+			<SelectExt
+				className="h-8 rounded-lg"
 				disabled={busy}
-				label={t(($) => $.output)}
-				options={IMAGE_FORMATS.map((value) => ({
-					value,
-					label: value.toUpperCase(),
-				}))}
+				options={IMAGES.CONVERTER.FORMATS.map((value) => ({ value, label: value.toUpperCase() }))}
 				value={format}
 				onChange={setFormat}
 			/>
-		</>
+		</div>
 	);
 };
 
