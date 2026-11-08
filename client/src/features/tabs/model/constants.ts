@@ -1,6 +1,6 @@
 import type { PercentCrop } from 'react-image-crop';
 
-import type { CropAspect, CropFormat, CropTransform, ImageFormat, ResizeSettings, VectorSettings } from './types';
+import type { BackgroundSettings, CropAspect, CropFormat, CropTransform, ImageFormat, ResizeSettings } from './types';
 
 const MB = 1024 * 1024;
 
@@ -35,16 +35,15 @@ export const IMAGES = {
 		} satisfies ResizeSettings,
 	},
 
-	VECTOR: {
-		DETAILS: ['low', 'medium', 'high'] as const,
-		COLORS: [2, 4, 8, 16, 32] as const,
+	BACKGROUND: {
+		FORMATS: ['png', 'webp'] as const,
 		DEFAULT: {
-			detail: 'medium',
-			colors: 16,
-		} satisfies VectorSettings,
-		MAX_PIXELS: 262_144,
-		MAX_SIDE: 1024,
-		MAX_BYTES: 5 * MB,
+			mode: 'contiguous',
+			tolerance: 15,
+			feather: 2,
+			sample: { x: 0.01, y: 0.01 },
+		} satisfies BackgroundSettings,
+		PREVIEW_SIDE: 1024,
 	},
 
 	CROP: {

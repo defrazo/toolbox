@@ -6,18 +6,19 @@ import { IMAGES, type useImages } from '../../../../model';
 
 type ImagesState = ReturnType<typeof useImages>;
 
-type ConverterSettingsProps = Pick<ImagesState, 'busy' | 'format' | 'setFormat'>;
-type ConverterInfoProps = Pick<ImagesState, 'format'>;
+interface ConverterSettingsProps extends Pick<ImagesState, 'format' | 'setFormat'> {
+	disabled: boolean;
+}
 
-export const ConverterSettings = ({ busy, format, setFormat }: ConverterSettingsProps) => {
+export const ConverterSettings = ({ disabled, format, setFormat }: ConverterSettingsProps) => {
 	const { t } = useTranslation('images');
 
 	return (
 		<div className="flex min-w-0 flex-col gap-1">
-			<span className="text-sm text-(--color-secondary)">{t(($) => $.output)}</span>
+			<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.output)}</span>
 			<SelectExt
 				className="h-8 rounded-lg"
-				disabled={busy}
+				disabled={disabled}
 				options={IMAGES.CONVERTER.FORMATS.map((value) => ({ value, label: value.toUpperCase() }))}
 				value={format}
 				onChange={setFormat}
@@ -25,6 +26,8 @@ export const ConverterSettings = ({ busy, format, setFormat }: ConverterSettings
 		</div>
 	);
 };
+
+type ConverterInfoProps = Pick<ImagesState, 'format'>;
 
 export const ConverterInfo = ({ format }: ConverterInfoProps) => {
 	const { t } = useTranslation('images');

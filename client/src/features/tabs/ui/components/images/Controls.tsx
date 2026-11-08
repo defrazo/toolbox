@@ -35,8 +35,8 @@ export const Controls = ({
 	const { t } = useTranslation('images');
 
 	return (
-		<div className="core-border flex min-h-0 min-w-0 flex-1 flex-col bg-(--bg-secondary)/70 p-3 shadow-(--shadow)">
-			<div className="flex min-w-0 flex-col gap-3 select-none">{settings}</div>
+		<div className="core-border flex min-w-0 flex-1 flex-col bg-(--bg-secondary)/70 p-3 shadow-(--shadow)">
+			{settings}
 			<details className="group/hint mt-2 text-xs text-(--color-secondary)">
 				<summary className="group flex cursor-pointer list-none items-center gap-1.5 rounded py-1 transition-colors select-none focus-visible:outline focus-visible:outline-(--accent-primary-hover) [&::-webkit-details-marker]:hidden">
 					<Info className="size-3.5 shrink-0 group-hover:text-(--color-accent)" />
@@ -55,7 +55,7 @@ export const Controls = ({
 				<Footer
 					busy={busy}
 					count={count}
-					isVectorize={mode === 'vectorize'}
+					isBackground={mode === 'background'}
 					readyCount={readyCount}
 					onClear={onClear}
 					onDownload={onDownloadZip}

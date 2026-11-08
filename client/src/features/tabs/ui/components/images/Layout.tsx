@@ -18,7 +18,7 @@ export const Layout = ({ tabs, children, settings }: LayoutProps) => (
 			)}
 		>
 			<div className="flex min-w-0 scrollbar-none flex-col xl:min-h-0 xl:overflow-y-auto">{children}</div>
-			{settings && <aside className="flex min-h-0 min-w-0 flex-col overflow-y-auto">{settings}</aside>}
+			{settings && <aside className="flex min-h-0 min-w-0 flex-col gap-3 xl:overflow-y-auto">{settings}</aside>}
 		</div>
 	</div>
 );

@@ -2,17 +2,25 @@ import { useEffect, useRef, useState } from 'react';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
-import { compressImage, convertImage, inspectImage, planResize, resizeImage, vectorizeImage } from '../lib';
+import {
+	compressImage,
+	convertImage,
+	inspectImage,
+	normalizeBackgroundSettings,
+	planResize,
+	removeImageBackground,
+	resizeImage,
+} from '../lib';
 import { IMAGES } from './constants';
 import type {
+	BackgroundRequest,
+	BackgroundSettings,
 	ImageError,
 	ImageFile,
 	ImageFormat,
 	ImageWorkerRequest,
 	Mode,
 	ResizeSettings,
-	VectorSettings,
-	VectorTraceRequest,
 } from './types';
 
 const IMAGE_ERRORS: ImageError[] = [
@@ -20,9 +28,6 @@ const IMAGE_ERRORS: ImageError[] = [
 	'compressionUnsupported',
 	'resizeUnsupported',
 	'resizeSettings',
-	'vectorUnsupported',
-	'vectorEmpty',
-	'vectorSize',
 	'size',
 	'pixels',
 	'decode',
@@ -35,7 +40,7 @@ const errorCode = (error: unknown, fallback: ImageError): ImageError => {
 };
 
 const isSupportedFile = (file: File, mode: Mode) => {
-	const accept = mode === 'converter' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT;
+	const accept = mode === 'converter' || mode === 'background' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT;
 	const extension = `.${file.name.split('.').pop()?.toLowerCase()}`;
 
 	return accept.split(',').includes(extension);
@@ -45,7 +50,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const [files, setFiles] = useState<ImageFile[]>([]);
 	const [format, setFormatState] = useState<ImageFormat>('png');
 	const [quality, setQualityState] = useState(80);
-	const [vector, setVectorState] = useState<VectorSettings>(IMAGES.VECTOR.DEFAULT);
+	const [activeBackgroundId, setActiveBackgroundId] = useState<string | null>(null);
 	const [resize, setResizeState] = useState<ResizeSettings>(IMAGES.RESIZE.DEFAULT);
 	const [busy, setBusy] = useState(false);
 
@@ -57,6 +62,8 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const urls = useRef(new Set<string>());
 	const worker = useRef<Worker | null>(null);
 	const pending = useRef<((reason: Error) => void) | null>(null);
+	const activeBackgroundFile =
+		mode === 'background' ? (files.find((row) => row.id === activeBackgroundId) ?? files[0]) : undefined;
 
 	useEffect(() => {
 		mounted.current = true;
@@ -128,11 +135,9 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 					notify(
 						mode === 'resize'
 							? 'resizeUnsupported'
-							: mode === 'vectorize'
-								? 'vectorUnsupported'
-								: mode === 'compression'
-									? 'compressionUnsupported'
-									: 'unsupported'
+							: mode === 'compression'
+								? 'compressionUnsupported'
+								: 'unsupported'
 					);
 					continue;
 				}
@@ -147,15 +152,21 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 					continue;
 				}
 
+				const fileBackground =
+					mode === 'background' ? { background: normalizeBackgroundSettings(IMAGES.BACKGROUND.DEFAULT) } : {};
+
 				if (file.size > IMAGES.MAX_BYTES) {
-					update([...rows.current, { id: crypto.randomUUID(), file, status: 'error', error: 'size' }]);
+					update([
+						...rows.current,
+						{ id: crypto.randomUUID(), file, ...fileBackground, status: 'error', error: 'size' },
+					]);
 					total += file.size;
 					continue;
 				}
 
 				const id = crypto.randomUUID();
 				total += file.size;
-				update([...rows.current, { id, file, status: 'loading' }]);
+				update([...rows.current, { id, file, ...fileBackground, status: 'loading' }]);
 
 				try {
 					const info = await inspectImage(file, mode);
@@ -195,9 +206,9 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 							code === 'unsupported' && mode !== 'converter'
 								? mode === 'resize'
 									? 'resizeUnsupported'
-									: mode === 'vectorize'
-										? 'vectorUnsupported'
-										: 'compressionUnsupported'
+									: mode === 'compression'
+										? 'compressionUnsupported'
+										: 'unsupported'
 								: code,
 					});
 				}
@@ -208,7 +219,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		}
 	};
 
-	const runWorker = (data: ImageWorkerRequest | VectorTraceRequest): Promise<ArrayBuffer> =>
+	const runWorker = (data: ImageWorkerRequest | BackgroundRequest): Promise<ArrayBuffer> =>
 		new Promise((resolve, reject) => {
 			if (!mounted.current) {
 				reject(new Error('encode'));
@@ -217,8 +228,8 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 			const activeWorker =
 				worker.current ??
-				(data.format === 'svg'
-					? new Worker(new URL('../lib/images/vectorize.worker.ts', import.meta.url), { type: 'module' })
+				(data.format === 'background'
+					? new Worker(new URL('../lib/images/background.worker.ts', import.meta.url), { type: 'module' })
 					: new Worker(new URL('../lib/images/image.worker.ts', import.meta.url), { type: 'module' }));
 
 			worker.current = activeWorker;
@@ -227,9 +238,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 			activeWorker.onmessage = ({
 				data: response,
 			}: MessageEvent<{ buffer?: ArrayBuffer; error?: boolean | string }>) => {
+				if (worker.current !== activeWorker) return;
 				pending.current = null;
 
-				if (data.format === 'svg') {
+				if (data.format === 'background') {
 					activeWorker.terminate();
 					worker.current = null;
 				}
@@ -240,6 +252,15 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 			activeWorker.onerror = (event) => {
 				event.preventDefault();
+				if (worker.current !== activeWorker) return;
+				activeWorker.terminate();
+				worker.current = null;
+				pending.current = null;
+				reject(new Error('encode'));
+			};
+
+			activeWorker.onmessageerror = () => {
+				if (worker.current !== activeWorker) return;
 				activeWorker.terminate();
 				worker.current = null;
 				pending.current = null;
@@ -270,13 +291,20 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 				patch(row.id, { status: 'processing', error: undefined, result: undefined });
 
 				try {
-					const outputFormat = mode === 'vectorize' ? 'svg' : mode === 'converter' ? format : row.format;
+					const outputFormat = mode === 'background' || mode === 'converter' ? format : row.format;
 					const result =
-						mode === 'vectorize'
-							? await vectorizeImage(row.file, row.format, vector, (request) => {
-									if (operation !== generation.current) return Promise.reject(new Error('encode'));
-									return runWorker(request);
-								})
+						mode === 'background'
+							? await removeImageBackground(
+									row.file,
+									row.format,
+									format as 'png' | 'webp',
+									row.background ?? IMAGES.BACKGROUND.DEFAULT,
+									(request) => {
+										if (operation !== generation.current)
+											return Promise.reject(new Error('encode'));
+										return runWorker(request);
+									}
+								)
 							: mode === 'resize'
 								? await resizeImage(
 										row.file,
@@ -305,6 +333,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 						},
 					});
 				} catch (error) {
+					if (!mounted.current || operation !== generation.current) break;
 					patch(row.id, { status: 'error', error: errorCode(error, 'encode') });
 				}
 			}
@@ -316,18 +345,31 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const invalidateResults = () =>
 		update(rows.current.map((row) => (row.result ? { ...row, status: 'ready', error: undefined } : row)));
 
-	const setVector = (value: VectorSettings) => {
+	const setBackground = (id: string, value: BackgroundSettings) => {
+		if (locked.current || mode !== 'background') return;
+
+		const row = rows.current.find((item) => item.id === id);
+		if (!row?.background) return;
+
+		const next = normalizeBackgroundSettings(value);
+
 		if (
-			locked.current ||
-			!IMAGES.VECTOR.DETAILS.includes(value.detail) ||
-			!IMAGES.VECTOR.COLORS.includes(value.colors)
+			next.mode === row.background.mode &&
+			next.tolerance === row.background.tolerance &&
+			next.feather === row.background.feather &&
+			next.sample.x === row.background.sample.x &&
+			next.sample.y === row.background.sample.y
 		)
 			return;
 
-		if (value.detail === vector.detail && value.colors === vector.colors) return;
-
-		setVectorState(value);
-		invalidateResults();
+		patch(id, { background: next, ...(row.format && { status: 'ready', error: undefined }) });
+	};
+	const setBackgroundSample = (id: string, sample: BackgroundSettings['sample']) => {
+		const row = rows.current.find((item) => item.id === id);
+		if (row?.background) setBackground(id, { ...row.background, sample });
+	};
+	const selectBackgroundFile = (id: string) => {
+		if (mode === 'background' && rows.current.some((row) => row.id === id)) setActiveBackgroundId(id);
 	};
 
 	const updateResize = (next: ResizeSettings) => {
@@ -387,7 +429,9 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	};
 
 	const setFormat = (value: string) => {
-		if (!locked.current && value !== format && IMAGES.CONVERTER.FORMATS.includes(value as ImageFormat)) {
+		const formats: readonly string[] = mode === 'background' ? IMAGES.BACKGROUND.FORMATS : IMAGES.CONVERTER.FORMATS;
+
+		if (!locked.current && value !== format && formats.includes(value)) {
 			setFormatState(value as ImageFormat);
 			update(rows.current.map((row) => (row.result ? { ...row, status: 'ready', error: undefined } : row)));
 		}
@@ -397,15 +441,21 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		if (locked.current) return;
 
 		const row = rows.current.find((item) => item.id === id);
+		const remaining = rows.current.filter((item) => item.id !== id);
+
+		if (mode === 'background' && activeBackgroundFile?.id === id) {
+			const index = rows.current.findIndex((item) => item.id === id);
+			setActiveBackgroundId(remaining[Math.min(index, remaining.length - 1)]?.id ?? null);
+		}
 
 		release(row?.url);
 		release(row?.originalUrl);
 		release(row?.result?.url);
 		release(row?.result?.fullUrl);
-		update(rows.current.filter((item) => item.id !== id));
+		update(remaining);
 	};
 	const clear = () => {
-		if (locked.current && mode !== 'vectorize') return;
+		if (locked.current && mode !== 'background') return;
 
 		generation.current++;
 
@@ -421,6 +471,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		locked.current = false;
 
 		setBusy(false);
+		setActiveBackgroundId(null);
 		update([]);
 	};
 
@@ -464,8 +515,8 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 			if (mounted.current && operation === generation.current)
 				saveAs(
 					blob,
-					mode === 'vectorize'
-						? 'Vector_images.zip'
+					mode === 'background'
+						? 'Background_removed_images.zip'
 						: mode === 'resize'
 							? 'Resized_images.zip'
 							: mode === 'compression'
@@ -485,8 +536,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		setFormat,
 		quality,
 		setQuality,
-		vector,
-		setVector,
+		activeBackgroundFile,
+		selectBackgroundFile,
+		setBackground,
+		setBackgroundSample,
 		resize,
 		resizePlans,
 		setResizeSide,

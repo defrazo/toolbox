@@ -1,24 +1,24 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useStore } from '@/app/providers';
 import { ImageViewer } from '@/features/modal';
 import { cn } from '@/shared/lib/utils';
 
-import { type Mode, useDropzone, useImages } from '../../../model';
+import { type BackgroundSettings, type Mode, useDropzone, useImages } from '../../../model';
 import { Controls } from './Controls';
 import { FileArea, Toolbar } from './files';
 import { Layout } from './Layout';
 import { ModeTabs } from './ModeTabs';
 import {
+	BackgroundControls,
+	BackgroundInfo,
 	CompressionInfo,
 	CompressionSettings,
 	ConverterInfo,
 	ConverterSettings,
 	ResizeControls,
 	ResizeInfo,
-	VectorControls,
-	VectorInfo,
 } from './settings';
 
 interface WorkspaceProps {
@@ -31,7 +31,12 @@ const disabledStyles =
 
 export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 	const { t } = useTranslation('images');
+
 	const { notifyStore, modalStore } = useStore();
+
+	const [pickingEnabled, setPickingEnabled] = useState(false);
+	const [zoom, setZoom] = useState(100);
+	const [sampleColor, setSampleColor] = useState<{ id: string; x: number; y: number; hex: string } | null>(null);
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 
@@ -41,8 +46,10 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		setFormat,
 		quality,
 		setQuality,
-		vector,
-		setVector,
+		activeBackgroundFile,
+		selectBackgroundFile,
+		setBackground,
+		setBackgroundSample,
 		resize,
 		resizePlans,
 		setResizeSide,
@@ -66,6 +73,44 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		mode
 	);
 
+	const picking = pickingEnabled && files.length > 0;
+	const color =
+		sampleColor?.id === activeBackgroundFile?.id &&
+		sampleColor?.x === activeBackgroundFile?.background?.sample.x &&
+		sampleColor?.y === activeBackgroundFile?.background?.sample.y
+			? (sampleColor?.hex ?? null)
+			: null;
+
+	const onSampleColor = useCallback((id: string, sample: BackgroundSettings['sample'], hex: string) => {
+		setSampleColor((previous) =>
+			previous?.id === id && previous.x === sample.x && previous.y === sample.y && previous.hex === hex
+				? previous
+				: { id, ...sample, hex }
+		);
+	}, []);
+
+	useEffect(() => {
+		if (files.length === 0) setPickingEnabled(false);
+	}, [files.length]);
+
+	useLayoutEffect(() => {
+		setZoom(100);
+	}, [activeBackgroundFile?.id]);
+
+	useEffect(() => {
+		if (!picking) return;
+
+		const cancel = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape') return;
+
+			event.preventDefault();
+			setPickingEnabled(false);
+		};
+		document.addEventListener('keydown', cancel);
+
+		return () => document.removeEventListener('keydown', cancel);
+	}, [picking]);
+
 	const { isDropActive, dragProps } = useDropzone({ onDrop: (incoming) => void addFiles(incoming) });
 
 	const preview = (url: string, name: string) => {
@@ -80,17 +125,21 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		return !!plan && !plan.error;
 	});
 
+	const settingsDisabled = busy || !files.some((file) => !!file.format);
+
 	const renderModeContent = () => {
 		switch (mode) {
 			case 'converter':
 				return {
-					settings: <ConverterSettings busy={busy} format={format} setFormat={setFormat} />,
+					settings: <ConverterSettings disabled={settingsDisabled} format={format} setFormat={setFormat} />,
 					info: <ConverterInfo format={format} />,
 				};
 
 			case 'compression':
 				return {
-					settings: <CompressionSettings busy={busy} quality={quality} setQuality={setQuality} />,
+					settings: (
+						<CompressionSettings disabled={settingsDisabled} quality={quality} setQuality={setQuality} />
+					),
 					info: <CompressionInfo />,
 				};
 
@@ -98,7 +147,7 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 				return {
 					settings: (
 						<ResizeControls
-							busy={busy}
+							disabled={settingsDisabled}
 							resize={resize}
 							setAspect={setKeepAspect}
 							setPercent={setResizePercent}
@@ -109,10 +158,25 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 					info: <ResizeInfo resize={resize} />,
 				};
 
-			case 'vectorize':
+			case 'background':
 				return {
-					settings: <VectorControls busy={busy} setVector={setVector} vector={vector} />,
-					info: <VectorInfo />,
+					settings: (
+						<BackgroundControls
+							busy={busy}
+							color={color}
+							file={activeBackgroundFile}
+							format={format}
+							picking={picking}
+							setBackground={setBackground}
+							setFormat={setFormat}
+							zoom={zoom}
+							onPick={() => setPickingEnabled((enabled) => !enabled)}
+							onZoomChange={(value) => {
+								if (Number.isFinite(value)) setZoom(Math.min(400, Math.max(25, value)));
+							}}
+						/>
+					),
+					info: <BackgroundInfo />,
 				};
 		}
 	};
@@ -122,9 +186,14 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 	return (
 		<Layout
 			settings={
-				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
+				<>
 					<Toolbar busy={busy} mode={mode} uploadRef={uploadRef} onAddFiles={addFiles} />
-					<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', disabledStyles)}>
+					<div
+						className={cn(
+							'flex min-h-0 min-w-0 flex-1 scrollbar-none flex-col overflow-y-auto',
+							disabledStyles
+						)}
+					>
 						<Controls
 							busy={busy}
 							canProcess={canProcess}
@@ -138,21 +207,27 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 							onProcess={() => void processFiles()}
 						/>
 					</div>
-				</div>
+				</>
 			}
 			tabs={<ModeTabs hasWork={files.length > 0 || busy} mode={mode} onModeChange={onModeChange} />}
 		>
 			<FileArea
+				activeFile={activeBackgroundFile}
 				busy={busy}
 				dragProps={dragProps}
 				files={files}
 				isDropActive={isDropActive}
 				mode={mode}
+				picking={picking}
 				resizePlans={resizePlans}
 				uploadRef={uploadRef}
+				zoom={zoom}
+				onBackgroundSample={setBackgroundSample}
 				onDownload={download}
 				onPreview={preview}
 				onRemove={remove}
+				onSampleColor={onSampleColor}
+				onSelect={selectBackgroundFile}
 			/>
 		</Layout>
 	);

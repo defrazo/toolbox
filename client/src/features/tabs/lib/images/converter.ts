@@ -127,7 +127,6 @@ export const inspectImage = async (file: File, mode: Mode = 'converter') => {
 
 	if (mode === 'compression' && format === 'ico') throw new Error('compressionUnsupported');
 	if (mode === 'resize' && format === 'ico') throw new Error('resizeUnsupported');
-	if (mode === 'vectorize' && format === 'ico') throw new Error('vectorUnsupported');
 
 	const original = await imageBlob(file, format);
 

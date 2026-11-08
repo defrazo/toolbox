@@ -13,7 +13,7 @@ interface ModeTabsProps {
 	onModeChange: (mode: Mode) => void;
 }
 
-const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'vectorize', 'crop'];
+const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'background', 'crop'];
 
 export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps) => {
 	const { t } = useTranslation('images');

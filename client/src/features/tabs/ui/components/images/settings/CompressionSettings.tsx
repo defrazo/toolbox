@@ -6,19 +6,21 @@ import type { useImages } from '../../../../model';
 
 type ImagesState = ReturnType<typeof useImages>;
 
-type CompressionSettingsProps = Pick<ImagesState, 'busy' | 'quality' | 'setQuality'>;
+interface CompressionSettingsProps extends Pick<ImagesState, 'quality' | 'setQuality'> {
+	disabled: boolean;
+}
 
-export const CompressionSettings = ({ busy, quality, setQuality }: CompressionSettingsProps) => {
+export const CompressionSettings = ({ disabled, quality, setQuality }: CompressionSettingsProps) => {
 	const { t } = useTranslation('images');
 
 	return (
 		<div className="flex min-w-0 flex-col gap-1">
-			<label className="text-sm text-(--color-secondary)" htmlFor="images-quality">
+			<span className="text-sm text-(--color-secondary) select-none">
 				{t(($) => $.compression.quality)}: {quality}
-			</label>
+			</span>
 			<Input
 				className="h-6 cursor-pointer px-0 accent-(--accent-primary)"
-				disabled={busy}
+				disabled={disabled}
 				id="images-quality"
 				max={100}
 				min={1}
@@ -28,7 +30,7 @@ export const CompressionSettings = ({ busy, quality, setQuality }: CompressionSe
 				variant="custom"
 				onChange={(event) => setQuality(Number(event.target.value))}
 			/>
-			<p className="text-xs text-(--color-secondary)" id="images-quality-hint">
+			<p className="text-xs text-(--color-secondary) select-none" id="images-quality-hint">
 				{t(($) => $.compression.shortHint)}
 			</p>
 		</div>

@@ -40,12 +40,12 @@ type Result = {
 	url: string;
 	fullUrl: string;
 	name: string;
-	format: ImageOutputFormat;
+	format: ImageFormat;
 	width: number;
 	height: number;
 };
 
-export type Mode = 'converter' | 'compression' | 'resize' | 'vectorize' | 'crop';
+export type Mode = 'converter' | 'compression' | 'resize' | 'background' | 'crop';
 
 export type ImageWorkerRequest =
 	{ format: 'avif'; image: ImageData; quality?: number } | { format: 'png'; buffer: ArrayBuffer };
@@ -61,21 +61,17 @@ export type ImageFile = {
 	status: 'loading' | 'ready' | 'processing' | 'done' | 'error';
 	error?: ImageError;
 	result?: Result;
+	background?: BackgroundSettings;
 };
 
 // Converter
 export type ImageFormat = 'jpg' | 'png' | 'webp' | 'avif' | 'ico';
-
-export type ImageOutputFormat = ImageFormat | 'svg';
 
 export type ImageError =
 	| 'unsupported'
 	| 'compressionUnsupported'
 	| 'resizeUnsupported'
 	| 'resizeSettings'
-	| 'vectorUnsupported'
-	| 'vectorEmpty'
-	| 'vectorSize'
 	| 'size'
 	| 'pixels'
 	| 'decode'
@@ -94,18 +90,18 @@ export type ResizePlan =
 	| { width: number; height: number; error?: undefined }
 	| { width?: undefined; height?: undefined; error: 'resizeSettings' | 'pixels' };
 
-// Vectorize
-export type VectorSettings = {
-	detail: 'low' | 'medium' | 'high';
-	colors: 2 | 4 | 8 | 16 | 32;
+// Background
+export type BackgroundSettings = {
+	mode: 'contiguous' | 'global';
+	tolerance: number;
+	feather: number;
+	sample: { x: number; y: number };
 };
 
-export type VectorTraceRequest = {
-	format: 'svg';
+export type BackgroundRequest = {
+	format: 'background';
 	image: ImageData;
-	width: number;
-	height: number;
-	settings: VectorSettings;
+	settings: BackgroundSettings;
 };
 
 // Crop

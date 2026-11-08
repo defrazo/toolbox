@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Check } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
 import { Button, Input } from '@/shared/ui';
@@ -7,45 +8,51 @@ import { IMAGES, type ResizeSettings } from '../../../../model';
 
 interface ResizeControlsProps {
 	resize: ResizeSettings;
-	busy: boolean;
+	disabled: boolean;
 	setSide: (side: 'width' | 'height', value: string) => void;
 	setUnit: (unit: ResizeSettings['unit']) => void;
 	setPercent: (value: string) => void;
 	setAspect: (value: boolean) => void;
 }
 
-export const ResizeControls = ({ resize, busy, setSide, setUnit, setPercent, setAspect }: ResizeControlsProps) => {
+export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent, setAspect }: ResizeControlsProps) => {
 	const { t } = useTranslation('images');
 
 	return (
-		<>
-			<div aria-label={t(($) => $.resize.scale)} className="flex" role="group">
-				{(['pixels', 'percent'] as const).map((unit) => (
-					<Button
-						key={unit}
-						aria-pressed={resize.unit === unit}
-						className={cn(
-							'h-8 flex-1 rounded-lg first:rounded-r-none last:rounded-l-none',
-							resize.unit === unit && 'active-btn'
-						)}
-						disabled={busy}
-						onClick={() => setUnit(unit)}
-					>
-						{t(($) => $.resize[unit])}
-					</Button>
-				))}
+		<div className="flex min-w-0 flex-col gap-3">
+			<div className="flex flex-col gap-1.5">
+				<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.resize.mode)}</span>
+				<div aria-label={t(($) => $.resize.scale)} className="flex" role="group">
+					{(['pixels', 'percent'] as const).map((unit) => (
+						<Button
+							key={unit}
+							aria-pressed={resize.unit === unit}
+							className={cn(
+								'h-8 flex-1 rounded-lg first:rounded-r-none last:rounded-l-none',
+								resize.unit === unit && 'active-btn'
+							)}
+							disabled={disabled}
+							onClick={() => setUnit(unit)}
+						>
+							{t(($) => $.resize[unit])}
+						</Button>
+					))}
+				</div>
 			</div>
 			{resize.unit === 'pixels' ? (
 				<>
-					<div className="grid grid-cols-2 gap-3">
+					<div className="grid grid-cols-2 gap-2">
 						{(['width', 'height'] as const).map((side) => (
 							<div key={side} className="flex min-w-0 flex-col gap-1">
-								<label className="text-sm text-(--color-secondary)" htmlFor={`images-${side}`}>
+								<label
+									className="text-sm text-(--color-secondary) select-none"
+									htmlFor={`images-${side}`}
+								>
 									{t(($) => $.resize[side])}
 								</label>
 								<Input
 									className="h-8 min-w-0 rounded-lg"
-									disabled={busy}
+									disabled={disabled}
 									id={`images-${side}`}
 									max={IMAGES.MAX_SIDE}
 									min={1}
@@ -58,33 +65,47 @@ export const ResizeControls = ({ resize, busy, setSide, setUnit, setPercent, set
 							</div>
 						))}
 					</div>
-					<label
-						className={cn(
-							'flex items-center gap-2 text-sm text-(--color-secondary) transition-colors',
-							busy ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:text-(--color-accent)'
-						)}
-					>
-						<input
-							checked={resize.keepAspect}
-							className="size-4 accent-(--accent-primary)/70"
-							disabled={busy}
-							type="checkbox"
-							onChange={(event) => setAspect(event.target.checked)}
-						/>
-						{t(($) => $.resize.keepAspect)}
-					</label>
-					<p className="text-xs text-(--color-secondary)">
-						{t(($) => $.resize[resize.keepAspect ? 'fitShort' : 'exactShort'])}
-					</p>
+					<div className="flex min-w-0 flex-col gap-1.5 select-none">
+						<label
+							className={cn(
+								'flex w-fit items-center gap-2 text-sm text-(--color-secondary)',
+								disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+							)}
+						>
+							<input
+								checked={resize.keepAspect}
+								className="peer sr-only"
+								disabled={disabled}
+								type="checkbox"
+								onChange={(event) => setAspect(event.target.checked)}
+							/>
+							<span
+								aria-hidden="true"
+								className={cn(
+									'flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors',
+									'peer-focus-visible:ring-2 peer-focus-visible:ring-(--accent-primary)',
+									resize.keepAspect
+										? 'border-transparent bg-(--accent-primary) text-white'
+										: 'border-(--border-color) bg-(--bg-tertiary)'
+								)}
+							>
+								{resize.keepAspect && <Check size={10} strokeWidth={3} />}
+							</span>
+							{t(($) => $.resize.keepAspect)}
+						</label>
+						<span className="text-xs text-(--color-secondary)">
+							{t(($) => $.resize[resize.keepAspect ? 'fitShort' : 'exactShort'])}
+						</span>
+					</div>
 				</>
 			) : (
-				<div className="flex min-w-0 flex-col gap-1">
-					<label className="text-sm text-(--color-secondary)" htmlFor="images-percent">
+				<div className="flex min-w-0 flex-col gap-1.5">
+					<label className="text-sm text-(--color-secondary) select-none" htmlFor="images-percent">
 						{t(($) => $.resize.scale)}
 					</label>
 					<Input
 						className="h-8 min-w-0 rounded-lg"
-						disabled={busy}
+						disabled={disabled}
 						id="images-percent"
 						max={IMAGES.RESIZE.MAX_PERCENT}
 						min={IMAGES.RESIZE.MIN_PERCENT}
@@ -93,10 +114,10 @@ export const ResizeControls = ({ resize, busy, setSide, setUnit, setPercent, set
 						value={resize.percent}
 						onChange={(event) => setPercent(event.target.value)}
 					/>
-					<p className="text-xs text-(--color-secondary)">{t(($) => $.resize.percentShort)}</p>
+					<p className="text-xs text-(--color-secondary) select-none">{t(($) => $.resize.percentShort)}</p>
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
 

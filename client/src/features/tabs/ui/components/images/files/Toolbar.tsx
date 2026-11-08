@@ -21,7 +21,9 @@ export const Toolbar = ({ mode, busy, uploadRef, onAddFiles }: ToolbarProps) => 
 		<div className="core-border flex h-13 min-w-0 shrink-0 items-center overflow-hidden bg-(--bg-tertiary)/70 p-1 shadow-(--shadow)">
 			<FileUploader
 				ref={uploadRef}
-				accept={mode === 'converter' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT}
+				accept={
+					mode === 'converter' || mode === 'background' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT
+				}
 				className={cn(
 					'active-btn h-full min-w-0 flex-1 rounded-lg',
 					busy && 'bg-none text-(--color-secondary) opacity-100'

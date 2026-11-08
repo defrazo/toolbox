@@ -9,21 +9,21 @@ interface FooterProps {
 	count: number;
 	readyCount: number;
 	busy: boolean;
-	isVectorize: boolean;
+	isBackground: boolean;
 	onClear: () => void;
 	onDownload: () => void;
 }
 
-export const Footer = ({ count, readyCount, busy, isVectorize, onClear, onDownload }: FooterProps) => {
+export const Footer = ({ count, readyCount, busy, isBackground, onClear, onDownload }: FooterProps) => {
 	const { t } = useTranslation('images');
 
-	const isCancelling = isVectorize && busy;
+	const isCancelling = isBackground && busy;
 
 	return (
-		<div className="mt-auto flex flex-col gap-3 border-t border-(--border-color) pt-3">
+		<div className="flex flex-col gap-3 border-t border-(--border-color) pt-3">
 			<Button
 				className="active-btn w-full min-w-0"
-				disabled={busy || readyCount === 0}
+				disabled={busy || readyCount < 2}
 				leftIcon={<Download className="size-4" />}
 				onClick={onDownload}
 			>
@@ -35,11 +35,11 @@ export const Footer = ({ count, readyCount, busy, isVectorize, onClear, onDownlo
 				</div>
 				<Button
 					className="h-8 rounded-lg"
-					disabled={(!isVectorize && busy) || count === 0}
+					disabled={(!isBackground && busy) || count === 0}
 					leftIcon={<Trash2 className="size-4" />}
 					onClick={onClear}
 				>
-					<span className="truncate">{isCancelling ? t(($) => $.vectorize.cancel) : t(($) => $.clear)}</span>
+					<span className="truncate">{isCancelling ? t(($) => $.background.cancel) : t(($) => $.clear)}</span>
 				</Button>
 			</div>
 		</div>

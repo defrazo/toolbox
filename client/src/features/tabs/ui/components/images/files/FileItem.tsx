@@ -16,6 +16,8 @@ interface FileItemProps {
 	file: ImageFile;
 	plan?: ResizePlan;
 	busy: boolean;
+	active?: boolean;
+	onSelect?: (id: ImageFile['id']) => void;
 	onRemove: (id: ImageFile['id']) => void;
 	onDownload: (file: ImageFile) => void;
 	onPreview: (url: string, name: string) => void;
@@ -24,7 +26,16 @@ interface FileItemProps {
 const focusStyles =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent-primary-hover)';
 
-export const FileItem = ({ file, plan, busy, onRemove, onDownload, onPreview }: FileItemProps) => {
+export const FileItem = ({
+	file,
+	plan,
+	busy,
+	active = false,
+	onSelect,
+	onRemove,
+	onDownload,
+	onPreview,
+}: FileItemProps) => {
 	const { t } = useTranslation('images');
 
 	const { result } = file;
@@ -65,12 +76,29 @@ export const FileItem = ({ file, plan, busy, onRemove, onDownload, onPreview }: 
 	};
 
 	return (
-		<li className="flex min-w-0 items-center gap-3 rounded-xl bg-(--bg-tertiary)/70 p-3">
+		<li
+			className={cn(
+				'flex min-w-0 items-center gap-3 rounded-xl bg-(--bg-tertiary)/70 p-3',
+				onSelect && 'relative',
+				active && 'bg-(--accent-primary-dark) ring-1 ring-(--accent-primary-hover) ring-inset'
+			)}
+		>
+			{onSelect && (
+				<button
+					aria-controls="background-preview"
+					aria-label={t(($) => $.background.selectFile, { name: file.file.name })}
+					aria-pressed={active}
+					className={cn('absolute inset-0 z-0 cursor-pointer rounded-xl', focusStyles)}
+					type="button"
+					onClick={() => onSelect(file.id)}
+				/>
+			)}
 			{hasOriginal ? (
 				<button
 					className={cn(
 						'flex size-12 shrink-0 cursor-zoom-in items-center justify-center overflow-hidden rounded-lg border border-(--border-color) bg-(--bg-secondary) transition-colors hover:border-(--accent-primary-hover)',
-						focusStyles
+						focusStyles,
+						onSelect && 'relative z-10'
 					)}
 					title={t(($) => $.original)}
 					type="button"
@@ -83,7 +111,7 @@ export const FileItem = ({ file, plan, busy, onRemove, onDownload, onPreview }: 
 					<Image className="size-6 text-(--color-disabled)" />
 				</div>
 			)}
-			<div className="min-w-0 flex-1">
+			<div className={cn('min-w-0 flex-1', onSelect && 'pointer-events-none relative z-10')}>
 				<p className="truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
 				</p>
@@ -132,7 +160,7 @@ export const FileItem = ({ file, plan, busy, onRemove, onDownload, onPreview }: 
 					</p>
 				)}
 			</div>
-			<div className="flex shrink-0 items-center gap-1">
+			<div className={cn('flex shrink-0 items-center gap-1', onSelect && 'relative z-10')}>
 				{current && (
 					<>
 						<Button

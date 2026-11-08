@@ -4,7 +4,8 @@ import { Upload } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
 
-import type { Mode, useImages } from '../../../../model';
+import type { BackgroundSettings, Mode, useImages } from '../../../../model';
+import { BackgroundPreview } from '../BackgroundPreview';
 import { FileItem } from './FileItem';
 
 type ImagesState = ReturnType<typeof useImages>;
@@ -15,6 +16,12 @@ interface FileAreaProps {
 	files: ImagesState['files'];
 	resizePlans: ImagesState['resizePlans'];
 	busy: boolean;
+	activeFile?: ImageFile;
+	picking: boolean;
+	zoom: number;
+	onBackgroundSample: ImagesState['setBackgroundSample'];
+	onSampleColor: (id: string, sample: BackgroundSettings['sample'], hex: string) => void;
+	onSelect: (id: string) => void;
 	isDropActive: boolean;
 	dragProps: Record<string, unknown>;
 	uploadRef: RefObject<HTMLInputElement | null>;
@@ -28,6 +35,12 @@ export const FileArea = ({
 	files,
 	resizePlans,
 	busy,
+	activeFile,
+	picking,
+	zoom,
+	onBackgroundSample,
+	onSampleColor,
+	onSelect,
 	isDropActive,
 	dragProps,
 	uploadRef,
@@ -40,17 +53,18 @@ export const FileArea = ({
 	const isEmpty = files.length === 0;
 	const showDropZone = isEmpty || isDropActive;
 
-	const formats = mode === 'converter' ? 'JPG · PNG · WebP · AVIF · ICO' : 'JPG · PNG · WebP · AVIF';
+	const formats =
+		mode === 'converter' || mode === 'background' ? 'JPG · PNG · WebP · AVIF · ICO' : 'JPG · PNG · WebP · AVIF';
 
 	return (
 		<div
 			{...dragProps}
-			aria-busy={busy}
 			className={cn(
 				'group relative flex min-h-[190px] min-w-0 flex-1 flex-col rounded-xl border border-transparent transition-colors duration-200',
 				showDropZone && 'border-dashed border-(--accent-primary-hover)/50',
 				!isEmpty && 'gap-2',
-				isDropActive && 'border-(--accent-primary-hover)'
+				isDropActive && 'border-(--accent-primary-hover)',
+				mode === 'background' && !isEmpty && 'xl:h-full xl:flex-none'
 			)}
 		>
 			{isEmpty ? (
@@ -72,16 +86,31 @@ export const FileArea = ({
 				</button>
 			) : (
 				<>
+					{activeFile && (
+						<div className="min-w-0 shrink-0 xl:h-full">
+							<BackgroundPreview
+								key={activeFile.id}
+								busy={busy}
+								file={activeFile}
+								picking={picking}
+								zoom={zoom}
+								onSampleChange={onBackgroundSample}
+								onSampleColor={onSampleColor}
+							/>
+						</div>
+					)}
 					<ul aria-label={t(($) => $.files)} className="grid min-w-0 gap-2">
 						{files.map((file) => (
 							<FileItem
 								key={file.id}
+								active={mode === 'background' && activeFile?.id === file.id}
 								busy={busy}
 								file={file}
 								plan={mode === 'resize' ? resizePlans.get(file.id) : undefined}
 								onDownload={onDownload}
 								onPreview={onPreview}
 								onRemove={onRemove}
+								onSelect={mode === 'background' ? onSelect : undefined}
 							/>
 						))}
 					</ul>
