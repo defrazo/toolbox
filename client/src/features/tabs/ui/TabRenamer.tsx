@@ -1,4 +1,4 @@
-import { type ChangeEvent, useRef } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, File, Plus, Trash2 } from 'lucide-react';
 
@@ -24,13 +24,6 @@ const TabRenamerContent = () => {
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 
-	const handleFiles = (e: ChangeEvent<HTMLInputElement>) => {
-		if (!e.target.files) return;
-
-		handleIncomingFiles(Array.from(e.target.files));
-		e.target.value = '';
-	};
-
 	return (
 		<>
 			<div className="core-border flex flex-col bg-(--bg-tertiary)/70 shadow-(--shadow) md:flex-row">
@@ -41,7 +34,7 @@ const TabRenamerContent = () => {
 					icon={<File />}
 					id="renamer-upload"
 					selectedFileName={t(($) => $.upload.uploadFiles)}
-					onUpload={handleFiles}
+					onUpload={handleIncomingFiles}
 				/>
 				<Button
 					className={cn(
@@ -90,7 +83,7 @@ const TabRenamerContent = () => {
 							disabled={files.length === 0}
 							icon={<Plus />}
 							selectedFileName={t(($) => $.upload.addFiles)}
-							onUpload={handleFiles}
+							onUpload={handleIncomingFiles}
 						/>
 						<Button
 							className={cn('flex-1 hover:shadow-(--shadow)', files.length >= 1 && 'pointer-events-auto')}

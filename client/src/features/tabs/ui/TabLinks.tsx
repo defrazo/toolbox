@@ -7,8 +7,11 @@ import { cn } from '@/shared/lib/utils';
 import { Preloader } from '@/shared/ui';
 
 import { linksApi } from '../api';
-import { type ShortLink, TABLE_GRID } from '../model';
+import type { ShortLink } from '../model';
 import { ConfirmDialog, EmptyState, LinksFooter, LinksTable } from './components/links';
+
+const TABLE_GRID =
+	'grid-cols-[minmax(150px,2fr)_minmax(150px,2fr)_minmax(100px,1.5fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(100px,1fr)] gap-6';
 
 export const TabLinks = observer(() => {
 	const { t } = useTranslation('links');

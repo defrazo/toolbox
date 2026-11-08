@@ -149,5 +149,6 @@ export const BackgroundControls = ({
 
 export const BackgroundInfo = () => {
 	const { t } = useTranslation('images');
+
 	return <span>{t(($) => $.background.hint)}</span>;
 };

@@ -17,7 +17,7 @@ interface ControlsProps {
 	info: ReactNode;
 	onClear: () => void;
 	onProcess: () => void;
-	onDownloadZip: () => void | Promise<void>;
+	onDownload: () => void | Promise<void>;
 }
 
 export const Controls = ({
@@ -30,12 +30,12 @@ export const Controls = ({
 	info,
 	onClear,
 	onProcess,
-	onDownloadZip,
+	onDownload,
 }: ControlsProps) => {
 	const { t } = useTranslation('images');
 
 	return (
-		<div className="core-border flex min-w-0 flex-1 flex-col bg-(--bg-secondary)/70 p-3 shadow-(--shadow)">
+		<div className="core-border flex min-w-0 flex-1 scrollbar-none flex-col overflow-y-auto bg-(--bg-secondary)/70 p-3 shadow-(--shadow)">
 			{settings}
 			<details className="group/hint mt-2 text-xs text-(--color-secondary)">
 				<summary className="group flex cursor-pointer list-none items-center gap-1.5 rounded py-1 transition-colors select-none focus-visible:outline focus-visible:outline-(--accent-primary-hover) [&::-webkit-details-marker]:hidden">
@@ -43,8 +43,8 @@ export const Controls = ({
 					<span className="mb-0.5 group-hover:text-(--color-accent)">{t(($) => $.info)}</span>
 					<ChevronDown className="ml-auto size-3.5 shrink-0 transition-transform group-open/hint:rotate-180 group-hover:text-(--color-accent)" />
 				</summary>
-				<div className="mt-1 space-y-2 border-t border-(--border-color) pt-2 leading-relaxed">
-					<p>{t(($) => $.limits)}</p>
+				<div className="mt-1 flex flex-col gap-2 border-t border-(--border-color) pt-2 leading-relaxed">
+					<span>{t(($) => $.limits)}</span>
 					{info}
 				</div>
 			</details>
@@ -58,7 +58,7 @@ export const Controls = ({
 					isBackground={mode === 'background'}
 					readyCount={readyCount}
 					onClear={onClear}
-					onDownload={onDownloadZip}
+					onDownload={onDownload}
 				/>
 			</div>
 		</div>

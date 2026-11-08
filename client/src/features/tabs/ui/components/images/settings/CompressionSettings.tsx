@@ -30,9 +30,9 @@ export const CompressionSettings = ({ disabled, quality, setQuality }: Compressi
 				variant="custom"
 				onChange={(event) => setQuality(Number(event.target.value))}
 			/>
-			<p className="text-xs text-(--color-secondary) select-none" id="images-quality-hint">
+			<span className="text-xs text-(--color-secondary) select-none" id="images-quality-hint">
 				{t(($) => $.compression.shortHint)}
-			</p>
+			</span>
 		</div>
 	);
 };
@@ -42,8 +42,8 @@ export const CompressionInfo = () => {
 
 	return (
 		<>
-			<p>{t(($) => $.compression.qualityHint)}</p>
-			<p>{t(($) => $.compression.pngHint)}</p>
+			<span>{t(($) => $.compression.qualityHint)}</span>
+			<span>{t(($) => $.compression.pngHint)}</span>
 		</>
 	);
 };

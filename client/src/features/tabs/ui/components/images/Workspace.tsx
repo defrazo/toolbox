@@ -117,6 +117,17 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		modalStore.setModal(<ImageViewer alt={name} src={url} />);
 	};
 
+	const handleDownload = () => {
+		if (ready.length === 0) return;
+
+		if (ready.length === 1) {
+			download(ready[0]);
+			return;
+		}
+
+		void downloadZip();
+	};
+
 	const canProcess = files.some((file) => {
 		if (!file.format || file.status === 'done') return false;
 		if (mode !== 'resize') return true;
@@ -187,13 +198,8 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		<Layout
 			settings={
 				<>
-					<Toolbar busy={busy} mode={mode} uploadRef={uploadRef} onAddFiles={addFiles} />
-					<div
-						className={cn(
-							'flex min-h-0 min-w-0 flex-1 scrollbar-none flex-col overflow-y-auto',
-							disabledStyles
-						)}
-					>
+					<Toolbar busy={busy} count={files.length} mode={mode} uploadRef={uploadRef} onAddFiles={addFiles} />
+					<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', disabledStyles)}>
 						<Controls
 							busy={busy}
 							canProcess={canProcess}
@@ -203,7 +209,7 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 							readyCount={ready.length}
 							settings={settings}
 							onClear={clear}
-							onDownloadZip={downloadZip}
+							onDownload={handleDownload}
 							onProcess={() => void processFiles()}
 						/>
 					</div>

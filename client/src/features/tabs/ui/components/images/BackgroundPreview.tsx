@@ -2,7 +2,7 @@ import { type PointerEvent, useCallback, useEffect, useLayoutEffect, useRef, use
 import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui';
+import { Button, Preloader } from '@/shared/ui';
 
 import { readBackgroundImage } from '../../../lib/images';
 import { type BackgroundRequest, type BackgroundSettings, type ImageFile, IMAGES } from '../../../model';
@@ -482,12 +482,18 @@ const BackgroundPreviewContent = ({
 					</div>
 				</div>
 			) : (
-				<span
-					className={cn('text-sm', previewError ? 'text-(--status-error)' : 'text-(--color-secondary)')}
-					role={previewError ? 'alert' : 'status'}
-				>
-					{previewError ?? t(($) => $.status[file.status])}
-				</span>
+				<div className="flex min-h-[280px] flex-1 flex-col items-center justify-center gap-3">
+					{!previewError && <Preloader className="size-8" />}
+					<span
+						className={cn(
+							'text-center text-lg font-medium',
+							previewError ? 'text-(--status-error)' : 'text-(--color-accent)'
+						)}
+						role={previewError ? 'alert' : 'status'}
+					>
+						{previewError ?? t(($) => $.status[file.status])}
+					</span>
+				</div>
 			)}
 			<div className="flex flex-wrap items-center gap-2">
 				{(['checker', 'white', 'dark'] as const).map((value) => (

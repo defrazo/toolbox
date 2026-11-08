@@ -5,8 +5,11 @@ import { cn, fullDate } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 import { getTtl } from '../../../lib';
-import { type ShortLink, TABLE_GRID, useLinksTable } from '../../../model';
+import { type ShortLink, useLinksTable } from '../../../model';
 import { LinkActions } from '.';
+
+const TABLE_GRID =
+	'grid-cols-[minmax(150px,2fr)_minmax(150px,2fr)_minmax(100px,1.5fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(100px,1fr)] gap-6';
 
 interface LinkRowProps {
 	link: ShortLink;

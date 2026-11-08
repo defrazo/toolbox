@@ -111,11 +111,11 @@ export const FileItem = ({
 					<Image className="size-6 text-(--color-disabled)" />
 				</div>
 			)}
-			<div className={cn('min-w-0 flex-1', onSelect && 'pointer-events-none relative z-10')}>
-				<p className="truncate text-sm font-medium" title={file.file.name}>
+			<div className={cn('mb-0.5 flex min-w-0 flex-1 flex-col', onSelect && 'pointer-events-none relative z-10')}>
+				<span className="block truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
-				</p>
-				<div className="mb-0.5 flex h-4 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-(--color-secondary)">
+				</span>
+				<div className="flex h-4 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-(--color-secondary)">
 					<span className="trim">
 						{file.format?.toUpperCase() ?? '–'}
 						{file.width && file.height ? ` · ${file.width} × ${file.height}` : ''}
@@ -146,19 +146,22 @@ export const FileItem = ({
 						</>
 					)}
 				</div>
-				<p
-					className={cn(
-						'trim mt-0.5 text-xs wrap-anywhere text-(--color-secondary)',
-						error && 'text-(--status-error)'
+				<div className="flex items-center gap-1">
+					<span
+						className={cn(
+							'trim mt-0.5 text-xs wrap-anywhere text-(--color-secondary)',
+							file.status === 'done' && 'text-(--status-success)',
+							error && 'text-(--status-error)'
+						)}
+					>
+						{status}
+					</span>
+					{plan && !plan.error && !result && (
+						<span className="text-xs text-(--color-secondary)">
+							{t(($) => $.resize.planned, { width: plan.width, height: plan.height })}
+						</span>
 					)}
-				>
-					{status}
-				</p>
-				{plan && !plan.error && !result && (
-					<p className="text-xs text-(--color-secondary)">
-						{t(($) => $.resize.planned, { width: plan.width, height: plan.height })}
-					</p>
-				)}
+				</div>
 			</div>
 			<div className={cn('flex shrink-0 items-center gap-1', onSelect && 'relative z-10')}>
 				{current && (

@@ -32,3 +32,7 @@
 	-webkit-touch-callout: none;
 	-webkit-tap-highlight-color: transparent;
 }
+
+@utility core-scrollbar {
+	@apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-(--border-color);
+}

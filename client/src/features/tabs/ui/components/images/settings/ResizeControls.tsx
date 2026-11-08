@@ -114,7 +114,9 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 						value={resize.percent}
 						onChange={(event) => setPercent(event.target.value)}
 					/>
-					<p className="text-xs text-(--color-secondary) select-none">{t(($) => $.resize.percentShort)}</p>
+					<span className="text-xs text-(--color-secondary) select-none">
+						{t(($) => $.resize.percentShort)}
+					</span>
 				</div>
 			)}
 		</div>
@@ -126,16 +128,16 @@ export const ResizeInfo = ({ resize }: { resize: ResizeSettings }) => {
 
 	return (
 		<>
-			<p>
+			<span>
 				{t(
 					($) =>
 						$.resize[
 							resize.unit === 'percent' ? 'percentHint' : resize.keepAspect ? 'fitHint' : 'exactHint'
 						]
 				)}
-			</p>
-			<p>{t(($) => $.resize.switchHint)}</p>
-			<p>{t(($) => $.resize.limits)}</p>
+			</span>
+			<span>{t(($) => $.resize.switchHint)}</span>
+			<span>{t(($) => $.resize.limits)}</span>
 		</>
 	);
 };

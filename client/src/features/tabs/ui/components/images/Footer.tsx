@@ -23,7 +23,7 @@ export const Footer = ({ count, readyCount, busy, isBackground, onClear, onDownl
 		<div className="flex flex-col gap-3 border-t border-(--border-color) pt-3">
 			<Button
 				className="active-btn w-full min-w-0"
-				disabled={busy || readyCount < 2}
+				disabled={busy || readyCount === 0}
 				leftIcon={<Download className="size-4" />}
 				onClick={onDownload}
 			>

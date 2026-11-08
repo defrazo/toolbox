@@ -32,5 +32,5 @@ type ConverterInfoProps = Pick<ImagesState, 'format'>;
 export const ConverterInfo = ({ format }: ConverterInfoProps) => {
 	const { t } = useTranslation('images');
 
-	return format === 'ico' ? <p>{t(($) => $.converter.icoHint)}</p> : null;
+	return format === 'ico' ? <span>{t(($) => $.converter.icoHint)}</span> : null;
 };

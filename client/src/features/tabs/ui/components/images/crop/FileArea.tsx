@@ -71,17 +71,17 @@ export const FileArea = ({ editor, isDropActive, dragProps, uploadRef }: FileAre
 						onChange={setCrop}
 					/>
 					<div className="core-border flex w-full min-w-0 shrink-0 flex-col gap-2 bg-(--bg-secondary)/70 p-2 sm:flex-row sm:items-center">
-						<p className="min-w-0 flex-1 text-sm" title={source.name}>
+						<div className="min-w-0 flex-1 text-sm" title={source.name}>
 							<span className="block truncate">{source.name}</span>
 							<span className="block text-xs wrap-anywhere text-(--color-secondary)">
 								{source.format.toUpperCase()} · {source.image.naturalWidth} ×{' '}
 								{source.image.naturalHeight} · {formatFileSize(source.bytes)}
 							</span>
-						</p>
-						<p className="shrink-0 text-sm text-(--color-secondary)" role="status">
+						</div>
+						<span className="shrink-0 text-sm text-(--color-secondary)" role="status">
 							{t(($) => $.crop.selection)}: {Math.max(1, Math.round(selection.width))} ×{' '}
 							{Math.max(1, Math.round(selection.height))} px
-						</p>
+						</span>
 					</div>
 				</>
 			)}
