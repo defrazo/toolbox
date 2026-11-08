@@ -1,11 +1,11 @@
-import { UserStore } from '@/entities/user';
-import { AuthStore } from '@/features/auth';
-import { ModalStore } from '@/features/modal';
-import { NotifyStore } from '@/features/notification';
-import { TabsStore } from '@/features/tabs';
-import { ThemeStore } from '@/features/theme-switcher';
+import { UserStore } from '@/entities/user/model/userStore';
+import { AuthStore } from '@/features/auth/model/authStore';
+import { ModalStore } from '@/features/modal/model/modalStore';
+import { NotifyStore } from '@/features/notification/model/notifyStore';
+import { TabsStore } from '@/features/tabs/model/tabsStore';
+import { ThemeStore } from '@/features/theme-switcher/model/themeStore';
 
-import { CoreStores } from '.';
+import type { CoreStores } from './types';
 
 export class StoreFactory {
 	static createCore(): CoreStores {

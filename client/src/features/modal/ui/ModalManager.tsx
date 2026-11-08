@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
 
-import { Modal } from '.';
+import { Modal } from './Modal';
 
 export const ModalManager = observer(() => {
 	const { modalStore } = useStore();

@@ -5,7 +5,8 @@ import { Toaster } from 'sonner';
 import { ModalManager } from '@/features/modal';
 import { useDeviceType } from '@/shared/lib/hooks';
 
-import { I18nProvider, RouterProvider } from './providers';
+import I18nProvider from './providers/i18n';
+import RouterProvider from './providers/router/RouterProvider';
 
 const App = () => {
 	const device = useDeviceType();

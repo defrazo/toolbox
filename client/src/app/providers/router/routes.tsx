@@ -16,7 +16,8 @@ import NotFoundPage from '@/pages/not-found';
 import PrivacyPolicyPage from '@/pages/privacy-policy';
 import { Sidebar } from '@/widgets/sidebar';
 
-import { GuardedRoute, PublicRoute } from '.';
+import { GuardedRoute } from './GuardedRoute';
+import { PublicRoute } from './PublicRoute';
 
 export const routes: RouteObject[] = [
 	{
