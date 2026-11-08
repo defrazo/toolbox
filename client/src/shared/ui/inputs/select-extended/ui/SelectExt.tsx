@@ -6,7 +6,7 @@ import { cn } from '@/shared/lib/utils';
 
 import type { Direction, Justify, SelectExtOption } from '../model';
 import { useSelect } from '../model';
-import { SelectList } from '.';
+import { SelectList } from './SelectList';
 
 interface SelectExtProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
 	options: SelectExtOption[];
