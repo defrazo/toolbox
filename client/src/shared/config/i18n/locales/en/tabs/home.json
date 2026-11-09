@@ -34,7 +34,7 @@
 		},
 		"crop": {
 			"title": "Crop image",
-			"subtitle": "Choose an image and adjust its frame"
+			"subtitle": "Choose and crop the image"
 		}
 	},
 	"promo": {

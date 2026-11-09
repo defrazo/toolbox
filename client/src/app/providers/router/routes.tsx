@@ -33,7 +33,7 @@ export const routes: RouteObject[] = [
 		element: <PublicRoute />,
 		children: [
 			{
-				element: <Layout hideLeftOnMobile leftSide={<AuthSidebar />} />,
+				element: <Layout hideLeftOnMobile leftSide={<AuthSidebar />} variant="auth" />,
 				children: [
 					{ path: '/login', element: <LoginPage /> },
 					{ path: '/register', element: <RegisterPage /> },

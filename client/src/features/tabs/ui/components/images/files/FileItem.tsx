@@ -119,7 +119,7 @@ export const FileItem = ({
 				<span className="block truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
 				</span>
-				<div className="flex h-4 flex-wrap items-center gap-2 text-xs text-(--color-secondary)">
+				<div className="hidden h-4 flex-wrap items-center gap-2 text-xs text-(--color-secondary) xl:flex">
 					<span>
 						{file.format?.toUpperCase() ?? '–'}
 						{file.width && file.height ? ` · ${file.width} × ${file.height}` : ''}
@@ -150,11 +150,13 @@ export const FileItem = ({
 						</>
 					) : (
 						<>
-							<MoveRight className="size-4" />
 							{plan && !plan.error && !result && (
-								<span>
-									{file.format?.toUpperCase() ?? ''} · {plan.width} × {plan.height} px
-								</span>
+								<>
+									<MoveRight className="size-4" />
+									<span>
+										{file.format?.toUpperCase() ?? ''} · {plan.width} × {plan.height} px
+									</span>
+								</>
 							)}
 						</>
 					)}

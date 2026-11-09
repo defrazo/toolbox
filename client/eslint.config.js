@@ -1,3 +1,4 @@
+import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
@@ -28,10 +29,17 @@ export default [
 			prettier: eslintPluginPrettier,
 			'simple-import-sort': eslintPluginSimpleImportSort,
 			react: eslintPluginReact,
+			import: eslintPluginImport,
 		},
 		settings: {
 			react: {
 				version: 'detect',
+			},
+			'import/resolver': {
+				typescript: {
+				project: './tsconfig.eslint.json',
+				},
+				node: true,
 			},
 		},
 		rules: {
@@ -58,6 +66,37 @@ export default [
 					shorthandFirst: false,
 					noSortAlphabetically: false,
 					reservedFirst: true,
+				},
+			],
+
+			'import/no-cycle': [
+				'error',
+					{
+						maxDepth: Infinity,
+						ignoreExternal: true,
+						allowUnsafeDynamicCyclicDependency: false,
+					},
+			],
+
+			'no-restricted-syntax': [
+				'error',
+				{
+					selector:
+						"ImportDeclaration[importKind!='type'][source.value=/\\.worker(\\.[cm]?[jt]sx?)?$/]",
+					message:
+						'Worker entry points must not be imported as regular modules. Use new Worker(new URL(...)) instead.',
+				},
+				{
+					selector:
+					"ExportNamedDeclaration[source.value=/\\.worker(\\.[cm]?[jt]sx?)?$/]",
+					message:
+					'Do not re-export Worker entry points through barrel files.',
+				},
+				{
+					selector:
+					"ExportAllDeclaration[source.value=/\\.worker(\\.[cm]?[jt]sx?)?$/]",
+					message:
+					'Do not re-export Worker entry points through barrel files.',
 				},
 			],
 		},

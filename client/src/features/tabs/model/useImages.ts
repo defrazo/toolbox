@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { saveAs } from 'file-saver';
 
+import { generateUUID } from '@/shared/lib/utils';
+
 import { inspectImage, normalizeBackgroundSettings, planResize } from '../lib';
 import type { ArchiveEntry } from '../lib/images/archive';
 import { createArchive } from '../lib/images/archiveClient';
@@ -42,6 +44,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const [busy, setBusy] = useState(false);
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
+	const [preparationProgress, setPreparationProgress] = useState<{ completed: number; total: number } | null>(null);
 
 	const resizeInitialized = useRef(false);
 	const rows = useRef<ImageFile[]>([]);
@@ -169,9 +172,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 					mode === 'background' ? { background: normalizeBackgroundSettings(IMAGES.BACKGROUND.DEFAULT) } : {};
 
 				total += file.size;
-				added.push({ id: crypto.randomUUID(), file, ...fileBackground, status: 'loading' });
+				added.push({ id: generateUUID(), file, ...fileBackground, status: 'loading' });
 			}
 
+			setPreparationProgress(added.length ? { completed: 0, total: added.length } : null);
 			update([...rows.current, ...added]);
 
 			for (const { id, file, status } of added) {
@@ -223,6 +227,12 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 										: 'unsupported'
 								: code,
 					});
+				} finally {
+					if (mounted.current && operation === generation.current && preparation.current === controller) {
+						setPreparationProgress(
+							(previous) => previous && { ...previous, completed: previous.completed + 1 }
+						);
+					}
 				}
 			}
 			if (mounted.current && operation === generation.current) {
@@ -230,7 +240,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 				if (limited) notify('limit');
 			}
 		} finally {
-			if (preparation.current === controller) preparation.current = null;
+			if (preparation.current === controller) {
+				preparation.current = null;
+				if (mounted.current) setPreparationProgress(null);
+			}
 			end(operation);
 		}
 	};
@@ -339,15 +352,19 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 				);
 				const room = Math.max(0, budget - retained);
 				const index = queue.findIndex(({ bytes }) => active.size === 0 || reserved + bytes <= room);
+
 				if (available.length > 0 && index >= 0) {
 					const [entry] = queue.splice(index, 1);
 					const processor = available.pop()!;
+
 					reserved += entry.bytes;
+
 					const task = processJob(entry, processor).finally(() => {
 						reserved -= entry.bytes;
 						available.push(processor);
 						active.delete(task);
 					});
+
 					active.add(task);
 				} else {
 					await Promise.race(active);
@@ -360,6 +377,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 			if (processing.current === controller) {
 				processing.current = null;
+
 				if (mounted.current) setIsProcessing(false);
 			}
 
@@ -520,6 +538,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		setBusy(false);
 		setIsProcessing(false);
 		setProgress(null);
+		setPreparationProgress(null);
 		setActiveBackgroundId(null);
 		update([]);
 	};
@@ -574,17 +593,35 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 			if (!mounted.current || operation !== generation.current || controller.signal.aborted) return;
 			archiveCache.current = { entries, blob };
 
-			if (mounted.current && operation === generation.current)
+			if (mounted.current && operation === generation.current) {
+				const now = new Date();
+				const formatter = new Intl.DateTimeFormat('ru-RU', {
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit',
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+					hour12: false,
+				});
+
+				const formattedDate = formatter
+					.format(now)
+					.replace(/(\d{2})\.(\d{2})\.(\d{4}),/, '$3-$2-$1')
+					.replace(/:/g, '-')
+					.replace(/, /, '_');
+
 				saveAs(
 					blob,
 					mode === 'background'
-						? 'Background_removed_images.zip'
+						? `Background_${formattedDate}.zip`
 						: mode === 'resize'
-							? 'Resized_images.zip'
+							? `Resized_${formattedDate}.zip`
 							: mode === 'compression'
-								? 'Compressed_images.zip'
-								: 'Images.zip'
+								? `Compressed_${formattedDate}.zip`
+								: `Converted_${formattedDate}.zip`
 				);
+			}
 		} catch {
 			if (mounted.current && operation === generation.current) notify('download');
 		} finally {
@@ -616,6 +653,7 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		zipProgress,
 		isProcessing,
 		progress,
+		preparationProgress,
 		cancelProcessing,
 		addFiles,
 		processFiles,

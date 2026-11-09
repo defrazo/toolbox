@@ -2,6 +2,7 @@ import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload } from 'lucide-react';
 
+import { useDeviceType } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 import { Preloader } from '@/shared/ui';
 
@@ -18,6 +19,7 @@ interface FileAreaProps {
 
 export const FileArea = ({ editor, isDropActive, dragProps, uploadRef }: FileAreaProps) => {
 	const { t } = useTranslation('images');
+	const device = useDeviceType();
 
 	const { source, loading, transform, selection, exporting, ratio, canvasRef, crop, zoom, setCrop } = editor;
 
@@ -35,7 +37,7 @@ export const FileArea = ({ editor, isDropActive, dragProps, uploadRef }: FileAre
 				isDropActive && 'border-(--accent-primary-hover)'
 			)}
 		>
-			{isEmpty ? (
+			{isEmpty && device !== 'mobile' ? (
 				<button
 					className={cn(
 						'flex min-h-[190px] w-full flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg bg-(--bg-secondary)/50 px-3 text-center text-(--color-accent) transition-colors duration-200 hover:bg-(--accent-primary-hover)/10 focus-visible:outline focus-visible:outline-(--accent-primary-hover) disabled:pointer-events-none disabled:cursor-default disabled:opacity-60',
@@ -60,29 +62,36 @@ export const FileArea = ({ editor, isDropActive, dragProps, uploadRef }: FileAre
 				</button>
 			) : (
 				<>
-					<Preview
-						aspect={ratio}
-						canvasRef={canvasRef}
-						crop={crop}
-						disabled={exporting}
-						image={source.image}
-						transform={transform}
-						zoom={zoom}
-						onChange={setCrop}
-					/>
-					<div className="core-border flex w-full min-w-0 shrink-0 flex-col gap-2 bg-(--bg-secondary)/70 p-2 sm:flex-row sm:items-center">
-						<div className="min-w-0 flex-1 text-sm" title={source.name}>
-							<span className="block truncate">{source.name}</span>
-							<span className="block text-xs wrap-anywhere text-(--color-secondary)">
-								{source.format.toUpperCase()} · {source.image.naturalWidth} ×{' '}
-								{source.image.naturalHeight} · {formatFileSize(source.bytes)}
-							</span>
-						</div>
-						<span className="shrink-0 text-sm text-(--color-secondary)" role="status">
-							{t(($) => $.crop.selection)}: {Math.max(1, Math.round(selection.width))} ×{' '}
-							{Math.max(1, Math.round(selection.height))} px
-						</span>
-					</div>
+					{source && (
+						<>
+							<Preview
+								aspect={ratio}
+								canvasRef={canvasRef}
+								crop={crop}
+								disabled={exporting}
+								image={source.image}
+								transform={transform}
+								zoom={zoom}
+								onChange={setCrop}
+							/>
+							<div className="core-border hidden w-full min-w-0 shrink-0 flex-col gap-2 bg-(--bg-secondary)/70 p-2 sm:flex-row sm:items-center xl:flex">
+								<div className="min-w-0 flex-1 text-sm" title={source.name}>
+									<span className="block truncate">{source.name}</span>
+									<span className="block text-xs wrap-anywhere text-(--color-secondary)">
+										{source.format.toUpperCase()} · {source.image.naturalWidth} ×{' '}
+										{source.image.naturalHeight} · {formatFileSize(source.bytes)}
+									</span>
+								</div>
+								<span
+									className="hidden shrink-0 text-sm text-(--color-secondary) xl:block"
+									role="status"
+								>
+									{t(($) => $.crop.selection)}: {Math.max(1, Math.round(selection.width))} ×{' '}
+									{Math.max(1, Math.round(selection.height))} px
+								</span>
+							</div>
+						</>
+					)}
 				</>
 			)}
 		</div>

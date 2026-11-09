@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { reaction } from 'mobx';
 
 import { useStore } from '@/app/providers';
 import { cn } from '@/shared/lib/utils';
@@ -18,39 +19,71 @@ const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'backgroun
 export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps) => {
 	const { t } = useTranslation('images');
 
-	const { modalStore } = useStore();
+	const { modalStore, tabsStore } = useStore();
 
 	const tabsRef = useRef<HTMLDivElement>(null);
 
-	const handleModeChange = (next: Mode) => {
-		if (next === mode) return;
+	const handledRequest = useRef<number | null>(null);
 
-		if (!hasWork) {
-			onModeChange(next);
-			return;
-		}
+	const handleModeChange = useCallback(
+		(next: Mode, shortcutId?: number) => {
+			if (next === mode) return;
 
-		modalStore.setModal(
-			<div className="flex flex-col gap-4 select-none">
-				<span>{t(($) => $.switchMode.question)}</span>
-				<div className="flex gap-3">
-					<Button
-						className="flex-1"
-						onClick={() => {
-							modalStore.closeModal();
-							onModeChange(next);
-						}}
-					>
-						{t(($) => $.switchMode.confirm)}
-					</Button>
-					<Button className="flex-1" onClick={() => modalStore.closeModal()}>
-						{t(($) => $.switchMode.cancel)}
-					</Button>
-				</div>
-			</div>,
-			'confirm'
-		);
-	};
+			if (!hasWork) {
+				onModeChange(next);
+				return;
+			}
+
+			modalStore.setModal(
+				<div className="-mt-4 flex flex-col gap-4 select-none">
+					<span>{t(($) => $.switchMode.question)}</span>
+					<div className="flex gap-3">
+						<Button
+							className="flex-1"
+							onClick={() => {
+								modalStore.closeModal();
+								if (shortcutId === undefined || tabsStore.shortcut?.id === shortcutId)
+									onModeChange(next);
+							}}
+						>
+							{t(($) => $.switchMode.confirm)}
+						</Button>
+						<Button
+							className="flex-1"
+							onClick={() => {
+								modalStore.closeModal();
+								if (shortcutId !== undefined) tabsStore.consumeShortcut(shortcutId);
+							}}
+						>
+							{t(($) => $.switchMode.cancel)}
+						</Button>
+					</div>
+				</div>,
+				'confirm'
+			);
+		},
+		[mode, hasWork, modalStore, onModeChange, tabsStore, t]
+	);
+
+	useEffect(
+		() =>
+			reaction(
+				() => tabsStore.shortcut,
+				(request) => {
+					if (
+						!request ||
+						(request.type !== 'background' && request.type !== 'crop') ||
+						request.type === mode ||
+						handledRequest.current === request.id
+					)
+						return;
+					handledRequest.current = request.id;
+					handleModeChange(request.type, request.id);
+				},
+				{ fireImmediately: true }
+			),
+		[handleModeChange, mode, tabsStore]
+	);
 
 	useLayoutEffect(() => {
 		const tabs = tabsRef.current;

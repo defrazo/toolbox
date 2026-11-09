@@ -81,7 +81,7 @@ export const ShortcutsSection = () => {
 			{shortcuts.map(({ id, title, subtitle, icon: Icon, action }) => (
 				<button
 					key={id}
-					className="core-border group flex min-h-18.5 w-full min-w-0 cursor-pointer items-center gap-3 bg-(--bg-secondary)/70 p-3 text-left shadow-(--shadow) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--accent-primary-hover)"
+					className="core-border group flex min-h-16 w-full min-w-0 cursor-pointer items-center gap-3 bg-(--bg-secondary)/70 p-3 text-left shadow-(--shadow) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--accent-primary-hover) 2xl:min-h-18.5"
 					type="button"
 					onClick={action}
 				>

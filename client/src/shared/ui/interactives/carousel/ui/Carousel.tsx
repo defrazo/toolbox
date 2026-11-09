@@ -88,10 +88,10 @@ export const Carousel = ({ title, children, slideClassName }: CarouselProps) => 
 		<section
 			aria-labelledby={headingId}
 			aria-roledescription={t(($) => $.carousel.region)}
-			className="flex w-full min-w-0 flex-col gap-3 contain-[inline-size] select-none xl:gap-4"
+			className="flex w-full min-w-0 flex-col gap-3 contain-[inline-size] select-none 2xl:gap-4"
 		>
 			<div className="flex min-w-0 items-center justify-between gap-3">
-				<h2 className="text-lg font-semibold xl:text-2xl" id={headingId}>
+				<h2 className="text-lg font-semibold 2xl:text-2xl" id={headingId}>
 					{title}
 				</h2>
 				{(navigation.previous || navigation.next) && (
@@ -132,7 +132,7 @@ export const Carousel = ({ title, children, slideClassName }: CarouselProps) => 
 							aria-label={t(($) => $.carousel.slide, { index: index + 1, count: slides.length })}
 							aria-roledescription={t(($) => $.carousel.item)}
 							className={cn(
-								'flex max-w-96 min-w-0 shrink-0 grow-0 basis-[82%] sm:basis-[calc((100%-1rem)/2)] xl:basis-[calc((100%-2rem)/3)] 2xl:basis-[calc((100%-3rem)/4)]',
+								'flex max-w-96 min-w-0 shrink-0 grow-0 basis-full xl:basis-[calc((100%-2rem)/3)] 2xl:basis-[calc((100%-3rem)/4)]',
 								slideClassName
 							)}
 							role="group"

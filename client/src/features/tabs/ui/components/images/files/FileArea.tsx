@@ -2,6 +2,7 @@ import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload } from 'lucide-react';
 
+import { useDeviceType } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
 import type { BackgroundSettings, Mode, useImages } from '../../../../model';
@@ -16,6 +17,8 @@ interface FileAreaProps {
 	files: ImagesState['files'];
 	resizePlans: ImagesState['resizePlans'];
 	busy: boolean;
+	isProcessing: boolean;
+	progress: ImagesState['progress'];
 	activeFile?: ImageFile;
 	picking: boolean;
 	zoom: number;
@@ -35,6 +38,8 @@ export const FileArea = ({
 	files,
 	resizePlans,
 	busy,
+	isProcessing,
+	progress,
 	activeFile,
 	picking,
 	zoom,
@@ -49,6 +54,7 @@ export const FileArea = ({
 	onPreview,
 }: FileAreaProps) => {
 	const { t } = useTranslation('images');
+	const device = useDeviceType();
 
 	const isEmpty = files.length === 0;
 	const showDropZone = isEmpty || isDropActive;
@@ -67,7 +73,7 @@ export const FileArea = ({
 				mode === 'background' && !isEmpty && 'xl:h-full xl:flex-none'
 			)}
 		>
-			{isEmpty ? (
+			{isEmpty && device !== 'mobile' ? (
 				<button
 					className={cn(
 						'flex min-h-[190px] w-full flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg bg-(--bg-secondary)/50 px-3 text-center text-(--color-accent) transition-colors duration-200 hover:bg-(--accent-primary-hover)/10 focus-visible:outline focus-visible:outline-(--accent-primary-hover) disabled:pointer-events-none disabled:cursor-default disabled:opacity-60',
@@ -78,8 +84,10 @@ export const FileArea = ({
 					onClick={() => uploadRef.current?.click()}
 				>
 					<Upload className={cn('size-14', isDropActive && 'animate-pulse')} />
-					<div className="flex flex-col items-center gap-0.5 text-lg font-medium">
-						<span className={cn(isDropActive && 'animate-pulse')}>{t(($) => $.drop)}</span>
+					<div className="flex flex-col items-center gap-0.5">
+						<span className={cn('text-lg font-medium', isDropActive && 'animate-pulse')}>
+							{t(($) => $.drop)}
+						</span>
 						<span className="text-sm text-(--color-tertiary)">{formats}</span>
 						<span className="text-sm text-(--color-tertiary)">{t(($) => $.uploadLimits)}</span>
 					</div>
@@ -107,6 +115,7 @@ export const FileArea = ({
 								busy={busy}
 								file={file}
 								plan={mode === 'resize' ? resizePlans.get(file.id) : undefined}
+								waiting={isProcessing && file.status === 'ready'}
 								onDownload={onDownload}
 								onPreview={onPreview}
 								onRemove={onRemove}
@@ -114,6 +123,11 @@ export const FileArea = ({
 							/>
 						))}
 					</ul>
+					{progress && (
+						<p className="hidden text-right text-xs text-(--color-secondary) xl:block" role="status">
+							{t(($) => $.batchProgress, { count: progress.completed, total: progress.total })}
+						</p>
+					)}
 				</>
 			)}
 		</div>

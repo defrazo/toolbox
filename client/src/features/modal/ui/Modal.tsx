@@ -15,7 +15,7 @@ export const Modal = ({ children, onClose }: { children: ReactNode; onClose?: ()
 			onClick={onClose}
 		>
 			<div
-				className="core-border core-gap flex max-w-md flex-col bg-(--bg-tertiary) p-3 text-center backdrop-blur-md"
+				className="core-border flex max-w-md flex-col bg-(--bg-tertiary) p-3 text-center backdrop-blur-md"
 				onClick={(event) => event.stopPropagation()}
 			>
 				<div className="top-4 flex h-4 w-full justify-between">

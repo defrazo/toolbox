@@ -149,7 +149,7 @@ const Editor = () => {
 				onSwap={comparison.swap}
 			/>
 			<div className="core-border flex min-h-[420px] min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary) xl:min-h-0">
-				<div className="grid shrink-0 grid-cols-2 border-b border-(--border-color)">
+				<div className="grid shrink-0 border-b border-(--border-color) lg:grid-cols-2">
 					{(['original', 'modified'] as const).map((side) => (
 						<div key={side} className="min-w-0">
 							<FileHeader

@@ -143,7 +143,7 @@ const TabContainer = observer(() => {
 	return (
 		<div
 			className={cn(
-				'core-border relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)',
+				'relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)',
 				activeTab === 'images' && 'min-w-0 contain-[inline-size]'
 			)}
 		>

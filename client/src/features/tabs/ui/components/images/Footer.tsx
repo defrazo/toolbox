@@ -9,15 +9,14 @@ interface FooterProps {
 	count: number;
 	readyCount: number;
 	busy: boolean;
+	zipProgress: number | null;
 	isBackground: boolean;
 	onClear: () => void;
 	onDownload: () => void;
 }
 
-export const Footer = ({ count, readyCount, busy, isBackground, onClear, onDownload }: FooterProps) => {
+export const Footer = ({ count, readyCount, busy, zipProgress, isBackground, onClear, onDownload }: FooterProps) => {
 	const { t } = useTranslation('images');
-
-	const isCancelling = isBackground && busy;
 
 	return (
 		<div className="flex flex-col gap-3 border-t border-(--border-color) pt-3">
@@ -25,10 +24,16 @@ export const Footer = ({ count, readyCount, busy, isBackground, onClear, onDownl
 				className="active-btn w-full min-w-0"
 				disabled={busy || readyCount === 0}
 				leftIcon={<Download className="size-4" />}
+				loading={zipProgress !== null}
 				onClick={onDownload}
 			>
 				{t(($) => $.download, { count: readyCount })}
 			</Button>
+			{zipProgress !== null && (
+				<p className="text-xs text-(--color-secondary)" role="status">
+					{t(($) => $.preparingArchive)}: {zipProgress}%
+				</p>
+			)}
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<div className="h-8 rounded-lg bg-(--accent-primary-dark) px-3 py-1.5 text-center text-sm text-(--color-accent) select-none">
 					{t(($) => $.selected, { count })} / {IMAGES.MAX_FILES}
@@ -39,7 +44,7 @@ export const Footer = ({ count, readyCount, busy, isBackground, onClear, onDownl
 					leftIcon={<Trash2 className="size-4" />}
 					onClick={onClear}
 				>
-					<span className="truncate">{isCancelling ? t(($) => $.background.cancel) : t(($) => $.clear)}</span>
+					<span className="truncate">{t(($) => $.clear)}</span>
 				</Button>
 			</div>
 		</div>
