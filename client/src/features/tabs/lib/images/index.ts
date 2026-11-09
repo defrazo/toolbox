@@ -1,5 +1,4 @@
 export * from './background';
-export * from './background.worker';
 export * from './backgroundPixels';
 export * from './compression';
 export * from './converter';

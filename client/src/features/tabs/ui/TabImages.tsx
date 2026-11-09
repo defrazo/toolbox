@@ -14,7 +14,7 @@ export const TabImages = (_props: TabLayoutProps) => {
 		<Suspense
 			fallback={
 				<Layout tabs={<ModeTabs mode={mode} onModeChange={setMode} />}>
-					<Preloader className="mx-auto size-8" />
+					<Preloader className="m-auto size-8" />
 				</Layout>
 			}
 		>

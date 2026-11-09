@@ -1,16 +1,10 @@
-import type { ImageWorkerRequest } from '../../model';
+import type { ImageWorkerRequest } from '../../model/types';
+import { encodeAvif, optimisePng } from './codecs';
 
 self.onmessage = async ({ data }: MessageEvent<ImageWorkerRequest>) => {
 	try {
-		let buffer: ArrayBuffer;
-
-		if (data.format === 'avif') {
-			const { default: encode } = await import('@jsquash/avif/encode.js');
-			buffer = await encode(data.image, data.quality === undefined ? {} : { quality: data.quality });
-		} else {
-			const { default: optimise } = await import('@jsquash/oxipng/optimise.js');
-			buffer = await optimise(data.buffer, { level: 2, optimiseAlpha: false });
-		}
+		const buffer =
+			data.format === 'avif' ? await encodeAvif(data.image, data.quality) : await optimisePng(data.buffer);
 
 		self.postMessage({ buffer }, { transfer: [buffer] });
 	} catch {

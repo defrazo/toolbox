@@ -8,9 +8,9 @@ export const MAX_FILES = 100;
 export const MAX_SIZE = 500 * MB;
 
 export const IMAGES = {
-	MAX_FILES: 20,
-	MAX_BYTES: 20 * MB,
-	MAX_TOTAL_BYTES: 100 * MB,
+	MAX_FILES: 100,
+	MAX_BYTES: 50 * MB,
+	MAX_TOTAL_BYTES: 500 * MB,
 	MAX_SIDE: 16384,
 
 	CONVERTER: {

@@ -1,27 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { saveAs } from 'file-saver';
-import JSZip from 'jszip';
 
-import {
-	compressImage,
-	convertImage,
-	inspectImage,
-	normalizeBackgroundSettings,
-	planResize,
-	removeImageBackground,
-	resizeImage,
-} from '../lib';
+import { inspectImage, normalizeBackgroundSettings, planResize } from '../lib';
+import type { ArchiveEntry } from '../lib/images/archive';
+import { createArchive } from '../lib/images/archiveClient';
+import type { ImageJob } from '../lib/images/processImage';
+import { createImageProcessor, estimateImageJobBytes } from '../lib/images/processor';
 import { IMAGES } from './constants';
-import type {
-	BackgroundRequest,
-	BackgroundSettings,
-	ImageError,
-	ImageFile,
-	ImageFormat,
-	ImageWorkerRequest,
-	Mode,
-	ResizeSettings,
-} from './types';
+import type { BackgroundSettings, ImageError, ImageFile, ImageFormat, Mode, ResizeSettings } from './types';
 
 const IMAGE_ERRORS: ImageError[] = [
 	'unsupported',
@@ -52,7 +38,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const [quality, setQualityState] = useState(80);
 	const [activeBackgroundId, setActiveBackgroundId] = useState<string | null>(null);
 	const [resize, setResizeState] = useState<ResizeSettings>(IMAGES.RESIZE.DEFAULT);
+	const [zipProgress, setZipProgress] = useState<number | null>(null);
 	const [busy, setBusy] = useState(false);
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
 
 	const resizeInitialized = useRef(false);
 	const rows = useRef<ImageFile[]>([]);
@@ -60,8 +49,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const mounted = useRef(true);
 	const generation = useRef(0);
 	const urls = useRef(new Set<string>());
-	const worker = useRef<Worker | null>(null);
-	const pending = useRef<((reason: Error) => void) | null>(null);
+	const processing = useRef<AbortController | null>(null);
+	const preparation = useRef<AbortController | null>(null);
+	const archive = useRef<AbortController | null>(null);
+	const archiveCache = useRef<{ entries: ArchiveEntry[]; blob: Blob } | null>(null);
 	const activeBackgroundFile =
 		mode === 'background' ? (files.find((row) => row.id === activeBackgroundId) ?? files[0]) : undefined;
 
@@ -71,11 +62,14 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 		return () => {
 			mounted.current = false;
+			archive.current?.abort();
+			archive.current = null;
+			archiveCache.current = null;
 			generation.current++;
-			worker.current?.terminate();
-			worker.current = null;
-			pending.current?.(new Error('encode'));
-			pending.current = null;
+			preparation.current?.abort();
+			preparation.current = null;
+			processing.current?.abort();
+			processing.current = null;
 			ownedUrls.forEach((url) => URL.revokeObjectURL(url));
 			ownedUrls.clear();
 		};
@@ -84,6 +78,15 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const update = (next: ImageFile[]) => {
 		if (!mounted.current) return;
 
+		const cached = archiveCache.current;
+		if (cached) {
+			const results = next.filter((row) => row.status === 'done' && row.result).map((row) => row.result!);
+			if (
+				results.length !== cached.entries.length ||
+				results.some((result, index) => result.blob !== cached.entries[index].blob)
+			)
+				archiveCache.current = null;
+		}
 		rows.current = next;
 		setFiles(next);
 	};
@@ -122,10 +125,15 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const addFiles = async (incoming: File[]) => {
 		if (locked.current) return;
 
+		setProgress(null);
 		const operation = begin();
+		const controller = new AbortController();
+		preparation.current = controller;
+		const added: ImageFile[] = [];
 
 		let total = rows.current.reduce((sum, row) => sum + row.file.size, 0);
 		let limited = false;
+		let oversized = false;
 
 		try {
 			for (const file of incoming) {
@@ -142,9 +150,14 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 					continue;
 				}
 
-				if (rows.current.length >= IMAGES.MAX_FILES) {
+				if (rows.current.length + added.length >= IMAGES.MAX_FILES) {
 					limited = true;
 					break;
+				}
+
+				if (file.size > IMAGES.MAX_BYTES) {
+					oversized = true;
+					continue;
 				}
 
 				if (total + file.size > IMAGES.MAX_TOTAL_BYTES) {
@@ -155,21 +168,18 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 				const fileBackground =
 					mode === 'background' ? { background: normalizeBackgroundSettings(IMAGES.BACKGROUND.DEFAULT) } : {};
 
-				if (file.size > IMAGES.MAX_BYTES) {
-					update([
-						...rows.current,
-						{ id: crypto.randomUUID(), file, ...fileBackground, status: 'error', error: 'size' },
-					]);
-					total += file.size;
-					continue;
-				}
-
-				const id = crypto.randomUUID();
 				total += file.size;
-				update([...rows.current, { id, file, ...fileBackground, status: 'loading' }]);
+				added.push({ id: crypto.randomUUID(), file, ...fileBackground, status: 'loading' });
+			}
+
+			update([...rows.current, ...added]);
+
+			for (const { id, file, status } of added) {
+				if (!mounted.current || operation !== generation.current) break;
+				if (status !== 'loading') continue;
 
 				try {
-					const info = await inspectImage(file, mode);
+					const info = await inspectImage(file, mode, controller.signal);
 
 					if (!mounted.current || operation !== generation.current) break;
 
@@ -199,6 +209,8 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 						status: 'ready',
 					});
 				} catch (error) {
+					if (!mounted.current || operation !== generation.current) break;
+
 					const code = errorCode(error, 'decode');
 					patch(id, {
 						status: 'error',
@@ -213,66 +225,15 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 					});
 				}
 			}
-			if (limited && mounted.current) notify('limit');
+			if (mounted.current && operation === generation.current) {
+				if (oversized) notify('size');
+				if (limited) notify('limit');
+			}
 		} finally {
+			if (preparation.current === controller) preparation.current = null;
 			end(operation);
 		}
 	};
-
-	const runWorker = (data: ImageWorkerRequest | BackgroundRequest): Promise<ArrayBuffer> =>
-		new Promise((resolve, reject) => {
-			if (!mounted.current) {
-				reject(new Error('encode'));
-				return;
-			}
-
-			const activeWorker =
-				worker.current ??
-				(data.format === 'background'
-					? new Worker(new URL('../lib/images/background.worker.ts', import.meta.url), { type: 'module' })
-					: new Worker(new URL('../lib/images/image.worker.ts', import.meta.url), { type: 'module' }));
-
-			worker.current = activeWorker;
-			pending.current = reject;
-
-			activeWorker.onmessage = ({
-				data: response,
-			}: MessageEvent<{ buffer?: ArrayBuffer; error?: boolean | string }>) => {
-				if (worker.current !== activeWorker) return;
-				pending.current = null;
-
-				if (data.format === 'background') {
-					activeWorker.terminate();
-					worker.current = null;
-				}
-
-				if (response.buffer) resolve(response.buffer);
-				else reject(new Error(typeof response.error === 'string' ? response.error : 'encode'));
-			};
-
-			activeWorker.onerror = (event) => {
-				event.preventDefault();
-				if (worker.current !== activeWorker) return;
-				activeWorker.terminate();
-				worker.current = null;
-				pending.current = null;
-				reject(new Error('encode'));
-			};
-
-			activeWorker.onmessageerror = () => {
-				if (worker.current !== activeWorker) return;
-				activeWorker.terminate();
-				worker.current = null;
-				pending.current = null;
-				reject(new Error('encode'));
-			};
-
-			activeWorker.postMessage(data, [data.format === 'png' ? data.buffer : data.image.data.buffer]);
-		});
-
-	const encodeAvif = (image: ImageData, quality?: number) => runWorker({ format: 'avif', image, quality });
-
-	const optimisePng = (buffer: ArrayBuffer) => runWorker({ format: 'png', buffer });
 
 	const isCurrent = (row: ImageFile) => row.status === 'done' && !!row.result;
 
@@ -280,66 +241,146 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		if (locked.current) return;
 
 		const operation = begin();
+		const controller = new AbortController();
+
+		processing.current = controller;
+
+		const queue = rows.current
+			.filter((row) => row.format && !isCurrent(row))
+			.map((row) => {
+				const common = { id: operation + ':' + row.id, file: row.file, format: row.format! };
+				const job: ImageJob =
+					mode === 'background'
+						? {
+								...common,
+								mode,
+								output: format as 'png' | 'webp',
+								settings: row.background ?? IMAGES.BACKGROUND.DEFAULT,
+							}
+						: mode === 'resize'
+							? { ...common, mode, plan: planResize(row.width!, row.height!, resize) }
+							: mode === 'compression'
+								? { ...common, mode, quality }
+								: { ...common, mode: 'converter', output: format };
+				return { row, job, bytes: estimateImageJobBytes(job, row.width!, row.height!) };
+			});
+
+		setIsProcessing(true);
+		setProgress({ completed: 0, total: queue.length });
+
+		const queuedIds = new Set(queue.map(({ row }) => row.id));
+
+		update(
+			rows.current.map((row) => (queuedIds.has(row.id) ? { ...row, status: 'ready', error: undefined } : row))
+		);
+
+		const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+		const budget = (memory ? (memory <= 4 ? 192 : 384) : 256) * 1024 * 1024;
+		const threadedCodec =
+			globalThis.crossOriginIsolated &&
+			queue.some(({ job }) =>
+				job.mode === 'converter'
+					? job.output === 'avif'
+					: job.mode === 'compression'
+						? job.format === 'png' || job.format === 'avif'
+						: job.mode === 'resize' && job.format === 'avif'
+			);
+		const largeImages = queue.some(({ bytes }) => bytes > budget / 2);
+		const limit = navigator.hardwareConcurrency <= 2 || threadedCodec || largeImages ? 1 : 2;
+		const processors = Array.from({ length: Math.min(limit, queue.length) }, () =>
+			createImageProcessor(controller.signal)
+		);
+		const available = [...processors];
+		const active = new Set<Promise<void>>();
+
+		let reserved = 0;
+
+		const current = () => mounted.current && operation === generation.current && !controller.signal.aborted;
+
+		const processJob = async ({ row, job }: (typeof queue)[number], processor: (typeof processors)[number]) => {
+			if (!current()) return;
+
+			release(row.result?.url);
+			release(row.result?.fullUrl);
+			patch(row.id, { status: 'processing', error: undefined, result: undefined });
+
+			try {
+				const result = await processor.process(job);
+				if (!current()) return;
+
+				const outputFormat = job.mode === 'converter' || job.mode === 'background' ? job.output : row.format!;
+				const base = row.file.name.replace(/\.[^.]+$/, '') || 'image';
+
+				patch(row.id, {
+					status: 'done',
+					result: {
+						blob: result.blob,
+						width: result.width,
+						height: result.height,
+						url: createUrl(result.preview),
+						fullUrl: createUrl(result.fullPreview),
+						name: base + '.' + outputFormat,
+						format: outputFormat,
+					},
+				});
+			} catch (error) {
+				if (current()) patch(row.id, { status: 'error', error: errorCode(error, 'encode') });
+			} finally {
+				if (current())
+					setProgress((previous) => previous && { ...previous, completed: previous.completed + 1 });
+			}
+		};
 
 		try {
-			for (const row of rows.current) {
-				if (!mounted.current || operation !== generation.current) break;
-				if (!row.format || isCurrent(row)) continue;
-
-				release(row.result?.url);
-				release(row.result?.fullUrl);
-				patch(row.id, { status: 'processing', error: undefined, result: undefined });
-
-				try {
-					const outputFormat = mode === 'background' || mode === 'converter' ? format : row.format;
-					const result =
-						mode === 'background'
-							? await removeImageBackground(
-									row.file,
-									row.format,
-									format as 'png' | 'webp',
-									row.background ?? IMAGES.BACKGROUND.DEFAULT,
-									(request) => {
-										if (operation !== generation.current)
-											return Promise.reject(new Error('encode'));
-										return runWorker(request);
-									}
-								)
-							: mode === 'resize'
-								? await resizeImage(
-										row.file,
-										row.format,
-										planResize(row.width!, row.height!, resize),
-										encodeAvif
-									)
-								: mode === 'compression'
-									? await compressImage(row.file, row.format, quality, encodeAvif, optimisePng)
-									: await convertImage(row.file, row.format, format, encodeAvif);
-
-					if (!mounted.current || operation !== generation.current) break;
-
-					const base = row.file.name.replace(/\.[^.]+$/, '') || 'image';
-
-					patch(row.id, {
-						status: 'done',
-						result: {
-							blob: result.blob,
-							width: result.width,
-							height: result.height,
-							url: createUrl(result.preview),
-							fullUrl: createUrl(result.fullPreview),
-							name: `${base}.${outputFormat}`,
-							format: outputFormat,
-						},
+			while (current() && (queue.length > 0 || active.size > 0)) {
+				const retained = rows.current.reduce(
+					(sum, row) => sum + row.file.size + (row.result?.blob.size ?? 0),
+					0
+				);
+				const room = Math.max(0, budget - retained);
+				const index = queue.findIndex(({ bytes }) => active.size === 0 || reserved + bytes <= room);
+				if (available.length > 0 && index >= 0) {
+					const [entry] = queue.splice(index, 1);
+					const processor = available.pop()!;
+					reserved += entry.bytes;
+					const task = processJob(entry, processor).finally(() => {
+						reserved -= entry.bytes;
+						available.push(processor);
+						active.delete(task);
 					});
-				} catch (error) {
-					if (!mounted.current || operation !== generation.current) break;
-					patch(row.id, { status: 'error', error: errorCode(error, 'encode') });
+					active.add(task);
+				} else {
+					await Promise.race(active);
 				}
 			}
+
+			await Promise.all(active);
 		} finally {
+			processors.forEach((processor) => processor.dispose());
+
+			if (processing.current === controller) {
+				processing.current = null;
+				if (mounted.current) setIsProcessing(false);
+			}
+
 			end(operation);
 		}
+	};
+
+	const cancelProcessing = () => {
+		const controller = processing.current;
+		if (!controller) return;
+
+		generation.current++;
+		processing.current = null;
+		controller.abort();
+
+		update(rows.current.map((row) => (row.status === 'processing' ? { ...row, status: 'ready' } : row)));
+
+		locked.current = false;
+
+		setBusy(false);
+		setIsProcessing(false);
 	};
 
 	const invalidateResults = () =>
@@ -459,18 +500,26 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 		generation.current++;
 
+		archive.current?.abort();
+		archive.current = null;
+		archiveCache.current = null;
+
+		setZipProgress(null);
+
+		preparation.current?.abort();
+		preparation.current = null;
+
 		urls.current.forEach((url) => URL.revokeObjectURL(url));
 		urls.current.clear();
 
-		worker.current?.terminate();
-		worker.current = null;
-
-		pending.current?.(new Error('encode'));
-		pending.current = null;
+		processing.current?.abort();
+		processing.current = null;
 
 		locked.current = false;
 
 		setBusy(false);
+		setIsProcessing(false);
+		setProgress(null);
 		setActiveBackgroundId(null);
 		update([]);
 	};
@@ -487,12 +536,17 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		}
 	};
 	const downloadZip = async () => {
+		const ready = rows.current.filter(isCurrent);
 		if (locked.current || ready.length < 2) return;
 
 		const operation = begin();
+		const controller = new AbortController();
+		archive.current = controller;
+
+		setZipProgress(0);
 
 		try {
-			const zip = new JSZip();
+			const entries: ArchiveEntry[] = [];
 			const names = new Set<string>();
 
 			for (const row of ready) {
@@ -507,10 +561,18 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 				}
 
 				names.add(name.toLowerCase());
-				zip.file(name, result.blob);
+				entries.push({ name, blob: result.blob });
 			}
 
-			const blob = await zip.generateAsync({ type: 'blob' });
+			const cached = archiveCache.current;
+			const blob =
+				cached?.blob ??
+				(await createArchive(entries, controller.signal, (percent) => {
+					if (mounted.current && operation === generation.current) setZipProgress(percent);
+				}));
+
+			if (!mounted.current || operation !== generation.current || controller.signal.aborted) return;
+			archiveCache.current = { entries, blob };
 
 			if (mounted.current && operation === generation.current)
 				saveAs(
@@ -526,6 +588,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		} catch {
 			if (mounted.current && operation === generation.current) notify('download');
 		} finally {
+			if (archive.current === controller) {
+				archive.current = null;
+				if (mounted.current) setZipProgress(null);
+			}
 			end(operation);
 		}
 	};
@@ -547,6 +613,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		setResizePercent: (value: string) => updateResize({ ...resize, percent: value }),
 		setKeepAspect: (value: boolean) => updateResize({ ...resize, keepAspect: value }),
 		busy,
+		zipProgress,
+		isProcessing,
+		progress,
+		cancelProcessing,
 		addFiles,
 		processFiles,
 		remove,

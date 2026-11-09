@@ -1,4 +1,5 @@
-import { type ImageFormat, IMAGES, type ResizePlan, type ResizeSettings } from '../../model';
+import { IMAGES } from '../../model/constants';
+import type { ImageFormat, ResizePlan, ResizeSettings } from '../../model/types';
 import { checkDimensions, convertImage } from './converter';
 
 export const planResize = (width: number, height: number, settings: ResizeSettings): ResizePlan => {
@@ -47,10 +48,12 @@ export const resizeImage = async (
 	file: File,
 	format: ImageFormat,
 	plan: ResizePlan,
-	encodeAvif: (data: ImageData, quality?: number) => Promise<ArrayBuffer>
+	encodeAvif: (data: ImageData, quality?: number) => Promise<ArrayBuffer>,
+	signal?: AbortSignal,
+	prepared?: ImageBitmap
 ) => {
 	if (format === 'ico') throw new Error('resizeUnsupported');
 	if (plan.error) throw new Error(plan.error);
 
-	return convertImage(file, format, format, (data) => encodeAvif(data, 80), 0.9, plan);
+	return convertImage(file, format, format, (data) => encodeAvif(data, 80), 0.9, plan, signal, prepared);
 };

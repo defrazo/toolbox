@@ -172,7 +172,7 @@ const BackgroundPreviewContent = ({
 	}, [file.file, file.format]);
 
 	useEffect(() => {
-		if (!currentSource || busy) return;
+		if (!currentSource || busy || result?.key === requestKey) return;
 
 		let active = true;
 		let worker: Worker | null = null;
@@ -256,7 +256,17 @@ const BackgroundPreviewContent = ({
 			window.clearTimeout(timer);
 			terminate();
 		};
-	}, [currentSource, requestKey, settings.mode, settings.tolerance, settings.feather, sample.x, sample.y, busy]);
+	}, [
+		currentSource,
+		requestKey,
+		result?.key,
+		settings.mode,
+		settings.tolerance,
+		settings.feather,
+		sample.x,
+		sample.y,
+		busy,
+	]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;

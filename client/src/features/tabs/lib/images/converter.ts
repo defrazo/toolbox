@@ -1,4 +1,11 @@
-import { type ImageFormat, IMAGES, type Mode } from '../../model';
+import { IMAGES } from '../../model/constants';
+import type { ImageFormat, Mode } from '../../model/types';
+import { canvasBlob, createCanvas, thumbnailCanvas } from './canvas';
+import { checkDimensions } from './dimensions';
+import type { ThumbnailResponse } from './thumbnail.worker';
+
+export { canvasBlob, createCanvas } from './canvas';
+export { checkDimensions } from './dimensions';
 
 type Dimensions = { width: number; height: number };
 type AvifEncoder = (data: ImageData) => Promise<ArrayBuffer>;
@@ -24,53 +31,19 @@ export const detectFormat = async (file: Blob): Promise<ImageFormat> => {
 	throw new Error('unsupported');
 };
 
-export const checkDimensions = (width: number, height: number) => {
-	if (
-		!Number.isSafeInteger(width) ||
-		!Number.isSafeInteger(height) ||
-		width < 1 ||
-		height < 1 ||
-		width * height > IMAGES.CONVERTER.MAX_PIXELS ||
-		Math.max(width, height) > IMAGES.MAX_SIDE
-	) {
-		throw new Error('pixels');
-	}
-};
+export const loadImage = async (blob: Blob, signal?: AbortSignal) => {
+	signal?.throwIfAborted();
 
-export const canvasBlob = (canvas: HTMLCanvasElement, mime: string, quality = 0.9): Promise<Blob> =>
-	new Promise((resolve, reject) => {
-		canvas.toBlob(
-			(blob) => {
-				if (!blob || blob.type !== mime) {
-					reject(new Error('encode'));
-					return;
-				}
-
-				resolve(blob);
-			},
-			mime,
-			quality
-		);
-	});
-
-export const createCanvas = (width: number, height: number) => {
-	const canvas = document.createElement('canvas');
-	canvas.width = width;
-	canvas.height = height;
-
-	const context = canvas.getContext('2d');
-	if (!context) throw new Error('encode');
-
-	return { canvas, context };
-};
-
-export const loadImage = async (blob: Blob) => {
 	const url = URL.createObjectURL(blob);
 	const image = new Image();
+	const abort = () => (image.src = '');
+
+	signal?.addEventListener('abort', abort, { once: true });
 
 	try {
 		image.src = url;
 		await image.decode();
+		signal?.throwIfAborted();
 
 		checkDimensions(image.naturalWidth, image.naturalHeight);
 
@@ -79,6 +52,7 @@ export const loadImage = async (blob: Blob) => {
 		image.src = '';
 		throw error;
 	} finally {
+		signal?.removeEventListener('abort', abort);
 		URL.revokeObjectURL(url);
 	}
 };
@@ -97,40 +71,152 @@ const imageBlob = async (file: Blob, format: ImageFormat) => {
 
 export const decodeImage = async (file: Blob, format: ImageFormat) => loadImage(await imageBlob(file, format));
 
-export const thumbnail = async (blob: Blob) => {
-	const image = await loadImage(blob);
-	const width = image.naturalWidth;
-	const height = image.naturalHeight;
-	const scale = Math.min(1, 160 / Math.max(width, height));
+export const decodeDrawable = async (
+	blob: Blob,
+	format?: ImageFormat,
+	signal?: AbortSignal,
+	prepared?: ImageBitmap
+) => {
+	signal?.throwIfAborted();
 
-	const { canvas, context } = createCanvas(
-		Math.max(1, Math.round(width * scale)),
-		Math.max(1, Math.round(height * scale))
-	);
+	const source = format && !prepared ? await imageBlob(blob, format) : blob;
+
+	signal?.throwIfAborted();
+
+	const image =
+		prepared ??
+		(typeof document === 'undefined'
+			? await createImageBitmap(source, {
+					imageOrientation: 'from-image',
+					premultiplyAlpha: 'default',
+					colorSpaceConversion: 'default',
+				}).catch(() => {
+					throw new Error('workerDecode');
+				})
+			: await loadImage(source, signal));
+
+	let closed = false;
+
+	const close = () => {
+		if (closed) return;
+
+		closed = true;
+
+		if ('close' in image) image.close();
+		else image.src = '';
+	};
+
+	const width = 'naturalWidth' in image ? image.naturalWidth : image.width;
+	const height = 'naturalHeight' in image ? image.naturalHeight : image.height;
 
 	try {
-		context.drawImage(image, 0, 0, canvas.width, canvas.height);
+		signal?.throwIfAborted();
+		checkDimensions(width, height);
+		return { source: image, width, height, close };
+	} catch (error) {
+		close();
+		throw error;
+	}
+};
 
-		const preview = await canvasBlob(canvas, IMAGES.MIME.png);
+const canvasThumbnail = async (blob: Blob, signal?: AbortSignal) => {
+	signal?.throwIfAborted();
+
+	const image = await loadImage(blob, signal);
+
+	const width = image.naturalWidth;
+	const height = image.naturalHeight;
+
+	try {
+		signal?.throwIfAborted();
+		const preview = await thumbnailCanvas(image, width, height);
+		signal?.throwIfAborted();
 
 		return { width, height, preview };
 	} finally {
 		image.src = '';
-		canvas.width = canvas.height = 0;
 	}
 };
 
-export const inspectImage = async (file: File, mode: Mode = 'converter') => {
+export const thumbnail = async (blob: Blob, signal?: AbortSignal) => {
+	signal?.throwIfAborted();
+
+	if (typeof document === 'undefined') {
+		const image = await decodeDrawable(blob);
+
+		try {
+			return {
+				width: image.width,
+				height: image.height,
+				preview: await thumbnailCanvas(image.source, image.width, image.height),
+			};
+		} finally {
+			image.close();
+		}
+	}
+
+	try {
+		return await new Promise<{ width: number; height: number; preview: Blob }>((resolve, reject) => {
+			const worker = new Worker(new URL('./thumbnail.worker.ts', import.meta.url), { type: 'module' });
+
+			const cleanup = () => {
+				signal?.removeEventListener('abort', abort);
+				worker.terminate();
+			};
+
+			const abort = () => {
+				cleanup();
+				reject(signal?.reason);
+			};
+
+			signal?.addEventListener('abort', abort, { once: true });
+
+			worker.onmessage = ({ data }: MessageEvent<ThumbnailResponse>) => {
+				cleanup();
+				if ('error' in data) reject(new Error(data.error));
+				else resolve(data);
+			};
+
+			worker.onerror = (event) => {
+				event.preventDefault();
+				cleanup();
+				reject(new Error('decode'));
+			};
+
+			worker.onmessageerror = () => {
+				cleanup();
+				reject(new Error('decode'));
+			};
+
+			try {
+				worker.postMessage(blob);
+			} catch (error) {
+				cleanup();
+				reject(error);
+			}
+		});
+	} catch (error) {
+		signal?.throwIfAborted();
+
+		if (error instanceof Error && error.message === 'pixels') throw error;
+		return canvasThumbnail(blob, signal);
+	}
+};
+
+export const inspectImage = async (file: File, mode: Mode = 'converter', signal?: AbortSignal) => {
+	signal?.throwIfAborted();
+
 	if (file.size > IMAGES.MAX_BYTES) throw new Error('size');
 
 	const format = await detectFormat(file);
+	signal?.throwIfAborted();
 
 	if (mode === 'compression' && format === 'ico') throw new Error('compressionUnsupported');
 	if (mode === 'resize' && format === 'ico') throw new Error('resizeUnsupported');
 
 	const original = await imageBlob(file, format);
 
-	return { ...(await thumbnail(original)), format, original };
+	return { ...(await thumbnail(original, signal)), format, original };
 };
 
 export const convertImage = async (
@@ -139,23 +225,26 @@ export const convertImage = async (
 	format: ImageFormat,
 	encodeAvif: AvifEncoder,
 	quality = 0.9,
-	dimensions?: Dimensions
+	dimensions?: Dimensions,
+	signal?: AbortSignal,
+	prepared?: ImageBitmap
 ) => {
+	signal?.throwIfAborted();
 	if (dimensions) checkDimensions(dimensions.width, dimensions.height);
 
-	const image = await decodeImage(file, sourceFormat);
-	const { canvas, context } = createCanvas(
-		dimensions?.width ?? image.naturalWidth,
-		dimensions?.height ?? image.naturalHeight
-	);
+	const image = await decodeDrawable(file, sourceFormat, signal, prepared);
+	let surface: ReturnType<typeof createCanvas> | undefined;
 
 	try {
+		surface = createCanvas(dimensions?.width ?? image.width, dimensions?.height ?? image.height);
+		const { canvas, context } = surface;
 		if (format === 'jpg') {
 			context.fillStyle = '#ffffff';
 			context.fillRect(0, 0, canvas.width, canvas.height);
 		}
 
-		context.drawImage(image, 0, 0, canvas.width, canvas.height);
+		context.drawImage(image.source, 0, 0, canvas.width, canvas.height);
+		image.close();
 
 		let blob: Blob;
 		let preview: Blob;
@@ -166,6 +255,7 @@ export const convertImage = async (
 			let largest: Blob | undefined;
 
 			for (const size of [16, 32, 48]) {
+				signal?.throwIfAborted();
 				const icon = createCanvas(size, size);
 
 				try {
@@ -203,16 +293,22 @@ export const convertImage = async (
 		}
 
 		if ((await detectFormat(blob)) !== format) throw new Error('encode');
+		signal?.throwIfAborted();
 
 		return {
 			blob,
-			preview: (await thumbnail(preview)).preview,
+			preview:
+				format === 'ico'
+					? preview
+					: format === 'png' && typeof document === 'undefined'
+						? await thumbnailCanvas(canvas, canvas.width, canvas.height)
+						: (await thumbnail(preview, signal)).preview,
 			fullPreview: preview,
 			width: format === 'ico' ? 48 : canvas.width,
 			height: format === 'ico' ? 48 : canvas.height,
 		};
 	} finally {
-		image.src = '';
-		canvas.width = canvas.height = 0;
+		image.close();
+		if (surface) surface.canvas.width = surface.canvas.height = 0;
 	}
 };
