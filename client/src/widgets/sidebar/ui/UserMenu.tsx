@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, LifeBuoy, LogOut, Mail, Settings } from 'lucide-react';
+import { History, LogOut, Mail, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -37,16 +37,6 @@ export const UserMenu = observer(({ isMenuOpen, setIsMenuOpen, setIsSidebarOpen,
 			icon: Settings,
 			action: () => {
 				tabsStore.setTab('settings');
-				setIsMenuOpen(false);
-				setIsSidebarOpen?.(false);
-			},
-		},
-		{
-			id: 'help',
-			title: t(($) => $.userMenu.help),
-			icon: LifeBuoy,
-			action: () => {
-				tabsStore.setTab('help');
 				setIsMenuOpen(false);
 				setIsSidebarOpen?.(false);
 			},

@@ -1,4 +1,12 @@
 {
+	"preparationTitle": "Preparing images",
+	"preparationProgress": "{{count}} of {{total}} prepared",
+	"processingTitle": "Processing images",
+	"processingActive": "Active: {{count}}",
+	"preparingArchive": "Preparing archive",
+	"cancelProcessing": "Cancel processing",
+	"batchProgress": "Completed {{count}} of {{total}}",
+	"waiting": "Waiting in queue",
 	"meta": {
 		"title": "Images",
 		"subtitle": "Convert, compress, resize, remove backgrounds and crop images",
@@ -15,7 +23,7 @@
 		"title": "Crop",
 		"upload": "Choose image",
 		"drop": "Drop image or click here",
-		"limits": "One file up to 20 MB",
+		"limits": "One file up to 50 MiB",
 		"preview": "Crop preview",
 		"frame": "Crop area",
 		"selection": "Selected area",
@@ -52,14 +60,14 @@
 		"errors": {
 			"unsupported": "Choose JPG, PNG, WebP or AVIF for cropping. ICO and GIF are not supported.",
 			"single": "Choose exactly one image.",
-			"size": "File exceeds 20 MB.",
+			"size": "File exceeds 50 MiB.",
 			"pixels": "Image exceeds 16 MP or 16,384 px per side.",
 			"decode": "Could not read the image.",
 			"encode": "Could not prepare the image."
 		}
 	},
 	"info": "Tips and limits",
-	"uploadLimits": "Up to 20 files · 20 MB per file · 100 MB total",
+	"uploadLimits": "Up to 100 files · 50 MiB per file · 500 MiB total",
 	"background": {
 		"title": "Remove background",
 		"process": "Remove background",
@@ -99,8 +107,7 @@
 		"exactHint": "All images get the same dimensions. Aspect ratios may change.",
 		"percentHint": "50% – half size, 100% – unchanged, 200% – double size.",
 		"switchHint": "Switching modes recalculates dimensions based on the first image.",
-		"limits": "Output: 1–16,384 px per side, up to 16 MP. Scale: 0.1–1000%.",
-		"planned": "After processing: {{width}} × {{height}} px"
+		"limits": "Output: 1–16,384 px per side, up to 16 MP. Scale: 0.1–1000%."
 	},
 	"compression": {
 		"title": "Compression",
@@ -121,7 +128,7 @@
 	"upload": "Upload images",
 	"add": "Add images",
 	"busy": "Processing…",
-	"limits": "Up to 20 files, 20 MB per file, 100 MB total. Up to 16 MP and 16,384 px per side. Metadata are not preserved.",
+	"limits": "Up to 100 files, 50 MiB per file, 500 MiB total. Up to 16 MP and 16,384 px per side. Metadata are not preserved.",
 	"drop": "Drop images or click here",
 	"files": "Selected images",
 	"remove": "Remove file",
@@ -136,7 +143,7 @@
 	"clear": "Clear",
 	"status": {
 		"loading": "Reading image…",
-		"ready": "Ready to process.",
+		"ready": "Ready to process",
 		"processing": "Processing…",
 		"done": "Done",
 		"error": "Error"
@@ -146,11 +153,11 @@
 		"compressionUnsupported": "Choose JPG, PNG, WebP or AVIF for compression. ICO and GIF are not supported",
 		"resizeUnsupported": "Choose JPG, PNG, WebP or AVIF for resizing. ICO and GIF are not supported",
 		"resizeSettings": "Enter positive integer width and height, or a scale from 0.1 to 1000%",
-		"size": "File exceeds 20 MB",
+		"size": "File exceeds 50 MiB",
 		"pixels": "The original or output image exceeds 16 MP or 16,384 px per side",
 		"decode": "Could not read the image. The file may be damaged",
 		"encode": "Could not process the image",
-		"limit": "Limit reached: 20 files or 100 MB total. Some files were not added",
+		"limit": "Limit reached: 100 files or 500 MiB total. Some files were not added",
 		"download": "Could not prepare the download. Please try again"
 	}
 }

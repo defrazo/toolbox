@@ -1,13 +1,12 @@
 import { type ComponentType, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, Home, LifeBuoy, type LucideIcon, Settings } from 'lucide-react';
+import { History, Home, type LucideIcon, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
 import { type Layout, type ToolId, TOOLS } from '@/entities/tool';
 import {
 	TabCompare,
-	TabHelp,
 	TabHome,
 	type TabId,
 	TabImages,
@@ -49,7 +48,6 @@ const TabContainer = observer(() => {
 	const { t: tImages } = useTranslation('images');
 	const { t: tHome } = useTranslation('home');
 	const { t: tSettings } = useTranslation('settings');
-	const { t: tHelp } = useTranslation('help');
 	const { t: tRenamer } = useTranslation('renamer');
 	const { t: tShortener } = useTranslation('shortener');
 	const { t: tLinks } = useTranslation('links');
@@ -108,13 +106,6 @@ const TabContainer = observer(() => {
 			subtitle: tSettings(($) => $.meta.subtitle),
 			icon: Settings,
 			layout: 'workspace',
-		},
-		help: {
-			component: TabHelp,
-			title: tHelp(($) => $.meta.title),
-			subtitle: tHelp(($) => $.meta.subtitle),
-			icon: LifeBuoy,
-			layout: 'page',
 		},
 		...toolTabs,
 	};
