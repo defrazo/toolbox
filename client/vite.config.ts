@@ -12,6 +12,10 @@ export default defineConfig({
 		port: 3001,
 		strictPort: true,
 		proxy: {
+			'^/(?!images$|profile$|settings$)[A-Za-z0-9]{3,12}$': {
+				target: 'http://localhost:8001',
+				changeOrigin: true,
+			},
 			'/api': { target: 'http://localhost:8001', changeOrigin: true },
 			'/sanctum': { target: 'http://localhost:8001', changeOrigin: true },
 			'/auth/onemate': { target: 'http://localhost:8001', changeOrigin: true },
