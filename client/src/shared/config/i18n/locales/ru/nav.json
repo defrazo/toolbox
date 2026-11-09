@@ -2,17 +2,17 @@
 	"sidebar": {
 		"subtitle": "Ваш набор инструментов",
 		"items": {
-			"compare": "Сравнение",
 			"home": "Главная",
-			"renamer": "Переименовать файлы",
-			"shortener": "Сократить ссылку",
+			"images": "Изображения",
+			"shortener": "Сокращение ссылок",
+			"compare": "Сравнение текста",
+			"renamer": "Переименование файлов",
 			"settings": "Настройки",
-			"onemate": "OneMate",
-			"images": "Изображения"
+			"onemate": "OneMate"
 		}
 	},
 	"userMenu": {
-		"links": "Недавние ссылки",
+		"links": "Мои ссылки",
 		"settings": "Настройки",
 		"logout": "Выйти"
 	},

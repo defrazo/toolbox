@@ -1,6 +1,6 @@
 import { type ComponentType, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, Home, type LucideIcon, Settings } from 'lucide-react';
+import { Home, Link, type LucideIcon, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -44,44 +44,44 @@ const LAYOUT_CLASSES: Record<Layout, string> = {
 };
 
 const TabContainer = observer(() => {
-	const { t: tCompare } = useTranslation('compare');
-	const { t: tImages } = useTranslation('images');
 	const { t: tHome } = useTranslation('home');
+	const { t: tImages } = useTranslation('images');
+	const { t: tShortener } = useTranslation('shortener');
+	const { t: tCompare } = useTranslation('compare');
 	const { t: tSettings } = useTranslation('settings');
 	const { t: tRenamer } = useTranslation('renamer');
-	const { t: tShortener } = useTranslation('shortener');
 	const { t: tLinks } = useTranslation('links');
 
 	const { tabsStore } = useStore();
 
 	const toolTabs: Record<ToolId, TabConfig> = {
-		compare: {
-			component: TabCompare,
-			title: tCompare(($) => $.meta.pageTitle),
-			subtitle: tCompare(($) => $.meta.pageSubtitle),
-			icon: TOOLS.compare.icon,
-			layout: TOOLS.compare.layout,
-		},
 		images: {
 			component: TabImages,
-			title: tImages(($) => $.meta.pageTitle),
+			title: tImages(($) => $.meta.title),
 			subtitle: tImages(($) => $.meta.pageSubtitle),
 			icon: TOOLS.images.icon,
 			layout: TOOLS.images.layout,
 		},
-		renamer: {
-			component: TabRenamer,
-			title: tRenamer(($) => $.meta.pageTitle),
-			subtitle: tRenamer(($) => $.meta.pageSubtitle),
-			icon: TOOLS.renamer.icon,
-			layout: TOOLS.renamer.layout,
-		},
 		shortener: {
 			component: TabShortener,
-			title: tShortener(($) => $.meta.pageTitle),
+			title: tShortener(($) => $.meta.title),
 			subtitle: tShortener(($) => $.meta.pageSubtitle),
 			icon: TOOLS.shortener.icon,
 			layout: TOOLS.shortener.layout,
+		},
+		compare: {
+			component: TabCompare,
+			title: tCompare(($) => $.meta.title),
+			subtitle: tCompare(($) => $.meta.pageSubtitle),
+			icon: TOOLS.compare.icon,
+			layout: TOOLS.compare.layout,
+		},
+		renamer: {
+			component: TabRenamer,
+			title: tRenamer(($) => $.meta.title),
+			subtitle: tRenamer(($) => $.meta.pageSubtitle),
+			icon: TOOLS.renamer.icon,
+			layout: TOOLS.renamer.layout,
 		},
 	};
 
@@ -97,7 +97,7 @@ const TabContainer = observer(() => {
 			component: TabLinks,
 			title: tLinks(($) => $.meta.title),
 			subtitle: tLinks(($) => $.meta.subtitle),
-			icon: History,
+			icon: Link,
 			layout: 'fullscreen',
 		},
 		settings: {

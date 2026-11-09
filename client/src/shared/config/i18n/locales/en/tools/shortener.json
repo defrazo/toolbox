@@ -1,25 +1,21 @@
 {
 	"meta": {
-		"title": "Link shortener",
+		"title": "URL Shortener",
 		"subtitle": "Create short links",
-		"pageTitle": "Shorten link",
 		"pageSubtitle": "Quickly create short links for your tasks"
 	},
-
 	"input": {
 		"label": "Long URL",
 		"placeholder": "Enter a URL you want to shorten",
 		"shorten": "Shorten"
 	},
-
 	"result": {
 		"label": "Your short link",
 		"copy": "Copy",
 		"copied": "Link copied!",
 		"error": "Something went wrong",
-		"recent": "View recent links"
+		"recent": "View my links"
 	},
-
 	"share": {
 		"title": "Share via",
 		"vk": "VK",

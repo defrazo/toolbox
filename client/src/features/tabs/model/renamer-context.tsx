@@ -1,6 +1,6 @@
 import { createContext, type ReactNode, useContext } from 'react';
 
-import { useRenamer } from '.';
+import { useRenamer } from './useRenamer';
 
 const RenamerContext = createContext<ReturnType<typeof useRenamer> | null>(null);
 

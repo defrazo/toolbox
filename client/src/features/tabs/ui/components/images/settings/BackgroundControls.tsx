@@ -88,12 +88,15 @@ export const BackgroundControls = ({
 					onChange={(event) => onZoomChange(Number(event.target.value))}
 				/>
 			</div>
-			<div className="flex items-center gap-2">
+			<div className="flex items-center divide-x divide-(--border-color)/50">
 				{(['contiguous', 'global'] as const).map((mode) => (
 					<Button
 						key={mode}
 						aria-pressed={background.mode === mode}
-						className={cn('h-8 flex-1 rounded-lg', background.mode === mode ? 'active-btn' : '')}
+						className={cn(
+							'h-8 flex-1 rounded-lg first:rounded-r-none last:rounded-l-none',
+							background.mode === mode ? 'active-btn' : ''
+						)}
 						disabled={disabled}
 						size="sm"
 						onClick={() => update({ ...background, mode })}
@@ -128,12 +131,15 @@ export const BackgroundControls = ({
 						<Info className="size-4" />
 					</Tooltip>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex items-center divide-x divide-(--border-color)/50">
 					{(['png', 'webp'] as const).map((value) => (
 						<Button
 							key={value}
 							aria-pressed={format === value}
-							className={cn('h-8 flex-1 rounded-lg', format === value ? 'active-btn flex-1' : 'flex-1')}
+							className={cn(
+								'h-8 flex-1 rounded-lg first:rounded-r-none last:rounded-l-none',
+								format === value ? 'active-btn flex-1' : 'flex-1'
+							)}
 							disabled={disabled}
 							size="sm"
 							onClick={() => setFormat(value)}

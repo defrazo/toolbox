@@ -81,7 +81,7 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 		<div
 			ref={tabsRef}
 			aria-label={t(($) => $.mode)}
-			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) not-xl:gap-1 xl:flex xl:h-12 xl:overflow-x-auto"
+			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 divide-x divide-(--border-color)/50 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) not-xl:gap-1 xl:flex xl:h-12 xl:overflow-x-auto"
 			role="group"
 		>
 			{MODES.map((value) => (

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, LogOut, Mail, Settings } from 'lucide-react';
+import { Link, LogOut, Mail, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { useStore } from '@/app/providers';
@@ -24,7 +24,7 @@ export const UserMenu = observer(({ isMenuOpen, setIsMenuOpen, setIsSidebarOpen,
 		{
 			id: 'links',
 			title: t(($) => $.userMenu.links),
-			icon: History,
+			icon: Link,
 			action: () => {
 				tabsStore.setTab('links');
 				setIsMenuOpen(false);

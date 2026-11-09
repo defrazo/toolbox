@@ -22,7 +22,11 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 		<div className="flex min-w-0 flex-col gap-3">
 			<div className="flex flex-col gap-1.5">
 				<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.resize.mode)}</span>
-				<div aria-label={t(($) => $.resize.scale)} className="flex" role="group">
+				<div
+					aria-label={t(($) => $.resize.scale)}
+					className="flex divide-x divide-(--border-color)/50"
+					role="group"
+				>
 					{(['pixels', 'percent'] as const).map((unit) => (
 						<Button
 							key={unit}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { History, Link } from 'lucide-react';
+import { Link } from 'lucide-react';
 
 import { useStore } from '@/app/providers';
 import { cn } from '@/shared/lib/utils';
@@ -88,7 +88,6 @@ export const TabShortener = () => {
 			{shortUrl && <ResultBlock shortUrl={shortUrl} />}
 			<Button
 				className="mx-auto w-full text-(--color-secondary) xl:w-72"
-				leftIcon={<History />}
 				onClick={() => tabsStore.setTab('links')}
 			>
 				{t(($) => $.result.recent)}

@@ -1,9 +1,8 @@
 {
 	"meta": {
-		"title": "Compare",
+		"title": "Text Compare",
 		"subtitle": "Find differences in text and code",
-		"pageTitle": "Compare",
-		"pageSubtitle": "Compare and edit two texts or code snippets"
+		"pageSubtitle": "Spot differences and edit text in one place"
 	},
 	"language": "Language",
 	"auto": "Automatic",

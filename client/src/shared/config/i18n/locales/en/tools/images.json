@@ -1,4 +1,9 @@
 {
+	"meta": {
+		"title": "Images",
+		"subtitle": "Convert, compress, resize, remove backgrounds and crop images",
+		"pageSubtitle": "Process images directly in your browser"
+	},
 	"preparationTitle": "Preparing images",
 	"preparationProgress": "{{count}} of {{total}} prepared",
 	"processingTitle": "Processing images",
@@ -7,12 +12,6 @@
 	"cancelProcessing": "Cancel processing",
 	"batchProgress": "Completed {{count}} of {{total}}",
 	"waiting": "Waiting in queue",
-	"meta": {
-		"title": "Images",
-		"subtitle": "Convert, compress, resize, remove backgrounds and crop images",
-		"pageTitle": "Images",
-		"pageSubtitle": "Work with images without uploading to a server"
-	},
 	"converter": {
 		"title": "Converter",
 		"process": "Convert",

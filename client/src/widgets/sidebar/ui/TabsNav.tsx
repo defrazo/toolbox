@@ -11,9 +11,9 @@ import { Button, ButtonLink, Divider } from '@/shared/ui';
 const MAIN_TABS = [
 	{ id: 'home', titleKey: 'home', icon: House },
 	{ id: 'images', titleKey: 'images', icon: Image },
+	{ id: 'shortener', titleKey: 'shortener', icon: Link },
 	{ id: 'compare', titleKey: 'compare', icon: Columns2 },
 	{ id: 'renamer', titleKey: 'renamer', icon: FolderPen },
-	{ id: 'shortener', titleKey: 'shortener', icon: Link },
 ] as const;
 
 export const TabsNav = observer(({ isMinimized, onTabClick }: { isMinimized?: boolean; onTabClick?: () => void }) => {
@@ -35,7 +35,7 @@ export const TabsNav = observer(({ isMinimized, onTabClick }: { isMinimized?: bo
 					<Button
 						key={id}
 						className={cn(
-							'core-border h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:text-base',
+							'core-border h-12 justify-start bg-(--bg-secondary) p-3 text-sm shadow-(--shadow) transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:text-[15px]',
 							isMinimized ? 'w-12' : 'xl:w-60',
 							isActive && 'bg-(image:--gradient-primary)'
 						)}
