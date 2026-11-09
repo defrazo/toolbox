@@ -6,7 +6,8 @@ import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, FileUploader, Input } from '@/shared/ui';
 
 import { buildRenamedFiles, downloadAsZip } from '../lib';
-import { RenamerProvider, useRenamerContext } from '../model';
+import { RenamerProvider, useRenamerContext } from '../model/renamer-context';
+import { useShortcutUpload } from '../model/useShortcutUpload';
 import { FileArea } from './components/renamer';
 
 export const TabRenamer = () => {
@@ -23,6 +24,9 @@ const TabRenamerContent = () => {
 	const { files, prefix, setPrefix, suffix, setSuffix, preview, handleIncomingFiles, reset } = useRenamerContext();
 
 	const uploadRef = useRef<HTMLInputElement>(null);
+	const addRef = useRef<HTMLInputElement>(null);
+
+	useShortcutUpload('upload-files', files.length ? addRef : uploadRef);
 
 	return (
 		<>
@@ -79,6 +83,7 @@ const TabRenamerContent = () => {
 					</div>
 					<div className="core-gap flex w-full flex-col md:flex-row lg:w-1/2">
 						<FileUploader
+							ref={addRef}
 							className={cn('flex-1 bg-(--bg-tertiary)', files.length >= 1 && 'active-btn')}
 							disabled={files.length === 0}
 							icon={<Plus />}

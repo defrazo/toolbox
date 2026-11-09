@@ -2,10 +2,11 @@ import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload } from 'lucide-react';
 
+import { useDropzone } from '@/features/tabs/model';
 import { useDeviceType } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
-import { useDropzone, useRenamerContext } from '../../../model';
+import { useRenamerContext } from '../../../model/renamer-context';
 import { PreviewContainers } from '.';
 
 export const FileArea = ({ uploadRef }: { uploadRef: RefObject<HTMLInputElement | null> }) => {

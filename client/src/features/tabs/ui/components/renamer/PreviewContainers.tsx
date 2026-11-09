@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/shared/lib/utils';
 
-import { useRenamerContext } from '../../../model';
+import { useRenamerContext } from '../../../model/renamer-context';
 
 type PreviewFile = {
 	oldName: string;

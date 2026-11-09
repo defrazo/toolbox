@@ -1,8 +1,7 @@
 {
 	"meta": {
 		"title": "Text Compare",
-		"subtitle": "Find differences in text and code",
-		"pageSubtitle": "Spot differences and edit text in one place"
+		"subtitle": "Spot differences and edit text in one place"
 	},
 	"language": "Language",
 	"auto": "Automatic",
@@ -24,5 +23,14 @@
 	"calculating": "Comparing…",
 	"loading": "Loading editor…",
 	"fileHint": "UTF-8 files up to 2 MB. Automatic language uses the file extension. Text stays in your browser.",
-	"fileError": "Unable to read the text file. Use UTF-8 and a file size up to 2 MB."
+	"fileError": "Unable to read the text file. Use UTF-8 and a file size up to 2 MB.",
+	"help": {
+		"description": "Compare two texts or code snippets to see what has changed.",
+		"original": "Original",
+		"modified": "Modified",
+		"removed": "Removed",
+		"added": "Added",
+		"direction": "Comparison runs <strong>from left to right</strong>. Use “Swap” to reverse the comparison.",
+		"footer": "Paste text or upload a UTF-8 file up to 2 MB. Everything is processed locally in your browser."
+	}
 }

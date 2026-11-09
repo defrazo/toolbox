@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'lucide-react';
+import { reaction } from 'mobx';
 
 import { useStore } from '@/app/providers';
 import { cn } from '@/shared/lib/utils';
@@ -11,6 +12,7 @@ import { ResultBlock } from './components/shortener';
 
 export const TabShortener = () => {
 	const { t } = useTranslation('shortener');
+
 	const { notifyStore, tabsStore } = useStore();
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -40,15 +42,19 @@ export const TabShortener = () => {
 		setShortUrl('');
 	};
 
-	useEffect(() => {
-		const handler = (event: CustomEvent) => {
-			setUrl(event.detail);
-			setShortUrl('');
-		};
-
-		window.addEventListener('shortcut:paste-url', handler as EventListener);
-		return () => window.removeEventListener('shortcut:paste-url', handler as EventListener);
-	}, []);
+	useEffect(
+		() =>
+			reaction(
+				() => tabsStore.shortcut,
+				(request) => {
+					if (request?.type !== 'paste-url' || !tabsStore.consumeShortcut(request.id)) return;
+					setUrl(request.text);
+					setShortUrl('');
+				},
+				{ fireImmediately: true }
+			),
+		[tabsStore]
+	);
 
 	return (
 		<>

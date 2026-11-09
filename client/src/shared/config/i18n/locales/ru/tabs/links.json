@@ -40,7 +40,7 @@
 	},
 	"success": {
 		"qrDownloaded": "QR-код скачан на устройство",
-		"linkCopied": "Ссылка скопирована!",
+		"linkCopied": "Ссылка скопирована",
 		"deletingLink": "Удаление ссылки..."
 	},
 	"errors": {

@@ -10,7 +10,7 @@
 			"alt": "User avatar",
 			"optionAlt": "Avatar {{number}}",
 			"apply": "Apply avatar",
-			"success": "Avatar updated successfully!",
+			"success": "Avatar updated successfully",
 			"error": "Failed to update avatar"
 		},
 		"password": {
@@ -35,10 +35,10 @@
 	},
 
 	"success": {
-		"avatar": "Avatar updated successfully!",
-		"username": "Username updated successfully!",
+		"avatar": "Avatar updated successfully",
+		"username": "Username updated successfully",
 		"email": "E-mail change initiated",
-		"password": "Password updated successfully!"
+		"password": "Password updated successfully"
 	},
 
 	"errors": {

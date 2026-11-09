@@ -27,11 +27,11 @@ export const Toast = ({ toastId, type, message, options }: ToastProps) => {
 		<div className={options?.className} style={options?.style} onClick={() => toast.dismiss(toastId)}>
 			<div
 				className={cn(
-					'flex min-w-60 items-center justify-center gap-2 rounded-2xl border border-l-4 border-solid border-(--border-color) bg-(--bg-tertiary) p-3 shadow-lg backdrop-blur-md select-none md:p-2',
+					'flex min-w-30 items-center justify-center gap-2 rounded-xl border border-l-4 border-solid border-(--border-color) bg-(--bg-tertiary) px-3 py-2.5 shadow-lg backdrop-blur-md select-none',
 					leftBorder(type)
 				)}
 			>
-				<div className={cn('size-8 py-1', iconColor(type))}>{Icon}</div>
+				<div className={cn('size-5', iconColor(type))}>{Icon}</div>
 				<div className="flex-1 pr-2 text-sm">
 					{message}
 					{options?.description && <p className="opacity-75">{options.description}</p>}

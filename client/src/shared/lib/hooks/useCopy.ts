@@ -7,7 +7,7 @@
  *
  * Пример:
  *   const copy = useCopy();
- *   <Button onClick={() => copy("Текст", "Скопировано!")} />
+ *   <Button onClick={() => copy("Текст", "Скопировано")} />
  */
 
 import copy from 'copy-to-clipboard';
@@ -19,6 +19,6 @@ export const useCopy = () => {
 
 	return (data: string, message?: string) => {
 		copy(data);
-		notifyStore.setNotice(message ?? 'Данные скопированы!', 'success');
+		notifyStore.setNotice(message ?? 'Данные скопированы', 'success');
 	};
 };

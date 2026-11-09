@@ -1,5 +1,4 @@
 export * from './constants';
-export * from './renamer-context';
 export * from './tabsStore';
 export type * from './types';
 export * from './useComparisonEditor';

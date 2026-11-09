@@ -1,8 +1,7 @@
 {
 	"meta": {
 		"title": "File Renamer",
-		"subtitle": "Quickly change file names",
-		"pageSubtitle": "Bulk rename files in just a few clicks"
+		"subtitle": "Bulk rename files in just a few clicks"
 	},
 	"upload": {
 		"addFiles": "Add files",

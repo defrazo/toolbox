@@ -3,7 +3,7 @@ import { Download, Eye, Image, MoveRight, Trash2 } from 'lucide-react';
 
 import { i18n } from '@/shared/config/i18n';
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui';
+import { Button, Preloader } from '@/shared/ui';
 
 import { formatFileSize, formatSizeChange } from '../../../../lib';
 import type { useImages } from '../../../../model';
@@ -16,6 +16,7 @@ interface FileItemProps {
 	file: ImageFile;
 	plan?: ResizePlan;
 	busy: boolean;
+	waiting?: boolean;
 	active?: boolean;
 	onSelect?: (id: ImageFile['id']) => void;
 	onRemove: (id: ImageFile['id']) => void;
@@ -30,6 +31,7 @@ export const FileItem = ({
 	file,
 	plan,
 	busy,
+	waiting = false,
 	active = false,
 	onSelect,
 	onRemove,
@@ -44,11 +46,13 @@ export const FileItem = ({
 	const error = file.error ?? plan?.error;
 	const hasOriginal = !!file.url && !!file.originalUrl;
 
-	const status = error
-		? t(($) => $.errors[error])
-		: result && !current
-			? t(($) => $.stale)
-			: t(($) => $.status[file.status]);
+	const status = waiting
+		? t(($) => $.waiting)
+		: error
+			? t(($) => $.errors[error])
+			: result && !current
+				? t(($) => $.stale)
+				: t(($) => $.status[file.status]);
 
 	const difference = result ? result.blob.size - file.file.size : 0;
 
@@ -115,18 +119,18 @@ export const FileItem = ({
 				<span className="block truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
 				</span>
-				<div className="flex h-4 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-(--color-secondary)">
-					<span className="trim">
+				<div className="flex h-4 flex-wrap items-center gap-2 text-xs text-(--color-secondary)">
+					<span>
 						{file.format?.toUpperCase() ?? '–'}
 						{file.width && file.height ? ` · ${file.width} × ${file.height}` : ''}
 						{' · '}
 						{formatFileSize(file.file.size)}
 					</span>
-					{result && (
+					{result ? (
 						<>
 							<MoveRight className="size-4" />
 							<span className={cn('flex items-center gap-2', !current && 'opacity-50')}>
-								<span className="trim">
+								<span>
 									{result.format.toUpperCase()} · {result.width} × {result.height} ·{' '}
 									{formatFileSize(result.blob.size)}
 								</span>
@@ -144,23 +148,30 @@ export const FileItem = ({
 								)}
 							</span>
 						</>
+					) : (
+						<>
+							<MoveRight className="size-4" />
+							{plan && !plan.error && !result && (
+								<span>
+									{file.format?.toUpperCase() ?? ''} · {plan.width} × {plan.height} px
+								</span>
+							)}
+						</>
 					)}
 				</div>
 				<div className="flex items-center gap-1">
+					{(file.status === 'loading' || file.status === 'processing') && (
+						<Preloader className="size-3 shrink-0 border-2" />
+					)}
 					<span
 						className={cn(
-							'trim mt-0.5 text-xs wrap-anywhere text-(--color-secondary)',
+							'text-xs wrap-anywhere text-(--color-secondary)',
 							file.status === 'done' && 'text-(--status-success)',
 							error && 'text-(--status-error)'
 						)}
 					>
 						{status}
 					</span>
-					{plan && !plan.error && !result && (
-						<span className="text-xs text-(--color-secondary)">
-							{t(($) => $.resize.planned, { width: plan.width, height: plan.height })}
-						</span>
-					)}
 				</div>
 			</div>
 			<div className={cn('flex shrink-0 items-center gap-1', onSelect && 'relative z-10')}>
@@ -170,7 +181,6 @@ export const FileItem = ({
 							aria-label={t(($) => $.result)}
 							centerIcon={<Eye className="size-4" />}
 							className="size-8 rounded-lg"
-							disabled={busy}
 							size="custom"
 							title={t(($) => $.result)}
 							onClick={handlePreviewResult}
@@ -179,7 +189,6 @@ export const FileItem = ({
 							aria-label={t(($) => $.download)}
 							centerIcon={<Download className="size-4" />}
 							className="size-8 rounded-lg"
-							disabled={busy}
 							size="custom"
 							title={t(($) => $.download)}
 							onClick={() => onDownload(file)}

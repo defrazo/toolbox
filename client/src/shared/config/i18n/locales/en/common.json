@@ -1,4 +1,11 @@
 {
+	"carousel": {
+		"region": "Carousel",
+		"item": "Slide",
+		"previous": "Previous card",
+		"next": "Next card",
+		"slide": "{{index}} of {{count}}"
+	},
 	"user": {
 		"default": "User"
 	},

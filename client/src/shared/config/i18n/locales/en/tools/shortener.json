@@ -1,8 +1,7 @@
 {
 	"meta": {
 		"title": "URL Shortener",
-		"subtitle": "Create short links",
-		"pageSubtitle": "Quickly create short links for your tasks"
+		"subtitle": "Quickly create short links for your tasks"
 	},
 	"input": {
 		"label": "Long URL",
@@ -12,7 +11,7 @@
 	"result": {
 		"label": "Your short link",
 		"copy": "Copy",
-		"copied": "Link copied!",
+		"copied": "Link copied",
 		"error": "Something went wrong",
 		"recent": "View my links"
 	},

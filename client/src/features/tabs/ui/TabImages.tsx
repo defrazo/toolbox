@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from 'react';
 
+import { useStore } from '@/app/providers';
 import { Preloader } from '@/shared/ui';
 
 import type { Mode, TabLayoutProps } from '../model';
@@ -8,7 +9,12 @@ import { Layout, ModeTabs, Workspace } from './components/images';
 const CropWorkspace = lazy(() => import('./components/images/crop/Workspace'));
 
 export const TabImages = (_props: TabLayoutProps) => {
-	const [mode, setMode] = useState<Mode>('converter');
+	const { tabsStore } = useStore();
+
+	const [mode, setMode] = useState<Mode>(() => {
+		const type = tabsStore.shortcut?.type;
+		return type === 'background' || type === 'crop' ? type : 'converter';
+	});
 
 	return mode === 'crop' ? (
 		<Suspense

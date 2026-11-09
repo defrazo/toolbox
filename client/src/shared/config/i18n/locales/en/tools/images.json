@@ -1,8 +1,7 @@
 {
 	"meta": {
 		"title": "Images",
-		"subtitle": "Convert, compress, resize, remove backgrounds and crop images",
-		"pageSubtitle": "Process images directly in your browser"
+		"subtitle": "Process images directly in your browser"
 	},
 	"preparationTitle": "Preparing images",
 	"preparationProgress": "{{count}} of {{total}} prepared",

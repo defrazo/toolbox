@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 import { type Mode, useCrop, useDropzone } from '../../../../model';
+import { useShortcutUpload } from '../../../../model/useShortcutUpload';
 import { Layout } from '../Layout';
 import { ModeTabs } from '../ModeTabs';
 import { CropSettings } from './CropSettings';
@@ -29,6 +30,8 @@ const Workspace = ({ onModeChange }: { onModeChange: (mode: Mode) => void }) => 
 			'error'
 		)
 	);
+
+	useShortcutUpload('crop', uploadRef, !editor.loading);
 
 	const { isDropActive, dragProps } = useDropzone({ onDrop: editor.addFiles });
 

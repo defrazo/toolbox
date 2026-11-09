@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
 
+import { Button } from '@/shared/ui';
+
 import { useEscapeClose } from '../model';
 
 export const Modal = ({ children, onClose }: { children: ReactNode; onClose?: () => void }) => {
@@ -16,11 +18,16 @@ export const Modal = ({ children, onClose }: { children: ReactNode; onClose?: ()
 				className="core-border core-gap flex max-w-md flex-col bg-(--bg-tertiary) p-3 text-center backdrop-blur-md"
 				onClick={(event) => event.stopPropagation()}
 			>
-				{onClose && (
-					<div className="flex w-full justify-end">
-						<X className="size-5 cursor-pointer hover:text-(--accent-hover)" onClick={onClose} />
-					</div>
-				)}
+				<div className="top-4 flex h-4 w-full justify-between">
+					{onClose && (
+						<Button
+							centerIcon={<X className="size-4.5" onClick={onClose} />}
+							className="z-10 ml-auto p-0"
+							type="button"
+							variant="mobile"
+						/>
+					)}
+				</div>
 				{children}
 			</div>
 		</div>,

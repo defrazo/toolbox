@@ -6,6 +6,7 @@ import { ImageViewer } from '@/features/modal';
 import { cn } from '@/shared/lib/utils';
 
 import { type BackgroundSettings, type Mode, useDropzone, useImages } from '../../../model';
+import { useShortcutUpload } from '../../../model/useShortcutUpload';
 import { Controls } from './Controls';
 import { FileArea, Toolbar } from './files';
 import { Layout } from './Layout';
@@ -57,6 +58,11 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 		setResizePercent,
 		setKeepAspect,
 		busy,
+		zipProgress,
+		isProcessing,
+		progress,
+		preparationProgress,
+		cancelProcessing,
 		addFiles,
 		processFiles,
 		remove,
@@ -72,6 +78,8 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 			),
 		mode
 	);
+
+	useShortcutUpload('background', uploadRef, mode === 'background' && !busy);
 
 	const picking = pickingEnabled && files.length > 0;
 	const color =
@@ -201,13 +209,19 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 					<Toolbar busy={busy} count={files.length} mode={mode} uploadRef={uploadRef} onAddFiles={addFiles} />
 					<div className={cn('flex min-h-0 min-w-0 flex-1 flex-col', disabledStyles)}>
 						<Controls
+							activeCount={files.filter((file) => file.status === 'processing').length}
 							busy={busy}
 							canProcess={canProcess}
 							count={files.length}
 							info={info}
+							isProcessing={isProcessing}
 							mode={mode}
+							preparationProgress={preparationProgress}
+							progress={progress}
 							readyCount={ready.length}
 							settings={settings}
+							zipProgress={zipProgress}
+							onCancel={cancelProcessing}
 							onClear={clear}
 							onDownload={handleDownload}
 							onProcess={() => void processFiles()}
@@ -223,8 +237,10 @@ export const Workspace = ({ mode, onModeChange }: WorkspaceProps) => {
 				dragProps={dragProps}
 				files={files}
 				isDropActive={isDropActive}
+				isProcessing={isProcessing}
 				mode={mode}
 				picking={picking}
+				progress={progress}
 				resizePlans={resizePlans}
 				uploadRef={uploadRef}
 				zoom={zoom}
