@@ -4,7 +4,7 @@ import { reaction } from 'mobx';
 import { useStore } from '@/app/providers/store';
 
 export const useShortcutUpload = (
-	type: 'upload-files' | 'background' | 'crop',
+	type: 'upload-files' | 'crop',
 	inputRef: RefObject<HTMLInputElement | null>,
 	enabled = true
 ) => {

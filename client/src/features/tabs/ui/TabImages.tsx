@@ -13,7 +13,7 @@ export const TabImages = (_props: TabLayoutProps) => {
 
 	const [mode, setMode] = useState<Mode>(() => {
 		const type = tabsStore.shortcut?.type;
-		return type === 'background' || type === 'crop' ? type : 'converter';
+		return type === 'crop' ? type : 'converter';
 	});
 
 	return mode === 'crop' ? (

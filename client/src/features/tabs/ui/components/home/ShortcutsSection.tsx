@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ClipboardPaste, Crop, Eraser, Upload } from 'lucide-react';
+import { ChevronRight, ClipboardPaste, Crop, Upload } from 'lucide-react';
 
 import { useStore } from '@/app/providers';
 import { Carousel } from '@/shared/ui';
@@ -59,13 +59,6 @@ export const ShortcutsSection = () => {
 			subtitle: tHome(($) => $.shortcuts.upload.subtitle),
 			icon: Upload,
 			action: () => tabsStore.openShortcut({ type: 'upload-files' }),
-		},
-		{
-			id: 'background',
-			title: tHome(($) => $.shortcuts.background.title),
-			subtitle: tHome(($) => $.shortcuts.background.subtitle),
-			icon: Eraser,
-			action: () => tabsStore.openShortcut({ type: 'background' }),
 		},
 		{
 			id: 'crop',

@@ -2,7 +2,7 @@ import { makeAutoObservable, reaction } from 'mobx';
 
 export type TabId = (typeof VALID_TABS)[number];
 
-export type ShortcutAction = { type: 'paste-url'; text: string } | { type: 'upload-files' | 'background' | 'crop' };
+export type ShortcutAction = { type: 'paste-url'; text: string } | { type: 'upload-files' | 'crop' };
 
 const VALID_TABS = ['home', 'images', 'compare', 'renamer', 'shortener', 'links', 'settings'] as const;
 
