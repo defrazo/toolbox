@@ -3,28 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { DiffEditor } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 
-import { useStore } from '@/app/providers';
 import { Preloader } from '@/shared/ui';
 
-import { resolveLanguage } from '../../../lib/compare/languages';
-import { useComparisonEditor } from '../../../model/useComparisonEditor';
+import { resolveLanguage } from '../../lib/languages';
+import { COMPARISON_SIDES } from '../../model/constants';
+import type { DifferWidgetProps } from '../../model/types';
+import { useComparisonEditor } from '../../model/useComparisonEditor';
 import { FileHeader } from './FileHeader';
 import { Help } from './Help';
 import { Navigation } from './Navigation';
 import { Toolbar } from './Toolbar';
 
-import '../../../lib/compare/monaco';
+import '../../lib/monaco';
 
-const Editor = () => {
+const Editor = ({ onError, onOpenHelp }: DifferWidgetProps) => {
 	const { t } = useTranslation('compare');
 
-	const { modalStore, notifyStore } = useStore();
-
 	const comparison = useComparisonEditor(() => {
-		notifyStore.setNotice(
-			t(($) => $.fileError),
-			'error'
-		);
+		onError(t(($) => $.fileError));
 	});
 
 	const languageOptions = useMemo(
@@ -62,9 +58,7 @@ const Editor = () => {
 			// Comparison
 			diffAlgorithm: 'advanced',
 			ignoreTrimWhitespace: comparison.ignoreWhitespace,
-			hideUnchangedRegions: {
-				enabled: comparison.hideUnchanged,
-			},
+			hideUnchangedRegions: { enabled: comparison.hideUnchanged },
 			renderIndicators: true,
 			renderMarginRevertIcon: false,
 			diffCodeLens: false,
@@ -144,13 +138,13 @@ const Editor = () => {
 				settingsLabel="Параметры"
 				swapLabel={t(($) => $.swap)}
 				onClear={comparison.clear}
-				onHelp={() => modalStore.setModal(<Help />)}
+				onHelp={() => onOpenHelp(<Help />)}
 				onLanguageChange={comparison.setLanguage}
 				onSwap={comparison.swap}
 			/>
 			<div className="core-border flex min-h-[420px] min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-secondary) xl:min-h-0">
 				<div className="grid shrink-0 border-b border-(--border-color) lg:grid-cols-2">
-					{(['original', 'modified'] as const).map((side) => (
+					{COMPARISON_SIDES.map((side) => (
 						<div key={side} className="min-w-0">
 							<FileHeader
 								disabled={!comparison.instance}

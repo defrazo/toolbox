@@ -17,10 +17,11 @@ const EXTENSIONS: Record<string, string> = {
 	py: 'python',
 };
 
-export const resolveLanguage = (language: string, filename: string): string => {
+export const resolveLanguage = (language: string, filename: string) => {
 	if (language === 'auto') {
 		const extension = filename.match(/\.([^.]+)$/)?.[1].toLowerCase() ?? '';
 		return EXTENSIONS[extension] ?? 'plaintext';
 	}
+
 	return language === 'bsl' ? 'plaintext' : language;
 };

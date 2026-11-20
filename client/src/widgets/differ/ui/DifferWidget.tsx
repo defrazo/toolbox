@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 import { Preloader } from '@/shared/ui';
 
-const ComparisonEditor = lazy(() => import('./components/compare/Editor'));
+import type { DifferWidgetProps } from '../model/types';
 
-export const TabCompare = () => {
+const ComparisonEditor = lazy(() => import('./components'));
+
+export const DifferWidget = (props: DifferWidgetProps) => {
 	const { t } = useTranslation('compare');
 
 	return (
@@ -20,7 +22,7 @@ export const TabCompare = () => {
 				</div>
 			}
 		>
-			<ComparisonEditor />
+			<ComparisonEditor {...props} />
 		</Suspense>
 	);
 };

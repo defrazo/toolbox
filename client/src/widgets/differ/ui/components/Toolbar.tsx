@@ -10,30 +10,30 @@ interface ToolbarProps {
 	language: string;
 	languageLabel: string;
 	languageOptions: Option[];
-	onLanguageChange: (value: string) => void;
 	swapLabel: string;
 	clearLabel: string;
 	settingsLabel: string;
+	settings: Setting[];
 	disabled: boolean;
-	onHelp: () => void;
+	onLanguageChange: (value: string) => void;
 	onSwap: () => void;
 	onClear: () => void;
-	settings: Setting[];
+	onHelp: () => void;
 }
 
 export const Toolbar = ({
 	language,
 	languageLabel,
 	languageOptions,
-	onLanguageChange,
 	swapLabel,
 	clearLabel,
 	settingsLabel,
+	settings,
 	disabled,
-	onHelp,
+	onLanguageChange,
 	onSwap,
 	onClear,
-	settings,
+	onHelp,
 }: ToolbarProps) => {
 	const settingsRef = useOutsideClick<HTMLDetailsElement>(() => {
 		if (settingsRef.current) settingsRef.current.open = false;

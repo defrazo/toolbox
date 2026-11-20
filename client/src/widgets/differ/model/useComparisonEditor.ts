@@ -1,17 +1,13 @@
 import { type ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { type DiffOnMount } from '@monaco-editor/react';
+import type { DiffOnMount } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 
-export type ComparisonSide = 'original' | 'modified';
-export type ComparisonFilenames = Record<ComparisonSide, string>;
-
-const SIDES: ComparisonSide[] = ['original', 'modified'];
-const EMPTY: ComparisonFilenames = { original: '', modified: '' };
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
+import { COMPARISON_SIDES, EMPTY_FILENAMES, MAX_FILE_SIZE } from './constants';
+import type { ComparisonFilenames, ComparisonSide } from './types';
 
 export const useComparisonEditor = (onFileError: () => void) => {
 	const [instance, setInstance] = useState<editor.IStandaloneDiffEditor | null>(null);
-	const [filenames, setFilenames] = useState<ComparisonFilenames>(EMPTY);
+	const [filenames, setFilenames] = useState<ComparisonFilenames>(EMPTY_FILENAMES);
 	const [changes, setChanges] = useState<number | null>(0);
 	const [language, setLanguage] = useState('auto');
 	const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
@@ -21,7 +17,7 @@ export const useComparisonEditor = (onFileError: () => void) => {
 		document.documentElement.classList.contains('dark-theme') ? 'vs-dark' : 'light'
 	);
 
-	const text = useRef<ComparisonFilenames>({ ...EMPTY });
+	const text = useRef<ComparisonFilenames>({ ...EMPTY_FILENAMES });
 	const reads = useRef<Record<ComparisonSide, number>>({ original: 0, modified: 0 });
 	const fileErrorRef = useRef(onFileError);
 	fileErrorRef.current = onFileError;
@@ -38,7 +34,7 @@ export const useComparisonEditor = (onFileError: () => void) => {
 
 	useEffect(
 		() => () => {
-			SIDES.forEach((side) => {
+			COMPARISON_SIDES.forEach((side) => {
 				reads.current[side] += 1;
 			});
 		},
@@ -48,7 +44,7 @@ export const useComparisonEditor = (onFileError: () => void) => {
 	useEffect(() => {
 		if (!instance) return;
 
-		const disposables = SIDES.map((side) => {
+		const disposables = COMPARISON_SIDES.map((side) => {
 			const pane = side === 'original' ? instance.getOriginalEditor() : instance.getModifiedEditor();
 			return pane.onDidChangeModelContent(() => {
 				text.current[side] = pane.getValue();
@@ -119,7 +115,7 @@ export const useComparisonEditor = (onFileError: () => void) => {
 	const swap = useCallback(() => {
 		if (!instance) return;
 
-		SIDES.forEach((side) => {
+		COMPARISON_SIDES.forEach((side) => {
 			reads.current[side] += 1;
 		});
 
@@ -135,13 +131,13 @@ export const useComparisonEditor = (onFileError: () => void) => {
 	const clear = useCallback(() => {
 		if (!instance) return;
 
-		SIDES.forEach((side) => {
+		COMPARISON_SIDES.forEach((side) => {
 			reads.current[side] += 1;
 			text.current[side] = '';
 			getPane(side)?.setValue('');
 		});
 
-		setFilenames({ ...EMPTY });
+		setFilenames({ ...EMPTY_FILENAMES });
 	}, [instance, getPane]);
 
 	const goToDiff = useCallback(
