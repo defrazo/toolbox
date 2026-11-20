@@ -1,15 +1,14 @@
 import { type RefObject, useEffect } from 'react';
 import { reaction } from 'mobx';
 
-import { useStore } from '@/app/providers/store';
+import type { TabsStore } from './tabsStore';
 
 export const useShortcutUpload = (
+	tabsStore: Pick<TabsStore, 'shortcut' | 'consumeShortcut'>,
 	type: 'upload-files' | 'crop',
 	inputRef: RefObject<HTMLInputElement | null>,
 	enabled = true
 ) => {
-	const { tabsStore } = useStore();
-
 	useEffect(() => {
 		if (!enabled) return;
 
