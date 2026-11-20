@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { Menu } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
 
 import { useBodyScrollLock } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 import { Button, Logo } from '@/shared/ui';
 
-import { useUserMenu } from '../model';
-import { TabsNav, UserButton, UserMenu } from '.';
+import type { SidebarServices } from '../model/types';
+import { useUserMenu } from '../model/useUserMenu';
+import { TabsNav, UserButton, UserMenu } from './components';
 
-export const MobileSidebar = () => {
+export const MobileSidebar = observer(({ services }: { services: SidebarServices }) => {
 	const { isMenuOpen, setIsMenuOpen, buttonRef, toggle } = useUserMenu();
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -40,19 +42,30 @@ export const MobileSidebar = () => {
 				{...handlers}
 			>
 				<div className="relative flex h-full flex-col gap-4">
-					<Logo setIsSidebarOpen={setIsSidebarOpen} />
-					<TabsNav onTabClick={() => setIsSidebarOpen(false)} />
+					<Logo
+						onClick={() => {
+							setIsSidebarOpen(false);
+							services.tabsStore.setTab('home');
+						}}
+					/>
+					<TabsNav tabsStore={services.tabsStore} onTabClick={() => setIsSidebarOpen(false)} />
 					<div className="relative mt-auto">
 						<UserMenu
+							{...services}
 							isMenuOpen={isMenuOpen}
 							setIsMenuOpen={setIsMenuOpen}
 							setIsSidebarOpen={setIsSidebarOpen}
 							triggerRef={buttonRef}
 						/>
-						<UserButton ref={buttonRef} isMenuOpen={isMenuOpen} setIsMenuOpen={toggle} />
+						<UserButton
+							ref={buttonRef}
+							isMenuOpen={isMenuOpen}
+							setIsMenuOpen={toggle}
+							userStore={services.userStore}
+						/>
 					</div>
 				</div>
 			</div>
 		</>
 	);
-};
+});

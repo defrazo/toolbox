@@ -1,1 +1,1 @@
-export { MobileSidebar, Sidebar } from './ui';
+export { DesktopSidebar, MobileSidebar } from './ui';
