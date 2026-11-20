@@ -4,20 +4,25 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CircleAlert, LoaderCircle, MailCheck } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { User, UserStore } from '@/entities/user';
+import type { AuthStore } from '@/features/auth';
 import { api } from '@/shared/api';
 import { Button } from '@/shared/ui';
 
 type Status = 'loading' | 'success' | 'error';
 
-export const VerifyEmailForm = observer(() => {
+interface VerifyEmailFormProps {
+	stores: { authStore: AuthStore; userStore: UserStore };
+}
+
+export const VerifyEmailForm = observer(({ stores }: VerifyEmailFormProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { userStore, authStore } = useStore();
-
 	const { id, hash } = useParams();
 	const [searchParams] = useSearchParams();
+
+	const { authStore, userStore } = stores;
 
 	const [status, setStatus] = useState<Status>('loading');
 	const verifiedRef = useRef(false);
@@ -42,10 +47,7 @@ export const VerifyEmailForm = observer(() => {
 		const verify = async () => {
 			try {
 				if (type === 'pending') {
-					const { data } = await api.get<{ user: NonNullable<typeof userStore.user> }>(
-						`/user/email/verify/${id}/${hash}`,
-						{ params }
-					);
+					const { data } = await api.get<{ user: User }>(`/user/email/verify/${id}/${hash}`, { params });
 
 					if (cancelled) return;
 

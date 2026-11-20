@@ -1,18 +1,34 @@
 import { makeAutoObservable, reaction } from 'mobx';
 
-export type TabId = (typeof VALID_TABS)[number];
+export type TabId = string;
 
-const VALID_TABS = ['home', 'renamer', 'shortener', 'links', 'settings', 'help'] as const;
+export type TabRequest = { type: string; payload?: unknown };
 
-const isValidTab = (value: string): value is TabId => {
-	return VALID_TABS.includes(value as TabId);
+type TabsConfig = {
+	tabs: readonly TabId[];
+	defaultTab: TabId;
 };
 
 export class TabsStore {
-	tab: TabId = 'home';
+	private shortcutSequence = 0;
+
+	tab: TabId;
+	shortcut: (TabRequest & { id: number; target: TabId }) | null = null;
 
 	setTab(id: TabId): void {
+		this.shortcut = null;
 		this.tab = id;
+	}
+
+	openShortcut(target: TabId, request: TabRequest): void {
+		this.tab = target;
+		this.shortcut = { ...request, target, id: ++this.shortcutSequence };
+	}
+
+	consumeShortcut(id: number): boolean {
+		if (this.shortcut?.id !== id) return false;
+		this.shortcut = null;
+		return true;
 	}
 
 	private initFromUrl(): boolean {
@@ -29,7 +45,7 @@ export class TabsStore {
 
 		if (!params.has('tab')) return true;
 
-		if (tabParam && isValidTab(tabParam)) {
+		if (tabParam && this.config.tabs.includes(tabParam)) {
 			this.tab = tabParam;
 			return true;
 		}
@@ -50,7 +66,8 @@ export class TabsStore {
 		return window.location.pathname === '/';
 	}
 
-	constructor() {
+	constructor(private readonly config: TabsConfig) {
+		this.tab = config.defaultTab;
 		makeAutoObservable(this);
 
 		if (!this.isHomePage()) return;

@@ -38,8 +38,8 @@ export const variants: Record<Component, Record<string, string>> = {
 		custom: '',
 	},
 	input: {
-		default: cn('border', 'bg-(--bg-tertiary) border-transparent', 'hover:border-(--accent-primary-hover)'),
-		ghost: cn('border', 'border-(--border-color) bg-transparent', 'hover:border-(--accent-primary-hover)'),
+		default: cn('border', 'bg-(--bg-tertiary) border-transparent', 'enabled:hover:border-(--accent-primary-hover)'),
+		ghost: cn('border', 'border-(--border-color) bg-transparent', 'enabled:hover:border-(--accent-primary-hover)'),
 		custom: '',
 	},
 	textarea: {

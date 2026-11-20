@@ -1,92 +1,21 @@
-import { type ComponentType, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { History, Home, LifeBuoy, type LucideIcon, Settings } from 'lucide-react';
-import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 
-import { useStore } from '@/app/providers';
-import { type Layout, type ToolId, TOOLS } from '@/entities/tool';
-import { TabHelp, TabHome, type TabId, TabLinks, TabRenamer, TabSettings, TabShortener } from '@/features/tabs';
+import type { Layout } from '@/entities/tool';
 import { usePageTitle } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
-import { TabFooter, TabTitle } from '.';
-
-type TabConfig = {
-	component: ComponentType;
-	title: string;
-	subtitle: string;
-	icon: LucideIcon;
-	layout: Layout;
-};
+import type { TabScreenDefinition } from '../model/types';
+import { TabTitle } from './components';
 
 const LAYOUT_CLASSES: Record<Layout, string> = {
 	page: 'lg:p-6 2xl:p-12 lg:justify-between',
 	workspace: 'lg:max-w-3xl lg:p-6 ',
 	screen: 'lg:h-full lg:max-w-3xl lg:p-6',
-	fullscreen: 'lg:h-full lg:p-6 2xl:p-12 lg:justify-between',
+	fullscreen: 'lg:h-full lg:p-6 lg:justify-between',
 };
 
-const TabContainer = observer(() => {
-	const { t: tHome } = useTranslation('home');
-	const { t: tSettings } = useTranslation('settings');
-	const { t: tHelp } = useTranslation('help');
-	const { t: tRenamer } = useTranslation('renamer');
-	const { t: tShortener } = useTranslation('shortener');
-	const { t: tLinks } = useTranslation('links');
-
-	const { tabsStore } = useStore();
-
-	const toolTabs: Record<ToolId, TabConfig> = {
-		renamer: {
-			component: TabRenamer,
-			title: tRenamer(($) => $.meta.pageTitle),
-			subtitle: tRenamer(($) => $.meta.pageSubtitle),
-			icon: TOOLS.renamer.icon,
-			layout: TOOLS.renamer.layout,
-		},
-		shortener: {
-			component: TabShortener,
-			title: tShortener(($) => $.meta.pageTitle),
-			subtitle: tShortener(($) => $.meta.pageSubtitle),
-			icon: TOOLS.shortener.icon,
-			layout: TOOLS.shortener.layout,
-		},
-	};
-
-	const TABS: Record<TabId, TabConfig> = {
-		home: {
-			component: TabHome,
-			title: tHome(($) => $.meta.title),
-			subtitle: tHome(($) => $.meta.subtitle),
-			icon: Home,
-			layout: 'page',
-		},
-		links: {
-			component: TabLinks,
-			title: tLinks(($) => $.meta.title),
-			subtitle: tLinks(($) => $.meta.subtitle),
-			icon: History,
-			layout: 'fullscreen',
-		},
-		settings: {
-			component: TabSettings,
-			title: tSettings(($) => $.meta.title),
-			subtitle: tSettings(($) => $.meta.subtitle),
-			icon: Settings,
-			layout: 'workspace',
-		},
-		help: {
-			component: TabHelp,
-			title: tHelp(($) => $.meta.title),
-			subtitle: tHelp(($) => $.meta.subtitle),
-			icon: LifeBuoy,
-			layout: 'page',
-		},
-		...toolTabs,
-	};
-
-	const activeTab = tabsStore.tab;
-	const { component: TabComponent, title, subtitle, icon, layout } = TABS[activeTab];
+const TabContainer = ({ activeTab, screen }: { activeTab: string; screen: TabScreenDefinition }) => {
+	const { component: TabComponent, title, subtitle, icon, layout, presentation, footer } = screen;
 
 	usePageTitle(title);
 
@@ -100,7 +29,12 @@ const TabContainer = observer(() => {
 	}, [activeTab]);
 
 	return (
-		<div className="core-border relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)">
+		<div
+			className={cn(
+				'relative z-0 size-full min-h-0 cursor-default overflow-hidden bg-(--bg-global) shadow-(--shadow)',
+				presentation?.containedDesktopScroll && 'min-w-0 contain-[inline-size]'
+			)}
+		>
 			<div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
 				<div className="absolute top-0 right-0 size-100 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--bg-blob)/40 blur-[120px]" />
 				{(layout === 'workspace' || layout === 'screen') && (
@@ -111,22 +45,33 @@ const TabContainer = observer(() => {
 				)}
 			</div>
 			<div
-				className="hide-scrollbar relative z-20 flex size-full min-h-0 flex-col overflow-x-hidden overflow-y-auto [-webkit-overflow-scrolling:touch]"
+				className={cn(
+					'hide-scrollbar relative z-20 flex size-full min-h-0 flex-col overflow-x-hidden overflow-y-auto [-webkit-overflow-scrolling:touch]',
+					presentation?.containedDesktopScroll && 'xl:overflow-y-hidden'
+				)}
 				id="tab-scroll"
 			>
 				<div
 					className={cn(
 						'relative flex w-full flex-1 flex-col gap-4 p-3 lg:mx-auto lg:gap-6 2xl:gap-8',
-						LAYOUT_CLASSES[layout]
+						LAYOUT_CLASSES[layout],
+						presentation?.containedDesktopScroll &&
+							'lg:h-auto lg:justify-start xl:h-full xl:min-h-0 xl:overflow-hidden'
 					)}
 				>
-					{activeTab !== 'home' && <TabTitle icon={icon} subtitle={subtitle} title={title} />}
+					{presentation?.title === 'fixed' ? (
+						<div className="shrink-0">
+							<TabTitle icon={icon} subtitle={subtitle} title={title} />
+						</div>
+					) : (
+						presentation?.title !== 'hidden' && <TabTitle icon={icon} subtitle={subtitle} title={title} />
+					)}
 					<TabComponent />
 				</div>
-				{activeTab === 'home' && <TabFooter />}
+				{footer}
 			</div>
 		</div>
 	);
-});
+};
 
 export default TabContainer;

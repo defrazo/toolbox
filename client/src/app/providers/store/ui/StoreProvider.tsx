@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
-import { getRootStore } from '../model';
-import { StoreContext } from '.';
+import { getRootStore } from '../model/rootStore';
+import { StoreContext } from './StoreContext';
 
 const StoreProvider = ({ children }: { children: ReactNode }) => {
 	const rootStore = getRootStore();

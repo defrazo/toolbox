@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 
-import { type Notification, notify, type NotifyType } from '.';
+import { notify } from './notify';
+import type { Notification, NotifyType } from './types';
 
 export class NotifyStore {
 	private debounce: ReturnType<typeof setTimeout> | null = null;

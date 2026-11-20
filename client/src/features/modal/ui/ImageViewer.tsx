@@ -1,18 +1,20 @@
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
-
 import { useEscapeClose } from '../model';
 
-export const ImageViewer = observer(({ src, alt }: { src: string; alt?: string }) => {
-	const { modalStore } = useStore();
+interface ImageViewerProps {
+	src: string;
+	alt?: string;
+	onClose: () => void;
+}
 
-	useEscapeClose(() => modalStore.closeModal());
+export const ImageViewer = observer(({ src, alt, onClose }: ImageViewerProps) => {
+	useEscapeClose(onClose);
 
 	return (
 		<div
 			className="fixed inset-0 z-1000 flex cursor-zoom-out items-center justify-center bg-(--bg-overlay)"
-			onClick={() => modalStore.closeModal()}
+			onClick={onClose}
 		>
 			<img
 				alt={alt ?? 'Zoomed image'}
@@ -20,7 +22,7 @@ export const ImageViewer = observer(({ src, alt }: { src: string; alt?: string }
 				decoding="async"
 				loading="lazy"
 				src={src}
-				onClick={() => modalStore.closeModal()}
+				onClick={onClose}
 			/>
 		</div>
 	);

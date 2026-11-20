@@ -16,7 +16,7 @@ Route::get('/reset-password/{token}', function (Request $request, string $token)
 
 // Links
 Route::get('/{code}', RedirectController::class)
-    ->where('code', '[A-Za-z0-9]{6}')
+    ->where('code', '[A-Za-z0-9]{3,12}')
     ->name('redirect');
 
 // OAuth

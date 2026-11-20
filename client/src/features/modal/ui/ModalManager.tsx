@@ -1,12 +1,9 @@
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { ModalStore } from '../model/modalStore';
+import { Modal } from './Modal';
 
-import { Modal } from '.';
-
-export const ModalManager = observer(() => {
-	const { modalStore } = useStore();
-
+export const ModalManager = observer(({ modalStore }: { modalStore: Pick<ModalStore, 'modal' | 'closeModal'> }) => {
 	const modal = modalStore.modal;
 	if (!modal || modal.type === 'none') return null;
 

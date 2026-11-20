@@ -1,14 +1,7 @@
 import { sizes, variants } from '../lib';
 
 export type Component =
-	| 'button'
-	| 'input'
-	| 'textarea'
-	| 'checkbox'
-	| 'checkboxBool'
-	| 'radio'
-	| 'select'
-	| 'selectExt';
+	'button' | 'input' | 'textarea' | 'checkbox' | 'checkboxBool' | 'radio' | 'select' | 'selectExt';
 
 export type VariantMap = {
 	button: keyof typeof variants.button;

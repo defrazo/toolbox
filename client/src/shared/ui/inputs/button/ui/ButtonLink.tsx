@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { getComponentStyles, sizes, variants } from '@/shared/lib/design';
 import { cn } from '@/shared/lib/utils';
-import { Preloader } from '@/shared/ui';
+
+import { Preloader } from '../../../feedback/preloader';
 
 interface ButtonLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 	to?: string;

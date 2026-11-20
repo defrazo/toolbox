@@ -1,4 +1,5 @@
-import { CoreStores, StoreFactory } from '.';
+import { StoreFactory } from './StoreFactory';
+import type { CoreStores } from './types';
 
 export class RootStore implements CoreStores {
 	public readonly themeStore: CoreStores['themeStore'];
@@ -20,19 +21,20 @@ export class RootStore implements CoreStores {
 	}
 }
 
-let rootStore: RootStore;
+let rootStore: RootStore | undefined = import.meta.hot?.data.rootStore;
 
 export const getRootStore = (): RootStore => {
-	if (!rootStore) rootStore = new RootStore();
-
-	if (import.meta.hot) {
-		import.meta.hot.data.rootStore = rootStore;
-		import.meta.hot.accept();
-	}
-
-	return rootStore;
+	return (rootStore ??= new RootStore());
 };
 
 export const resetRootStore = (): void => {
 	if (process.env.NODE_ENV !== 'production') return;
 };
+
+if (import.meta.hot) {
+	import.meta.hot.accept();
+
+	import.meta.hot.dispose((data) => {
+		data.rootStore = rootStore;
+	});
+}

@@ -10,7 +10,7 @@ export const base: Record<Component, string> = {
 	),
 	input: cn(
 		'w-full rounded-xl',
-		'focus-visible:ring-1 focus-visible:ring-(--accent-primary-hover)',
+		'enabled:focus-visible:ring-1 enabled:focus-visible:ring-(--accent-primary-hover)',
 		'transition-colors outline-none'
 	),
 	textarea: cn(

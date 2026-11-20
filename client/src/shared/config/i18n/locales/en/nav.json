@@ -3,18 +3,18 @@
 		"subtitle": "Your Toolbox",
 		"items": {
 			"home": "Home",
+			"images": "Images",
+			"shortener": "URL Shortener",
+			"compare": "Text Compare",
 			"renamer": "File Renamer",
-			"shortener": "Shorten link",
 			"settings": "Settings",
-			"help": "Help",
 			"onemate": "OneMate"
 		}
 	},
 	"userMenu": {
 		"user": "User",
-		"links": "Recent links",
+		"links": "My links",
 		"settings": "Settings",
-		"help": "Help",
 		"logout": "Log out"
 	},
 	"tooltips": {

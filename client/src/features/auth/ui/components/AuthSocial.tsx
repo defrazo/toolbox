@@ -1,14 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
 import { IconGoogle } from '@/shared/assets/icons';
 import { Button } from '@/shared/ui';
 
-export const AuthSocial = observer(() => {
+export const AuthSocial = observer(({ stores }: { stores: { authStore: AuthStore } }) => {
 	const { t } = useTranslation('auth');
 
-	const { authStore } = useStore();
+	const { authStore } = stores;
 
 	return (
 		<Button

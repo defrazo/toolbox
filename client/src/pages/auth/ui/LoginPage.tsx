@@ -2,18 +2,24 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
 import { AuthDemo, AuthFormHeader, AuthOneMate, LoginForm } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { usePageTitle } from '@/shared/lib/hooks';
 import { AuthDivider } from '@/shared/ui';
 
 import { AuthFooterLink, AuthWrapper } from './components';
 
-export const LoginPage = () => {
+interface LoginPageProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const LoginPage = ({ stores }: LoginPageProps) => {
 	const { t } = useTranslation('auth');
 
-	const { notifyStore } = useStore();
 	const [searchParams] = useSearchParams();
+
+	const { authStore, notifyStore } = stores;
 
 	const title = t(($) => $.screens.login.title);
 
@@ -59,11 +65,11 @@ export const LoginPage = () => {
 		<AuthWrapper>
 			<AuthFormHeader title={title} />
 			<div className="flex w-full flex-col gap-3">
-				<AuthOneMate />
-				<AuthDemo />
+				<AuthOneMate stores={{ authStore }} />
+				<AuthDemo stores={stores} />
 			</div>
 			<AuthDivider />
-			<LoginForm />
+			<LoginForm stores={stores} />
 			<AuthFooterLink
 				linkText={t(($) => $.screens.login.register)}
 				text={t(($) => $.screens.login.noAccount)}

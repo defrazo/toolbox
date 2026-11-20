@@ -25,6 +25,7 @@
 	--accent-secondary-dark: rgba(59, 167, 255, 0.14);
 	--accent-secondary-disabled: #31485f;
 	--accent-secondary-text: #ffffff;
+	--accent-secondary-text-hover: #5593ff;
 	--accent-secondary-text-disabled: #86a6c2;
 
 	--warning-default: #b51111;
@@ -92,6 +93,7 @@
 	--accent-secondary-dark: rgba(22, 141, 226, 0.1);
 	--accent-secondary-disabled: #b7d9ef;
 	--accent-secondary-text: #ffffff;
+	--accent-secondary-text-hover: #5593ff;
 	--accent-secondary-text-disabled: #6f90a8;
 
 	--warning-default: #b51111;

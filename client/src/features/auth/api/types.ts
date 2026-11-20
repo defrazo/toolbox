@@ -4,11 +4,6 @@ export interface AuthResponse {
 	user: User;
 }
 
-export interface AuthSessionResponse {
-	authenticated: boolean;
-	user: User | null;
-}
-
 export interface RegisterPayload {
 	username: string;
 	email: string;

@@ -2,7 +2,8 @@ import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from 'react';
 
 import { getComponentStyles, sizes, variants } from '@/shared/lib/design';
 import { cn } from '@/shared/lib/utils';
-import { Preloader } from '@/shared/ui';
+
+import { Preloader } from '../../../feedback/preloader';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	loading?: boolean;

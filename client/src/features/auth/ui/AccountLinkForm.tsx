@@ -5,14 +5,19 @@ import axios from 'axios';
 import { Eye, EyeClosed, Lock } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
-export const AccountLinkForm = observer(() => {
+interface AccountLinkFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const AccountLinkForm = observer(({ stores }: AccountLinkFormProps) => {
 	const navigate = useNavigate();
 	const { t } = useTranslation('auth');
 
-	const { authStore, notifyStore } = useStore();
+	const { authStore, notifyStore } = stores;
 
 	const [password, setPassword] = useState('');
 	const [showPass, setShowPass] = useState(false);

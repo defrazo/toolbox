@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Links;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShortLink;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,13 +23,31 @@ class ShortLinkController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate(['url' => ['required', 'url', 'max:2048']]);
-
-        $link = ShortLink::create([
-            'code' => ShortLink::generateUniqueCode(),
-            'original_url' => $validated['url'],
-            'user_id' => $request->user()->id,
+        $validated = $request->validate([
+            'url' => ['required', 'url', 'max:2048'],
         ]);
+
+        $link = null;
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            try {
+                $link = ShortLink::create([
+                    'code' => ShortLink::generateUniqueCode(),
+                    'original_url' => $validated['url'],
+                    'user_id' => $request->user()->id,
+                ]);
+
+                break;
+            } catch (UniqueConstraintViolationException $exception) {
+                if (!str_contains($exception->getMessage(), 'short_links_code_unique')) {
+                    throw $exception;
+                }
+            }
+        }
+
+        if ($link === null) {
+            throw new \RuntimeException('Unable to create a unique short link.');
+        }
 
         return response()->json([
             'data' => $this->toResponse($link),

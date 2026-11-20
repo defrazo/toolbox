@@ -4,18 +4,26 @@ import { useLocation } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { UserStore } from '@/entities/user';
 import { resendPendingEmail } from '@/entities/user';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
 import { emailCooldown, useAuth } from '../model';
 
-export const ResendEmailForm = observer(() => {
+interface ResendEmailFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore; userStore: UserStore };
+}
+
+export const ResendEmailForm = observer(({ stores }: ResendEmailFormProps) => {
 	const { t } = useTranslation('auth');
+
+	const { authStore, notifyStore, userStore } = stores;
+
 	const location = useLocation();
 
-	const { authStore, notifyStore, userStore } = useStore();
-	const { checkEmail } = useAuth(t);
+	const { checkEmail } = useAuth(t, (message) => notifyStore.setNotice(message, 'info'));
 
 	const locationState = location.state as { email?: string } | null;
 

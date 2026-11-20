@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 
 import App from '@/app';
-import { PreloaderExt } from '@/shared/ui';
 
 import StoreProvider, { useStore } from '../store';
 
@@ -10,15 +9,9 @@ const AppInitializer = observer(() => {
 	const { authStore, themeStore } = useStore();
 
 	useEffect(() => {
-		const init = async () => {
-			themeStore.setTheme(themeStore.theme);
-			await authStore.init();
-		};
-
-		void init();
+		themeStore.setTheme(themeStore.theme);
+		authStore.init();
 	}, [authStore, themeStore]);
-
-	if (authStore.isInitializing) return <PreloaderExt />;
 
 	return (
 		<div className="relative flex h-dvh w-full flex-col">
