@@ -1,0 +1,1 @@
+export { ImagesWidget } from './ui';
