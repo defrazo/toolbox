@@ -108,7 +108,7 @@ export const Controls = ({
 				)}
 				<Button
 					className={cn(
-						'h-8 w-full min-w-0 rounded-lg',
+						'h-10 w-full min-w-0 rounded-lg',
 						isProcessing ? 'bg-(--status-error)/70 hover:bg-(--status-error)/90' : 'active-btn'
 					)}
 					disabled={!isProcessing && (busy || !canProcess)}

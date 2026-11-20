@@ -1,1 +1,1 @@
-export { ImagesWidget } from './ui';
+export { Images } from './ui';

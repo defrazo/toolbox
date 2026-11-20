@@ -8,7 +8,7 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 import { imagePolicy } from '../../model/imagePolicy';
-import type { ImagesServices, Mode } from '../../model/types';
+import type { ImagesStores, Mode } from '../../model/types';
 import { useCrop } from '../../model/useCrop';
 import { Layout } from '../components/Layout';
 import { ModeTabs } from '../components/ModeTabs';
@@ -19,10 +19,15 @@ import { Toolbar } from './Toolbar';
 const disabledStyles =
 	'[&_button:disabled]:pointer-events-none [&_button:disabled]:translate-y-0 [&_button:disabled]:bg-(--bg-tertiary) [&_button:disabled]:bg-none [&_button:disabled]:text-(--color-secondary) [&_button:disabled]:opacity-100 [&_button:disabled]:shadow-none [&_input:disabled]:text-(--color-secondary) [&_input:disabled]:opacity-100';
 
-const Workspace = ({ onModeChange, services }: { onModeChange: (mode: Mode) => void; services: ImagesServices }) => {
+interface CropWorkspaceProps {
+	onModeChange: (mode: Mode) => void;
+	stores: ImagesStores;
+}
+
+const Workspace = ({ onModeChange, stores }: CropWorkspaceProps) => {
 	const { t } = useTranslation('images');
 
-	const { notifyStore, tabsStore } = services;
+	const { modalStore, notifyStore, tabsStore } = stores;
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 
@@ -53,7 +58,7 @@ const Workspace = ({ onModeChange, services }: { onModeChange: (mode: Mode) => v
 						<CropSettings editor={editor} />
 						<div className="mt-3 flex flex-col gap-3 border-t border-(--border-color) pt-3">
 							<Button
-								className="h-8 rounded-lg"
+								className="h-10 rounded-lg"
 								disabled={!editor.result || editor.exporting}
 								leftIcon={<Download className="size-4" />}
 								onClick={editor.download}
@@ -73,7 +78,14 @@ const Workspace = ({ onModeChange, services }: { onModeChange: (mode: Mode) => v
 					</div>
 				</div>
 			}
-			tabs={<ModeTabs hasWork={editor.hasWork} mode="crop" services={services} onModeChange={onModeChange} />}
+			tabs={
+				<ModeTabs
+					hasWork={editor.hasWork}
+					mode="crop"
+					stores={{ modalStore, tabsStore }}
+					onModeChange={onModeChange}
+				/>
+			}
 			toolbar={<Toolbar busy={editor.loading} uploadRef={uploadRef} onAddFiles={editor.addFiles} />}
 		>
 			<FileArea dragProps={dragProps} editor={editor} isDropActive={isDropActive} uploadRef={uploadRef} />

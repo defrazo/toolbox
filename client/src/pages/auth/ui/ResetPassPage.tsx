@@ -1,13 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import type { AuthStore } from '@/features/auth';
 import { AuthFormHeader, ResetPassForm } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { usePageTitle } from '@/shared/lib/hooks';
 import { Button } from '@/shared/ui';
 
 import { AuthWrapper } from './components';
 
-export const ResetPassPage = () => {
+interface ResetPassPageProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const ResetPassPage = (props: ResetPassPageProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
@@ -28,7 +34,7 @@ export const ResetPassPage = () => {
 			{isValidResetLink ? (
 				<>
 					<h2 className="text-(--color-secondary)">{t(($) => $.screens.resetPass.subtitle)}</h2>
-					<ResetPassForm email={email} token={token} />
+					<ResetPassForm {...props} email={email} token={token} />
 				</>
 			) : (
 				<div className="flex flex-col gap-4">

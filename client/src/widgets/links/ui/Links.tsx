@@ -1,7 +1,11 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
 
 import { type ShortLink, shortLinksApi } from '@/entities/short-link';
+import type { UserStore } from '@/entities/user';
+import type { ModalStore } from '@/features/modal';
+import type { NotifyStore } from '@/features/notification';
 import { useCopy } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 import { Preloader } from '@/shared/ui';
@@ -9,17 +13,18 @@ import { Preloader } from '@/shared/ui';
 import { TABLE_GRID } from '../model/constants';
 import { ConfirmDialog, EmptyState, LinkActions, LinksFooter, LinksTable } from './components';
 
-interface LinksWidgetProps {
-	isDemo: boolean;
-	onNotice: (message: string, type: 'success' | 'error') => void;
-	onOpenConfirm: (content: ReactNode) => void;
-	onCloseConfirm: () => void;
+interface LinksStores {
+	modalStore: ModalStore;
+	notifyStore: NotifyStore;
+	userStore: UserStore;
 }
 
-export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }: LinksWidgetProps) => {
+export const Links = observer(({ stores }: { stores: LinksStores }) => {
 	const { t } = useTranslation('links');
 
-	const copy = useCopy((message) => onNotice(message, 'success'));
+	const { modalStore, notifyStore, userStore } = stores;
+
+	const copy = useCopy((message) => notifyStore.setNotice(message, 'success'));
 	const copyLink = (text: string) =>
 		copy(
 			text,
@@ -44,8 +49,13 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 		const link = links.find((link) => link.id === id);
 		if (!link) return;
 
-		onOpenConfirm(
-			<ConfirmDialog link={link.shortUrl} onCancel={onCloseConfirm} onConfirm={() => handleDelete(id)} />
+		modalStore.setModal(
+			<ConfirmDialog
+				link={link.shortUrl}
+				onCancel={() => modalStore.closeModal()}
+				onConfirm={() => handleDelete(id)}
+			/>,
+			'confirm'
 		);
 	};
 
@@ -59,7 +69,7 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 
 			setLinks(links);
 		} catch {
-			onNotice(
+			notifyStore.setNotice(
 				t((t) => t.errors.default),
 				'error'
 			);
@@ -86,7 +96,7 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 		} catch {
 			setLinks((prev) => prev.map((link) => (link.id === id ? { ...link, locked: !nextLocked } : link)));
 
-			onNotice(
+			notifyStore.setNotice(
 				t((t) => t.errors.default),
 				'error'
 			);
@@ -105,13 +115,13 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 
 			setLinks((prev) => prev.filter((link) => link.id !== id));
 		} catch {
-			onNotice(
+			notifyStore.setNotice(
 				t((t) => t.errors.default),
 				'error'
 			);
 		} finally {
 			setPendingId(null);
-			onCloseConfirm();
+			modalStore.closeModal();
 		}
 	};
 
@@ -148,7 +158,7 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 								pendingId={pendingId}
 								onDelete={openDeleteConfirm}
 								onDownloaded={() =>
-									onNotice(
+									notifyStore.setNotice(
 										t(($) => $.success.qrDownloaded),
 										'success'
 									)
@@ -160,7 +170,7 @@ export const LinksWidget = ({ isDemo, onNotice, onOpenConfirm, onCloseConfirm }:
 					/>
 				)}
 			</div>
-			<LinksFooter isDemo={isDemo} isLoading={isFetching} onRefresh={fetchLinks} />
+			<LinksFooter isDemo={userStore.isDemo} isLoading={isFetching} onRefresh={fetchLinks} />
 		</>
 	);
-};
+});

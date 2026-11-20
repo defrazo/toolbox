@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SettingsWidgetProps } from '../model/types';
+import type { SettingsStores } from '../model/types';
 import { AvatarBlock, GeneralSection, PasswordBlock, ProfileBlock } from './components';
 
-export const SettingsWidget = ({ userStore, themeStore, onNotice }: SettingsWidgetProps) => {
+export const Settings = ({ stores }: { stores: SettingsStores }) => {
 	const { t } = useTranslation('settings');
+
+	const { notifyStore, themeStore, userStore } = stores;
 
 	const [isOpenPicker, setIsOpenPicker] = useState(false);
 
@@ -17,20 +19,19 @@ export const SettingsWidget = ({ userStore, themeStore, onNotice }: SettingsWidg
 					<AvatarBlock
 						isOpenPicker={isOpenPicker}
 						setIsOpenPicker={setIsOpenPicker}
-						userStore={userStore}
-						onNotice={onNotice}
+						stores={{ notifyStore, userStore }}
 					/>
 					{!isOpenPicker && (
 						<div className="core-gap flex w-full flex-1 flex-col self-start">
-							<ProfileBlock userStore={userStore} onNotice={onNotice} />
-							<PasswordBlock onNotice={onNotice} />
+							<ProfileBlock stores={{ notifyStore, userStore }} />
+							<PasswordBlock stores={{ notifyStore }} />
 						</div>
 					)}
 				</div>
 			</div>
 			<div className="core-gap flex flex-col select-none">
 				<h2 className="text-lg leading-4 text-(--color-secondary) opacity-70">{t(($) => $.general.title)}</h2>
-				<GeneralSection themeStore={themeStore} />
+				<GeneralSection stores={{ themeStore }} />
 			</div>
 		</>
 	);

@@ -7,12 +7,14 @@ import { useBodyScrollLock } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 import { Button, Logo } from '@/shared/ui';
 
-import type { SidebarServices } from '../model/types';
+import type { SidebarStores } from '../model/types';
 import { useUserMenu } from '../model/useUserMenu';
 import { TabsNav, UserButton, UserMenu } from './components';
 
-export const MobileSidebar = observer(({ services }: { services: SidebarServices }) => {
+export const MobileSidebar = observer(({ stores }: { stores: SidebarStores }) => {
 	const { isMenuOpen, setIsMenuOpen, buttonRef, toggle } = useUserMenu();
+
+	const { tabsStore, userStore } = stores;
 
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const handlers = useSwipeable({ onSwipedLeft: () => setIsSidebarOpen(false), delta: 50, trackTouch: true });
@@ -45,23 +47,23 @@ export const MobileSidebar = observer(({ services }: { services: SidebarServices
 					<Logo
 						onClick={() => {
 							setIsSidebarOpen(false);
-							services.tabsStore.setTab('home');
+							tabsStore.setTab('home');
 						}}
 					/>
-					<TabsNav tabsStore={services.tabsStore} onTabClick={() => setIsSidebarOpen(false)} />
+					<TabsNav stores={{ tabsStore }} onTabClick={() => setIsSidebarOpen(false)} />
 					<div className="relative mt-auto">
 						<UserMenu
-							{...services}
 							isMenuOpen={isMenuOpen}
 							setIsMenuOpen={setIsMenuOpen}
 							setIsSidebarOpen={setIsSidebarOpen}
+							stores={stores}
 							triggerRef={buttonRef}
 						/>
 						<UserButton
 							ref={buttonRef}
 							isMenuOpen={isMenuOpen}
 							setIsMenuOpen={toggle}
-							userStore={services.userStore}
+							stores={{ userStore }}
 						/>
 					</div>
 				</div>

@@ -1,1 +1,1 @@
-export { RenamerWidget } from './ui';
+export { Renamer } from './ui';

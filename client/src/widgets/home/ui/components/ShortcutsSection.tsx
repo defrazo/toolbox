@@ -2,14 +2,20 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ClipboardPaste, Crop, Upload } from 'lucide-react';
 
+import type { NotifyStore } from '@/features/notification';
 import { Carousel } from '@/shared/ui';
 
-import type { HomeWidgetProps } from '../../model/types';
+import type { HomeActions } from '../../model/types';
 
-type ShortcutsSectionProps = Pick<HomeWidgetProps, 'actions' | 'onNotice'>;
+interface ShortcutsSectionProps {
+	actions: HomeActions;
+	stores: { notifyStore: NotifyStore };
+}
 
-export const ShortcutsSection = ({ actions, onNotice }: ShortcutsSectionProps) => {
+export const ShortcutsSection = ({ actions, stores }: ShortcutsSectionProps) => {
 	const { t: tHome } = useTranslation('home');
+
+	const { notifyStore } = stores;
 
 	const clipboardRequest = useRef(0);
 	useEffect(
@@ -28,7 +34,7 @@ export const ShortcutsSection = ({ actions, onNotice }: ShortcutsSectionProps) =
 
 			if (!text.trim()) {
 				actions.openShortener();
-				onNotice(
+				notifyStore.setNotice(
 					tHome(($) => $.errors.empty),
 					'info'
 				);
@@ -39,7 +45,7 @@ export const ShortcutsSection = ({ actions, onNotice }: ShortcutsSectionProps) =
 			if (request !== clipboardRequest.current) return;
 
 			actions.openShortener();
-			onNotice(
+			notifyStore.setNotice(
 				tHome(($) => $.errors.paste),
 				'error'
 			);

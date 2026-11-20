@@ -4,18 +4,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeClosed, Lock, Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
-import { getAuthErrorMessage } from '../lib';
+import { getAuthErrorMessage } from '../lib/utils';
 import { useAuth } from '../model';
 
-export const LoginForm = observer(() => {
+interface LoginFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const LoginForm = observer(({ stores }: LoginFormProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
-	const { checkLogin } = useAuth(t);
+	const { authStore, notifyStore } = stores;
+
+	const { checkLogin } = useAuth(t, (message) => notifyStore.setNotice(message, 'info'));
 
 	const [login, setLogin] = useState('');
 	const [password, setPassword] = useState('');

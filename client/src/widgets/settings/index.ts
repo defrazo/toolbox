@@ -1,1 +1,1 @@
-export { SettingsWidget } from './ui';
+export { Settings } from './ui';

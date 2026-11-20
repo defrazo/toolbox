@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 import { Preloader } from '@/shared/ui';
 
-import type { DifferWidgetProps } from '../model/types';
+import type { DifferStores } from '../model/types';
 
 const ComparisonEditor = lazy(() => import('./components'));
 
-export const DifferWidget = (props: DifferWidgetProps) => {
+export const Differ = (props: { stores: DifferStores }) => {
 	const { t } = useTranslation('compare');
 
 	return (

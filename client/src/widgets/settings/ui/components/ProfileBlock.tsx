@@ -4,21 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, CircleUserRound, Mail, Save } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { updateEmail, updateProfile } from '@/entities/user';
+import { updateEmail, updateProfile, type UserStore } from '@/entities/user';
 import { createAuthChecks, emailCooldown, getAuthErrorMessage } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
-import type { SettingsWidgetProps } from '../../model/types';
 import { Row } from './Row';
 
-type ProfileBlockProps = Pick<SettingsWidgetProps, 'userStore' | 'onNotice'>;
+interface ProfileBlockProps {
+	stores: {
+		notifyStore: NotifyStore;
+		userStore: UserStore;
+	};
+}
 
-export const ProfileBlock = observer(({ userStore, onNotice }: ProfileBlockProps) => {
+export const ProfileBlock = observer(({ stores }: ProfileBlockProps) => {
 	const { t: tAuth } = useTranslation('auth');
 	const { t: tSettings } = useTranslation('settings');
 	const navigate = useNavigate();
 
-	const { checkUsername, checkEmail } = createAuthChecks(tAuth, (message) => onNotice(message, 'info'));
+	const { notifyStore, userStore } = stores;
+
+	const { checkUsername, checkEmail } = createAuthChecks(tAuth, (message) => notifyStore.setNotice(message, 'info'));
 
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -41,12 +48,12 @@ export const ProfileBlock = observer(({ userStore, onNotice }: ProfileBlockProps
 
 			userStore.setUser(data.user);
 
-			onNotice(
+			notifyStore.setNotice(
 				tSettings(($) => $.success.username),
 				'success'
 			);
 		} catch {
-			onNotice(
+			notifyStore.setNotice(
 				tSettings(($) => $.errors.username),
 				'error'
 			);
@@ -67,13 +74,13 @@ export const ProfileBlock = observer(({ userStore, onNotice }: ProfileBlockProps
 			userStore.setUser(data.user);
 			emailCooldown.start();
 
-			onNotice(
+			notifyStore.setNotice(
 				tSettings(($) => $.success.email),
 				'info'
 			);
 		} catch (error: any) {
 			const code = error?.response?.data?.code;
-			onNotice(getAuthErrorMessage(tAuth, code), 'error');
+			notifyStore.setNotice(getAuthErrorMessage(tAuth, code), 'error');
 		} finally {
 			setIsLoading(false);
 		}

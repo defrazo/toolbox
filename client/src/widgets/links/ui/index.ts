@@ -1,1 +1,1 @@
-export { LinksWidget } from './LinksWidget';
+export { Links } from './Links';

@@ -1,1 +1,1 @@
-export { SettingsWidget } from './SettingsWidget';
+export { Settings } from './Settings';

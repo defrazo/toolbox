@@ -16,13 +16,15 @@ const MAIN_TABS = [
 ] as const;
 
 interface TabsNavProps {
-	tabsStore: TabsStore;
+	stores: { tabsStore: TabsStore };
 	isMinimized?: boolean;
 	onTabClick?: () => void;
 }
 
-export const TabsNav = observer(({ tabsStore, isMinimized, onTabClick }: TabsNavProps) => {
+export const TabsNav = observer(({ stores, isMinimized, onTabClick }: TabsNavProps) => {
 	const { t } = useTranslation('nav');
+
+	const { tabsStore } = stores;
 
 	const handleClick = (tab: TabId) => {
 		tabsStore.setTab(tab);

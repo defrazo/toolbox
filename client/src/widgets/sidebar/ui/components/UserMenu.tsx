@@ -5,9 +5,10 @@ import { observer } from 'mobx-react-lite';
 
 import { Button, Divider } from '@/shared/ui';
 
-import type { SidebarServices } from '../../model/types';
+import type { SidebarStores } from '../../model/types';
 
-interface UserMenuProps extends SidebarServices {
+interface UserMenuProps {
+	stores: SidebarStores;
 	isMenuOpen: boolean;
 	triggerRef: React.RefObject<HTMLButtonElement | null>;
 	setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,8 +16,10 @@ interface UserMenuProps extends SidebarServices {
 }
 
 export const UserMenu = observer(
-	({ isMenuOpen, setIsMenuOpen, setIsSidebarOpen, triggerRef, tabsStore, userStore, authStore }: UserMenuProps) => {
+	({ stores, isMenuOpen, triggerRef, setIsMenuOpen, setIsSidebarOpen }: UserMenuProps) => {
 		const { t } = useTranslation('nav');
+
+		const { authStore, tabsStore, userStore } = stores;
 
 		const menuRef = useRef<HTMLDivElement>(null);
 

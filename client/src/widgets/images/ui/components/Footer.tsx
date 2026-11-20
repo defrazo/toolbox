@@ -31,7 +31,7 @@ export const Footer = ({
 	return (
 		<div className="flex flex-col gap-3 border-t border-(--border-color) pt-3">
 			<Button
-				className="active-btn h-8 w-full min-w-0 rounded-lg"
+				className="active-btn h-10 w-full min-w-0 rounded-lg"
 				disabled={!isPreparing && (busy || readyCount === 0)}
 				leftIcon={isPreparing ? <Square className="size-4" /> : <Download className="size-4" />}
 				loading={zipProgress !== null}
@@ -45,7 +45,7 @@ export const Footer = ({
 				</p>
 			)}
 			<div className="flex flex-wrap items-center justify-between gap-2">
-				<div className="h-8 flex-1 rounded-lg bg-(--accent-primary-dark) px-3 py-1.5 text-center text-sm text-(--color-accent) select-none">
+				<div className="h-8 flex-1 rounded-lg bg-(--accent-primary-dark) px-2.5 py-1.5 text-center text-sm text-(--color-accent) select-none">
 					{t(($) => $.selected, { count })} / {IMAGES.MAX_FILES}
 				</div>
 				<Button

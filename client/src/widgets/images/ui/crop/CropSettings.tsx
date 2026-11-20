@@ -174,15 +174,8 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 						/>
 					</div>
 				)}
-				<Button
-					className="active-btn mt-auto h-8 w-full min-w-0 rounded-lg"
-					disabled={!canPrepare}
-					onClick={() => void editor.prepare()}
-				>
-					{editor.exporting ? t(($) => $.busy) : t(($) => $.crop.prepare)}
-				</Button>
 				{result && (
-					<span className="m-auto truncate text-xs font-medium text-(--color-secondary)">
+					<span className="mx-auto truncate text-xs font-medium text-(--color-secondary) select-none">
 						{t(($) => $.crop.resultInfo, {
 							width: result.width,
 							height: result.height,
@@ -190,6 +183,13 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 						})}
 					</span>
 				)}
+				<Button
+					className="active-btn mt-auto h-10 w-full min-w-0 rounded-lg"
+					disabled={!canPrepare}
+					onClick={() => void editor.prepare()}
+				>
+					{editor.exporting ? t(($) => $.busy) : t(($) => $.crop.prepare)}
+				</Button>
 			</div>
 		</div>
 	);

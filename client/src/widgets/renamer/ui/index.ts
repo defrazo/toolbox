@@ -1,1 +1,1 @@
-export { RenamerWidget } from './RenamerWidget';
+export { Renamer } from './Renamer';

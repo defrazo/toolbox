@@ -2,15 +2,20 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { IconMask } from '@/shared/assets/icons';
 import { Button } from '@/shared/ui';
 
-export const AuthDemo = observer(() => {
+interface AuthDemoProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const AuthDemo = observer(({ stores }: AuthDemoProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
+	const { authStore, notifyStore } = stores;
 
 	const handleDemo = async () => {
 		try {

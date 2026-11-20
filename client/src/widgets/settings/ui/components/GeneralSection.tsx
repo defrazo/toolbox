@@ -3,15 +3,14 @@ import { Contrast, Languages, Moon, Sun, SunMoon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
 import { LanguageSelect } from '@/features/language-switcher';
+import type { ThemeStore } from '@/features/theme-switcher';
 import type { Theme } from '@/features/theme-switcher';
 import { SelectExt } from '@/shared/ui';
 
-import type { SettingsWidgetProps } from '../../model/types';
-
-type GeneralSectionProps = Pick<SettingsWidgetProps, 'themeStore'>;
-
-export const GeneralSection = observer(({ themeStore }: GeneralSectionProps) => {
+export const GeneralSection = observer(({ stores }: { stores: { themeStore: ThemeStore } }) => {
 	const { t } = useTranslation('settings');
+
+	const { themeStore } = stores;
 
 	const onChangeTheme = (theme: Theme) => {
 		if (theme === themeStore.theme) return;

@@ -4,6 +4,12 @@ import type { TabsStore } from '@/features/tabs';
 
 import type { ImageLimits } from './imagePolicy';
 
+export interface ImagesStores {
+	modalStore: ModalStore;
+	notifyStore: NotifyStore;
+	tabsStore: TabsStore;
+}
+
 type Result = {
 	blob: Blob;
 	url?: string;
@@ -12,12 +18,6 @@ type Result = {
 	format: ImageFormat;
 	width: number;
 	height: number;
-};
-
-export type ImagesServices = {
-	tabsStore: TabsStore;
-	modalStore: ModalStore;
-	notifyStore: NotifyStore;
 };
 
 export type Mode = 'converter' | 'compression' | 'resize' | 'crop';

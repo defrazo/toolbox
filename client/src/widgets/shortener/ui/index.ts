@@ -1,1 +1,1 @@
-export { ShortenerWidget } from './ShortenerWidget';
+export { Shortener } from './Shortener';

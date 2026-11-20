@@ -4,19 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeClosed, KeyRound, Lock, Mail, User } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
-import { getAuthErrorMessage } from '../lib';
+import { getAuthErrorMessage } from '../lib/utils';
 import { useAuth } from '../model';
-import { PasswordHint } from '.';
+import { PasswordHint } from './components/PasswordHint';
 
-export const RegisterForm = observer(({ isPrivacyAccepted }: { isPrivacyAccepted: boolean }) => {
+interface RegisterFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+	isPrivacyAccepted: boolean;
+}
+
+export const RegisterForm = observer(({ stores, isPrivacyAccepted }: RegisterFormProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
-	const { checkUsername, checkEmail, checkPassword, checkInvite } = useAuth(t);
+	const { authStore, notifyStore } = stores;
+
+	const { checkUsername, checkEmail, checkPassword, checkInvite } = useAuth(t, (message) =>
+		notifyStore.setNotice(message, 'info')
+	);
 
 	const [username, setUsername] = useState('');
 	const [email, setEmail] = useState('');

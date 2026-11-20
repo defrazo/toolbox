@@ -2,7 +2,9 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, File, Plus, Trash2 } from 'lucide-react';
 
-import { type TabsStore, useShortcutUpload } from '@/features/tabs';
+import type { NotifyStore } from '@/features/notification';
+import type { TabsStore } from '@/features/tabs';
+import { useShortcutUpload } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, FileUploader, Input } from '@/shared/ui';
 
@@ -11,32 +13,36 @@ import { buildRenamedFiles } from '../lib/naming';
 import { RenamerProvider, useRenamerContext } from '../model/renamer-context';
 import { FileArea } from './components';
 
-interface RenamerWidgetProps {
-	navigation: Pick<TabsStore, 'shortcut' | 'consumeShortcut'>;
-	onError: (message: string) => void;
+interface RenamerStores {
+	notifyStore: NotifyStore;
+	tabsStore: TabsStore;
 }
 
-export const RenamerWidget = ({ navigation, onError }: RenamerWidgetProps) => {
+export const Renamer = ({ stores }: { stores: RenamerStores }) => {
+	const { notifyStore, tabsStore } = stores;
+
 	return (
-		<RenamerProvider onError={onError}>
-			<RenamerContent navigation={navigation} />
+		<RenamerProvider onError={(message) => notifyStore.setNotice(message, 'error')}>
+			<RenamerContent stores={{ tabsStore }} />
 		</RenamerProvider>
 	);
 };
 
 interface RenamerContentProps {
-	navigation: RenamerWidgetProps['navigation'];
+	stores: { tabsStore: TabsStore };
 }
 
-const RenamerContent = ({ navigation }: RenamerContentProps) => {
+const RenamerContent = ({ stores }: RenamerContentProps) => {
 	const { t } = useTranslation('renamer');
 
 	const { files, prefix, setPrefix, suffix, setSuffix, preview, handleIncomingFiles, reset } = useRenamerContext();
 
+	const { tabsStore } = stores;
+
 	const uploadRef = useRef<HTMLInputElement>(null);
 	const addRef = useRef<HTMLInputElement>(null);
 
-	useShortcutUpload(navigation, 'upload-files', files.length ? addRef : uploadRef);
+	useShortcutUpload(tabsStore, 'upload-files', files.length ? addRef : uploadRef);
 
 	return (
 		<>

@@ -7,7 +7,7 @@ import { Preloader } from '@/shared/ui';
 
 import { resolveLanguage } from '../../lib/languages';
 import { COMPARISON_SIDES } from '../../model/constants';
-import type { DifferWidgetProps } from '../../model/types';
+import type { DifferStores } from '../../model/types';
 import { useComparisonEditor } from '../../model/useComparisonEditor';
 import { FileHeader } from './FileHeader';
 import { Help } from './Help';
@@ -16,11 +16,16 @@ import { Toolbar } from './Toolbar';
 
 import '../../lib/monaco';
 
-const Editor = ({ onError, onOpenHelp }: DifferWidgetProps) => {
+const Editor = ({ stores }: { stores: DifferStores }) => {
 	const { t } = useTranslation('compare');
 
+	const { modalStore, notifyStore } = stores;
+
 	const comparison = useComparisonEditor(() => {
-		onError(t(($) => $.fileError));
+		notifyStore.setNotice(
+			t(($) => $.fileError),
+			'error'
+		);
 	});
 
 	const languageOptions = useMemo(
@@ -138,7 +143,7 @@ const Editor = ({ onError, onOpenHelp }: DifferWidgetProps) => {
 				settingsLabel="Параметры"
 				swapLabel={t(($) => $.swap)}
 				onClear={comparison.clear}
-				onHelp={() => onOpenHelp(<Help />)}
+				onHelp={() => modalStore.setModal(<Help />)}
 				onLanguageChange={comparison.setLanguage}
 				onSwap={comparison.swap}
 			/>

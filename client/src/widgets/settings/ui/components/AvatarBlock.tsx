@@ -2,20 +2,23 @@ import { type Dispatch, type SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { observer } from 'mobx-react-lite';
 
+import type { UserStore } from '@/entities/user';
 import { updateProfile } from '@/entities/user';
+import type { NotifyStore } from '@/features/notification';
 import { AVATAR_ENTRIES, type AvatarId, AVATARS } from '@/shared/assets/images/avatars';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-import type { SettingsWidgetProps } from '../../model/types';
-
-interface AvatarBlockProps extends Pick<SettingsWidgetProps, 'userStore' | 'onNotice'> {
+interface AvatarBlockProps {
+	stores: { notifyStore: NotifyStore; userStore: UserStore };
 	isOpenPicker: boolean;
 	setIsOpenPicker: Dispatch<SetStateAction<boolean>>;
 }
 
-export const AvatarBlock = observer(({ isOpenPicker, setIsOpenPicker, userStore, onNotice }: AvatarBlockProps) => {
+export const AvatarBlock = observer(({ stores, isOpenPicker, setIsOpenPicker }: AvatarBlockProps) => {
 	const { t } = useTranslation('settings');
+
+	const { notifyStore, userStore } = stores;
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedAvatar, setSelectedAvatar] = useState<AvatarId | null>(null);
@@ -32,14 +35,14 @@ export const AvatarBlock = observer(({ isOpenPicker, setIsOpenPicker, userStore,
 
 			userStore.setUser(data.user);
 
-			onNotice(
+			notifyStore.setNotice(
 				t(($) => $.success.avatar),
 				'success'
 			);
 
 			setIsOpenPicker(false);
 		} catch {
-			onNotice(
+			notifyStore.setNotice(
 				t(($) => $.success.avatar),
 				'error'
 			);

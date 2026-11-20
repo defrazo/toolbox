@@ -6,16 +6,16 @@ import { IconLogo } from '@/shared/assets/images';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-import type { SidebarServices } from '../model/types';
+import { SidebarStores } from '../model/types';
 import { useUserMenu } from '../model/useUserMenu';
-import { TabsNav } from './components/TabsNav';
-import { UserButton } from './components/UserButton';
-import { UserMenu } from './components/UserMenu';
+import { TabsNav, UserButton, UserMenu } from './components';
 
-export const DesktopSidebar = ({ services }: { services: SidebarServices }) => {
+export const DesktopSidebar = ({ stores }: { stores: SidebarStores }) => {
 	const { t } = useTranslation('nav');
 
 	const { isMenuOpen, setIsMenuOpen, buttonRef, toggle } = useUserMenu();
+
+	const { tabsStore, userStore } = stores;
 
 	const [isMinimized, setIsMinimized] = useState(false);
 
@@ -74,12 +74,12 @@ export const DesktopSidebar = ({ services }: { services: SidebarServices }) => {
 				/>
 			</div>
 			<div className="flex flex-1 flex-col justify-between gap-4 shadow-(--shadow)">
-				<TabsNav isMinimized={isMinimized} tabsStore={services.tabsStore} />
+				<TabsNav isMinimized={isMinimized} stores={{ tabsStore }} />
 				<div className="relative">
 					<UserMenu
-						{...services}
 						isMenuOpen={isMenuOpen}
 						setIsMenuOpen={setIsMenuOpen}
+						stores={stores}
 						triggerRef={buttonRef}
 					/>
 					<UserButton
@@ -87,7 +87,7 @@ export const DesktopSidebar = ({ services }: { services: SidebarServices }) => {
 						isMenuOpen={isMenuOpen}
 						isMinimized={isMinimized}
 						setIsMenuOpen={toggle}
-						userStore={services.userStore}
+						stores={{ userStore }}
 					/>
 				</div>
 			</div>

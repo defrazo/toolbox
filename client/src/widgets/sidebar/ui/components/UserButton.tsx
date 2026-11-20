@@ -8,16 +8,18 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 interface UserButtonProps {
-	userStore: UserStore;
+	stores: { userStore: UserStore };
 	isMenuOpen: boolean;
 	isMinimized?: boolean;
 	setIsMenuOpen?: () => void;
 }
 
 export const UserButton = observer(
-	forwardRef<HTMLButtonElement, UserButtonProps>(({ isMenuOpen, setIsMenuOpen, isMinimized, userStore }, ref) => {
+	forwardRef<HTMLButtonElement, UserButtonProps>(({ stores, isMenuOpen, isMinimized, setIsMenuOpen }, ref) => {
 		const { t: tCommon } = useTranslation('common');
 		const { t: tNav } = useTranslation('nav');
+
+		const { userStore } = stores;
 
 		return (
 			<Button

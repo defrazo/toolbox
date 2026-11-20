@@ -1,4 +1,4 @@
-export { getAuthErrorMessage } from './lib';
+export { createAuthChecks } from './lib';
 export { AuthStore, emailCooldown, useAuth } from './model';
 export {
 	AccountLinkForm,

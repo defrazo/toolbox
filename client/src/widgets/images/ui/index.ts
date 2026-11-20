@@ -1,1 +1,1 @@
-export { ImagesWidget } from './ImagesWidget';
+export { Images } from './Images';

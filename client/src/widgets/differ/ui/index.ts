@@ -1,1 +1,1 @@
-export { DifferWidget } from './DifferWidget';
+export { Differ } from './Differ';

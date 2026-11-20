@@ -2,14 +2,15 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { reaction } from 'mobx';
 
+import type { ModalStore } from '@/features/modal';
+import type { TabsStore } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 import type { Mode } from '../../model/types';
-import type { ImagesServices } from '../../model/types';
 
 interface ModeTabsProps {
-	services: ImagesServices;
+	stores: { modalStore: ModalStore; tabsStore: TabsStore };
 	mode: Mode;
 	hasWork?: boolean;
 	onModeChange: (mode: Mode) => void;
@@ -17,10 +18,10 @@ interface ModeTabsProps {
 
 const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'crop'];
 
-export const ModeTabs = ({ mode, hasWork = false, onModeChange, services }: ModeTabsProps) => {
+export const ModeTabs = ({ mode, hasWork = false, onModeChange, stores }: ModeTabsProps) => {
 	const { t } = useTranslation('images');
 
-	const { modalStore, tabsStore } = services;
+	const { modalStore, tabsStore } = stores;
 
 	const tabsRef = useRef<HTMLDivElement>(null);
 

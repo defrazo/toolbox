@@ -5,19 +5,19 @@ import { observer } from 'mobx-react-lite';
 
 import { updatePassword } from '@/entities/user';
 import { createAuthChecks, getAuthErrorMessage, PasswordHint } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { cn } from '@/shared/lib/utils';
 import { Button, Divider, Input } from '@/shared/ui';
 
-import type { SettingsWidgetProps } from '../../model/types';
 import { Row } from './Row';
 
-type PasswordBlockProps = Pick<SettingsWidgetProps, 'onNotice'>;
-
-export const PasswordBlock = observer(({ onNotice }: PasswordBlockProps) => {
+export const PasswordBlock = observer(({ stores }: { stores: { notifyStore: NotifyStore } }) => {
 	const { t: tSettings } = useTranslation('settings');
 	const { t: tAuth } = useTranslation('auth');
 
-	const { checkPassword } = createAuthChecks(tAuth, (message) => onNotice(message, 'info'));
+	const { notifyStore } = stores;
+
+	const { checkPassword } = createAuthChecks(tAuth, (message) => notifyStore.setNotice(message, 'info'));
 
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -38,7 +38,7 @@ export const PasswordBlock = observer(({ onNotice }: PasswordBlockProps) => {
 		if (!checkPassword(passNew)) return;
 
 		if (passNew !== passConfirm) {
-			onNotice(
+			notifyStore.setNotice(
 				tAuth(($) => $.errors.invalid.passwordMismatch),
 				'info'
 			);
@@ -54,7 +54,7 @@ export const PasswordBlock = observer(({ onNotice }: PasswordBlockProps) => {
 				password_confirmation: passConfirm,
 			});
 
-			onNotice(
+			notifyStore.setNotice(
 				tSettings(($) => $.success.password),
 				'success'
 			);
@@ -66,7 +66,7 @@ export const PasswordBlock = observer(({ onNotice }: PasswordBlockProps) => {
 			setVisiblePass(false);
 		} catch (error: any) {
 			const code = error?.response?.data?.code;
-			onNotice(getAuthErrorMessage(tAuth, code), 'error');
+			notifyStore.setNotice(getAuthErrorMessage(tAuth, code), 'error');
 		} finally {
 			setIsLoading(false);
 		}

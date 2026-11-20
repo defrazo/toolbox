@@ -4,17 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
 import { useAuth } from '../model';
 
-export const ForgotPassForm = observer(() => {
+interface ForgotPassFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+}
+
+export const ForgotPassForm = observer(({ stores }: ForgotPassFormProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
-	const { checkEmail } = useAuth(t);
+	const { authStore, notifyStore } = stores;
+
+	const { checkEmail } = useAuth(t, (message) => notifyStore.setNotice(message, 'info'));
 
 	const [email, setEmail] = useState('');
 

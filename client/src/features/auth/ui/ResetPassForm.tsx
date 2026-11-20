@@ -4,19 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeClosed, Lock } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
+import type { AuthStore } from '@/features/auth';
+import type { NotifyStore } from '@/features/notification';
 import { Button, Input } from '@/shared/ui';
 
-import { getAuthErrorMessage } from '../lib';
+import { getAuthErrorMessage } from '../lib/utils';
 import { useAuth } from '../model';
-import { PasswordHint } from '.';
+import { PasswordHint } from './components/PasswordHint';
 
-export const ResetPassForm = observer(({ email, token }: { email: string; token: string }) => {
+interface ResetPassFormProps {
+	stores: { authStore: AuthStore; notifyStore: NotifyStore };
+	email: string;
+	token: string;
+}
+
+export const ResetPassForm = observer(({ stores, email, token }: ResetPassFormProps) => {
 	const { t } = useTranslation('auth');
 	const navigate = useNavigate();
 
-	const { authStore, notifyStore } = useStore();
-	const { checkPassword } = useAuth(t);
+	const { authStore, notifyStore } = stores;
+
+	const { checkPassword } = useAuth(t, (message) => notifyStore.setNotice(message, 'info'));
 
 	const [password, setPassword] = useState('');
 	const [passConfirm, setPassConfirm] = useState('');

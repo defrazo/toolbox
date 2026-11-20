@@ -1,1 +1,1 @@
-export { DifferWidget } from './ui';
+export { Differ } from './ui';

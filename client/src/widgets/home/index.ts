@@ -1,1 +1,1 @@
-export { HomeWidget } from './ui';
+export { Home } from './ui';

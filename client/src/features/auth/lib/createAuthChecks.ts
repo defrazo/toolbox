@@ -1,0 +1,93 @@
+import type { TFunction } from 'i18next';
+
+import {
+	validateEmail,
+	validateInvite,
+	validateLogin,
+	validatePassword,
+	validateUsername,
+} from '@/shared/lib/validators';
+
+export const createAuthChecks = (t: TFunction<'auth'>, notify: (message: string) => void) => {
+	const checkUsername = (value: string) => {
+		const result = validateUsername(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.username));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.username));
+			return false;
+		}
+
+		return true;
+	};
+
+	const checkEmail = (value: string) => {
+		const result = validateEmail(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.email));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.email));
+			return false;
+		}
+
+		return true;
+	};
+
+	const checkLogin = (value: string) => {
+		const result = validateLogin(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.login));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.login));
+			return false;
+		}
+
+		return true;
+	};
+
+	const checkPassword = (value: string) => {
+		const result = validatePassword(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.password));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.password));
+			return false;
+		}
+
+		return true;
+	};
+
+	const checkInvite = (value: string) => {
+		const result = validateInvite(value);
+
+		if (result === 'empty') {
+			notify(t(($) => $.errors.empty.invite));
+			return false;
+		}
+
+		if (result === 'invalid') {
+			notify(t(($) => $.errors.invalid.invite));
+			return false;
+		}
+
+		return true;
+	};
+
+	return { checkUsername, checkLogin, checkEmail, checkPassword, checkInvite };
+};

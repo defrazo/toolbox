@@ -5,7 +5,7 @@ import { useDropzone } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
 import type { Mode } from '../../model/types';
-import type { ImagesServices } from '../../model/types';
+import type { ImagesStores } from '../../model/types';
 import { useImages } from '../../model/useImages';
 import { FileArea, Toolbar } from '../files';
 import {
@@ -21,7 +21,7 @@ import { Layout } from './Layout';
 import { ModeTabs } from './ModeTabs';
 
 interface WorkspaceProps {
-	services: ImagesServices;
+	stores: ImagesStores;
 	mode: Exclude<Mode, 'crop'>;
 	onModeChange: (mode: Mode) => void;
 }
@@ -29,10 +29,10 @@ interface WorkspaceProps {
 const disabledStyles =
 	'[&_button:disabled]:pointer-events-none [&_button:disabled]:translate-y-0 [&_button:disabled]:bg-(--bg-tertiary) [&_button:disabled]:bg-none [&_button:disabled]:text-(--color-secondary) [&_button:disabled]:opacity-100 [&_button:disabled]:shadow-none [&_input:disabled]:text-(--color-secondary) [&_input:disabled]:opacity-100';
 
-export const Workspace = ({ mode, onModeChange, services }: WorkspaceProps) => {
+export const Workspace = ({ mode, onModeChange, stores }: WorkspaceProps) => {
 	const { t } = useTranslation('images');
 
-	const { notifyStore } = services;
+	const { modalStore, notifyStore, tabsStore } = stores;
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 
@@ -161,7 +161,7 @@ export const Workspace = ({ mode, onModeChange, services }: WorkspaceProps) => {
 				<ModeTabs
 					hasWork={files.length > 0 || busy}
 					mode={mode}
-					services={services}
+					stores={{ modalStore, tabsStore }}
 					onModeChange={onModeChange}
 				/>
 			}

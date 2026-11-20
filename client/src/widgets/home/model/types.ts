@@ -1,4 +1,7 @@
-import type { Tool, ToolId } from '@/entities/tool';
+import type { Tool } from '@/entities/tool';
+import type { UserStore } from '@/entities/user';
+import type { NotifyStore } from '@/features/notification';
+import type { TabsStore } from '@/features/tabs';
 
 export type HomeActions = {
 	openShortener: () => void;
@@ -9,10 +12,8 @@ export type HomeActions = {
 
 export type HomeTool = Pick<Tool, 'id' | 'icon' | 'isDisabled'> & { title: string; subtitle: string };
 
-export interface HomeWidgetProps {
-	username?: string;
-	tools: readonly HomeTool[];
-	actions: HomeActions;
-	onNavigate: (id: ToolId) => void;
-	onNotice: (message: string, type: 'info' | 'error') => void;
+export interface HomeStores {
+	notifyStore: NotifyStore;
+	tabsStore: TabsStore;
+	userStore: UserStore;
 }

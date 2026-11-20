@@ -4,20 +4,22 @@ import { Link } from 'lucide-react';
 import { reaction } from 'mobx';
 
 import { shortLinksApi } from '@/entities/short-link';
+import type { NotifyStore } from '@/features/notification';
 import type { TabsStore } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, Input } from '@/shared/ui';
 
 import { ResultBlock } from './components';
 
-interface ShortenerWidgetProps {
-	navigation: Pick<TabsStore, 'shortcut' | 'consumeShortcut'>;
-	onOpenLinks: () => void;
-	onNotice: (message: string, type: 'success' | 'error') => void;
+interface ShortenerStores {
+	notifyStore: NotifyStore;
+	tabsStore: TabsStore;
 }
 
-export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: ShortenerWidgetProps) => {
+export const Shortener = ({ stores }: { stores: ShortenerStores }) => {
 	const { t } = useTranslation('shortener');
+
+	const { notifyStore, tabsStore } = stores;
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [url, setUrl] = useState('');
@@ -32,7 +34,7 @@ export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: Shortener
 			const link = await shortLinksApi.createLink(url);
 			setShortUrl(link.shortUrl);
 		} catch {
-			onNotice(
+			notifyStore.setNotice(
 				t(($) => $.result.error),
 				'error'
 			);
@@ -49,12 +51,12 @@ export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: Shortener
 	useEffect(
 		() =>
 			reaction(
-				() => navigation.shortcut,
+				() => tabsStore.shortcut,
 				(request) => {
 					if (
 						request?.type !== 'paste-url' ||
 						typeof request.payload !== 'string' ||
-						!navigation.consumeShortcut(request.id)
+						!tabsStore.consumeShortcut(request.id)
 					)
 						return;
 					setUrl(request.payload);
@@ -62,7 +64,7 @@ export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: Shortener
 				},
 				{ fireImmediately: true }
 			),
-		[navigation]
+		[tabsStore]
 	);
 
 	return (
@@ -100,8 +102,13 @@ export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: Shortener
 					</Button>
 				</form>
 			</div>
-			{shortUrl && <ResultBlock shortUrl={shortUrl} onCopied={(message) => onNotice(message, 'success')} />}
-			<Button className="mx-auto w-full text-(--color-secondary) xl:w-72" onClick={onOpenLinks}>
+			{shortUrl && (
+				<ResultBlock shortUrl={shortUrl} onCopied={(message) => notifyStore.setNotice(message, 'success')} />
+			)}
+			<Button
+				className="mx-auto w-full text-(--color-secondary) xl:w-72"
+				onClick={() => tabsStore.setTab('links')}
+			>
 				{t(($) => $.result.recent)}
 			</Button>
 		</>

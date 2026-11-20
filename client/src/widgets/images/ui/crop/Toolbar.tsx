@@ -22,7 +22,7 @@ export const Toolbar = ({ busy, uploadRef, onAddFiles }: ToolbarProps) => {
 				ref={uploadRef}
 				accept={IMAGES.COMPRESSION.ACCEPT}
 				className={cn(
-					'active-btn h-full min-w-0 flex-1 rounded-lg',
+					'active-btn-static h-full min-w-0 flex-1 rounded-lg',
 					busy && 'text-(--color-secondary) opacity-50'
 				)}
 				disabled={busy}

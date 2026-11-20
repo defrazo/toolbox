@@ -83,45 +83,52 @@ export const FileItem = ({
 					<Image className="size-6 text-(--color-disabled)" />
 				</div>
 			)}
-			<div className="mb-0.5 flex min-w-0 flex-1 flex-col">
+			<div className="flex h-full min-w-0 flex-1 flex-col gap-1">
 				<span className="block truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
 				</span>
-				<div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-(--color-secondary)">
-					<span>{formatFileSize(file.file.size)}</span>
-					{result && (
-						<span
-							className={cn('flex flex-wrap items-center gap-x-1.5 gap-y-0.5', !current && 'opacity-50')}
-						>
-							<MoveRight aria-hidden="true" className="size-3 shrink-0" />
-							<span>{formatFileSize(result.blob.size)}</span>
-							<span
-								aria-label={sizeChangeLabel}
-								className={cn(
-									difference > 0 && 'text-(--status-error)',
-									difference < 0 && 'text-(--status-success)'
-								)}
-								title={sizeChangeLabel}
-							>
-								{sizeChange}
-							</span>
-						</span>
-					)}
-				</div>
-				{status && (
-					<div className="flex items-center gap-1">
-						{(file.status === 'loading' || file.status === 'processing') && (
-							<Preloader className="size-3 shrink-0 border-2" />
-						)}
-						<span
-							className={cn(
-								'text-xs wrap-anywhere text-(--color-secondary)',
-								error && 'text-(--status-error)'
-							)}
-						>
-							{status}
-						</span>
+				{file.status === 'loading' || file.status === 'processing' ? (
+					<div className="flex items-center gap-1.5">
+						<Preloader className="size-3 shrink-0 border-2" />
+						{status && <span className="text-xs text-(--color-secondary)">{status}</span>}
 					</div>
+				) : (
+					<>
+						<div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-(--color-secondary)">
+							<span>{formatFileSize(file.file.size)}</span>
+							{result && (
+								<span
+									className={cn(
+										'flex flex-wrap items-center gap-x-1.5 gap-y-0.5',
+										!current && 'opacity-50'
+									)}
+								>
+									<MoveRight aria-hidden="true" className="size-3 shrink-0" />
+									<span>{formatFileSize(result.blob.size)}</span>
+									<span
+										aria-label={sizeChangeLabel}
+										className={cn(
+											difference > 0 && 'text-(--status-error)',
+											difference < 0 && 'text-(--status-success)'
+										)}
+										title={sizeChangeLabel}
+									>
+										{sizeChange}
+									</span>
+								</span>
+							)}
+						</div>
+						{status && (
+							<span
+								className={cn(
+									'text-xs wrap-anywhere text-(--color-secondary)',
+									error && 'text-(--status-error)'
+								)}
+							>
+								{status}
+							</span>
+						)}
+					</>
 				)}
 			</div>
 			<div className="flex shrink-0 items-center gap-1">

@@ -1,1 +1,1 @@
-export { ShortenerWidget } from './ui';
+export { Shortener } from './ui';

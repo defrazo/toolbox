@@ -1,1 +1,1 @@
-export { LinksWidget } from './ui';
+export { Links } from './ui';
