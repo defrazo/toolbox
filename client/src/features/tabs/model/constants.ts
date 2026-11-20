@@ -1,6 +1,6 @@
 import type { PercentCrop } from 'react-image-crop';
 
-import type { BackgroundSettings, CropAspect, CropFormat, CropTransform, ImageFormat, ResizeSettings } from './types';
+import type { CropAspect, CropFormat, CropTransform, ImageFormat, ResizeSettings } from './types';
 
 const MB = 1024 * 1024;
 
@@ -12,15 +12,16 @@ export const IMAGES = {
 	MAX_BYTES: 50 * MB,
 	MAX_TOTAL_BYTES: 500 * MB,
 	MAX_SIDE: 16384,
+	MAX_WEBP_SIDE: 16383,
+	RASTER_MAX_PIXELS: 64_000_000,
 
 	CONVERTER: {
-		FORMATS: ['jpg', 'png', 'webp', 'avif', 'ico'] as const,
-		ACCEPT: '.jpg,.jpeg,.png,.webp,.avif,.ico',
-		MAX_PIXELS: 16_000_000,
+		FORMATS: ['jpg', 'png', 'webp', 'ico'] as const,
+		ACCEPT: '.jpg,.jpeg,.png,.webp,.ico',
 	},
 
 	COMPRESSION: {
-		ACCEPT: '.jpg,.jpeg,.png,.webp,.avif',
+		ACCEPT: '.jpg,.jpeg,.png,.webp',
 	},
 
 	RESIZE: {
@@ -33,17 +34,6 @@ export const IMAGES = {
 			percent: '100',
 			keepAspect: true,
 		} satisfies ResizeSettings,
-	},
-
-	BACKGROUND: {
-		FORMATS: ['png', 'webp'] as const,
-		DEFAULT: {
-			mode: 'contiguous',
-			tolerance: 15,
-			feather: 2,
-			sample: { x: 0.01, y: 0.01 },
-		} satisfies BackgroundSettings,
-		PREVIEW_SIDE: 1024,
 	},
 
 	CROP: {
@@ -77,7 +67,6 @@ export const IMAGES = {
 		jpg: 'image/jpeg',
 		png: 'image/png',
 		webp: 'image/webp',
-		avif: 'image/avif',
 		ico: 'image/x-icon',
 	} satisfies Record<ImageFormat, string>,
 } as const;

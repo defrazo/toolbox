@@ -3,13 +3,22 @@ import { saveAs } from 'file-saver';
 
 import { generateUUID } from '@/shared/lib/utils';
 
-import { inspectImage, normalizeBackgroundSettings, planResize } from '../lib';
+import { createThumbnailPreparation, inspectImageMetadata, planResize, thumbnail } from '../lib';
 import type { ArchiveEntry } from '../lib/images/archive';
 import { createArchive } from '../lib/images/archiveClient';
+import { checkDimensions, checkOutputDimensions, type ImageLimits } from '../lib/images/dimensions';
+import {
+	admitImageJob,
+	BATCH_PROCESSING,
+	canShareImageBudget,
+	isMemoryAllocationError,
+	retainedImageBytes,
+} from '../lib/images/memory';
 import type { ImageJob } from '../lib/images/processImage';
 import { createImageProcessor, estimateImageJobBytes } from '../lib/images/processor';
 import { IMAGES } from './constants';
-import type { BackgroundSettings, ImageError, ImageFile, ImageFormat, Mode, ResizeSettings } from './types';
+import { imageDevice, imageMemoryBudget, imagePolicy } from './imagePolicy';
+import type { ImageError, ImageFile, ImageFormat, Mode, ResizeSettings } from './types';
 
 const IMAGE_ERRORS: ImageError[] = [
 	'unsupported',
@@ -18,6 +27,12 @@ const IMAGE_ERRORS: ImageError[] = [
 	'resizeSettings',
 	'size',
 	'pixels',
+	'outputPixels',
+	'outputDimensions',
+	'webpSide',
+	'memory',
+	'batchResolution',
+	'timeout',
 	'decode',
 	'encode',
 ];
@@ -28,17 +43,19 @@ const errorCode = (error: unknown, fallback: ImageError): ImageError => {
 };
 
 const isSupportedFile = (file: File, mode: Mode) => {
-	const accept = mode === 'converter' || mode === 'background' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT;
+	const accept = mode === 'converter' ? IMAGES.CONVERTER.ACCEPT : IMAGES.COMPRESSION.ACCEPT;
 	const extension = `.${file.name.split('.').pop()?.toLowerCase()}`;
 
 	return accept.split(',').includes(extension);
 };
 
-export const useImages = (notify: (error: ImageError | 'limit' | 'download') => void, mode: Mode = 'converter') => {
+export const useImages = (
+	notify: (error: ImageError | 'limit' | 'download', limits?: ImageLimits) => void,
+	mode: Mode = 'converter'
+) => {
 	const [files, setFiles] = useState<ImageFile[]>([]);
 	const [format, setFormatState] = useState<ImageFormat>('png');
 	const [quality, setQualityState] = useState(80);
-	const [activeBackgroundId, setActiveBackgroundId] = useState<string | null>(null);
 	const [resize, setResizeState] = useState<ResizeSettings>(IMAGES.RESIZE.DEFAULT);
 	const [zipProgress, setZipProgress] = useState<number | null>(null);
 	const [busy, setBusy] = useState(false);
@@ -46,6 +63,16 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
 	const [preparationProgress, setPreparationProgress] = useState<{ completed: number; total: number } | null>(null);
 
+	const batchMode = () => ['converter', 'compression', 'resize'].includes(mode);
+	const additions = useRef<{ ids: string[]; completed: Set<string> }[]>([]);
+	const preparationTask = useRef<Promise<void> | null>(null);
+	const preparingFile = useRef<string | null>(null);
+	const attemptedThumbnails = useRef(new Set<string>());
+	const formatRef = useRef(format);
+	formatRef.current = format;
+	const resizeRef = useRef(resize);
+	resizeRef.current = resize;
+	const resizeOwner = useRef<{ id: string; previous: ResizeSettings } | null>(null);
 	const resizeInitialized = useRef(false);
 	const rows = useRef<ImageFile[]>([]);
 	const locked = useRef(false);
@@ -56,8 +83,14 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const preparation = useRef<AbortController | null>(null);
 	const archive = useRef<AbortController | null>(null);
 	const archiveCache = useRef<{ entries: ArchiveEntry[]; blob: Blob } | null>(null);
-	const activeBackgroundFile =
-		mode === 'background' ? (files.find((row) => row.id === activeBackgroundId) ?? files[0]) : undefined;
+	const limitsFor = (sourceFormat?: ImageFormat, count = rows.current.length) =>
+		imagePolicy({
+			mode,
+			format: sourceFormat,
+			output: mode === 'converter' ? formatRef.current : sourceFormat,
+			batch: count > 1,
+		});
+	const policy = limitsFor(files.length === 1 ? files[0].format : undefined, files.length);
 
 	useEffect(() => {
 		mounted.current = true;
@@ -105,10 +138,16 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	};
 
 	const release = (url?: string) => {
-		if (!url) return;
+		if (!url || !urls.current.has(url)) return;
 
 		URL.revokeObjectURL(url);
 		urls.current.delete(url);
+	};
+	const releaseFile = (row: ImageFile) => {
+		release(row.url);
+		release(row.originalUrl);
+		release(row.result?.url);
+		release(row.result?.fullUrl);
 	};
 
 	const begin = () => {
@@ -123,317 +162,438 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 		locked.current = false;
 		if (mounted.current) setBusy(false);
+		if (batchMode()) prepareBatch();
 	};
 
-	const addFiles = async (incoming: File[]) => {
-		if (locked.current) return;
+	const preparationStatus = () => {
+		additions.current = additions.current.filter((batch) =>
+			batch.ids.some((id) => rows.current.some((row) => row.id === id) && !batch.completed.has(id))
+		);
+		const ids = additions.current.flatMap((batch) =>
+			batch.ids.filter((id) => rows.current.some((row) => row.id === id))
+		);
+		const completed = additions.current.reduce(
+			(sum, batch) => sum + batch.ids.filter((id) => ids.includes(id) && batch.completed.has(id)).length,
+			0
+		);
+		if (mounted.current) setPreparationProgress(ids.length ? { total: ids.length, completed } : null);
+	};
+	const initialiseResize = (width: number, height: number, id: string) => {
+		const resize = resizeRef.current;
+		if (mode !== 'resize' || resizeInitialized.current) return resize;
 
-		setProgress(null);
-		const operation = begin();
+		resizeOwner.current = { id, previous: resize };
+		resizeInitialized.current = true;
+
+		const next =
+			resize.width || resize.height
+				? resize
+				: {
+						...resize,
+						width: String(Math.max(1, Math.round((width * Number(resize.percent)) / 100))),
+						height: String(Math.max(1, Math.round((height * Number(resize.percent)) / 100))),
+					};
+
+		resizeRef.current = next;
+		setResizeState(next);
+
+		return next;
+	};
+	const admitSourceDecode = (width: number, height: number) => {
+		admitImageJob(width * height * 8 + 32 * 1024 * 1024, retainedImageBytes(rows.current));
+	};
+	const prepareBatch = () => {
+		if (!batchMode() || locked.current || preparationTask.current || !mounted.current) return;
+
 		const controller = new AbortController();
 		preparation.current = controller;
+
+		const thumbnails = createThumbnailPreparation();
+
+		const current = (id: string) =>
+			mounted.current && !controller.signal.aborted && rows.current.some((row) => row.id === id);
+
+		preparationTask.current = Promise.resolve()
+			.then(async () => {
+				for (const batch of additions.current)
+					for (const id of batch.ids) {
+						if (controller.signal.aborted || locked.current || !mounted.current) return;
+
+						const row = rows.current.find((item) => item.id === id);
+						if (!row || attemptedThumbnails.current.has(id)) {
+							batch.completed.add(id);
+							continue;
+						}
+
+						let inputLimits = limitsFor(row.format).input;
+						let preview: ReturnType<typeof thumbnails.prepare>['thumbnail'] | undefined;
+
+						preparingFile.current = id;
+
+						try {
+							const info =
+								row.format && row.width && row.height && row.format !== 'ico'
+									? { format: row.format, width: row.width, height: row.height, original: row.file }
+									: await inspectImageMetadata(
+											row.file,
+											mode,
+											controller.signal,
+											(format) => {
+												inputLimits = limitsFor(format).input;
+												return inputLimits;
+											},
+											admitSourceDecode,
+											(blob, limits) => {
+												const task = thumbnails.prepare(blob, controller.signal, limits);
+												preview = task.thumbnail;
+												return task.metadata;
+											}
+										);
+
+							if (!current(id)) continue;
+
+							initialiseResize(info.width, info.height, row.id);
+
+							patch(id, {
+								format: info.format,
+								width: info.width,
+								height: info.height,
+								...(row.status === 'loading' && { status: 'ready' }),
+							});
+
+							try {
+								admitSourceDecode(info.width, info.height);
+
+								const image = await (preview ??
+									(info.format === 'ico'
+										? thumbnail(info.original, controller.signal, limitsFor(info.format).input)
+										: thumbnails.prepare(
+												info.original,
+												controller.signal,
+												limitsFor(info.format).input
+											).thumbnail));
+
+								if (!current(id)) continue;
+
+								patch(id, { url: createUrl(image.preview) });
+							} catch {
+								thumbnails.dispose();
+								if (controller.signal.aborted) return;
+							}
+						} catch (error) {
+							thumbnails.dispose();
+							if (!current(id)) continue;
+
+							patch(id, { status: 'error', error: errorCode(error, 'decode'), errorLimits: inputLimits });
+						} finally {
+							if (preparingFile.current === id) preparingFile.current = null;
+						}
+
+						if (current(id)) {
+							attemptedThumbnails.current.add(id);
+							batch.completed.add(id);
+							preparationStatus();
+						}
+					}
+			})
+			.finally(() => {
+				thumbnails.dispose();
+
+				if (preparation.current === controller) preparation.current = null;
+				preparationTask.current = null;
+
+				if (mounted.current && !locked.current) {
+					preparationStatus();
+					if (additions.current.length) prepareBatch();
+				}
+			});
+	};
+
+	const addBatch = (incoming: File[]) => {
 		const added: ImageFile[] = [];
 
 		let total = rows.current.reduce((sum, row) => sum + row.file.size, 0);
-		let limited = false;
-		let oversized = false;
 
-		try {
-			for (const file of incoming) {
-				if (!mounted.current || operation !== generation.current) break;
-
-				if (!isSupportedFile(file, mode)) {
-					notify(
-						mode === 'resize'
-							? 'resizeUnsupported'
-							: mode === 'compression'
-								? 'compressionUnsupported'
-								: 'unsupported'
-					);
-					continue;
-				}
-
-				if (rows.current.length + added.length >= IMAGES.MAX_FILES) {
-					limited = true;
-					break;
-				}
-
-				if (file.size > IMAGES.MAX_BYTES) {
-					oversized = true;
-					continue;
-				}
-
-				if (total + file.size > IMAGES.MAX_TOTAL_BYTES) {
-					limited = true;
-					continue;
-				}
-
-				const fileBackground =
-					mode === 'background' ? { background: normalizeBackgroundSettings(IMAGES.BACKGROUND.DEFAULT) } : {};
-
-				total += file.size;
-				added.push({ id: generateUUID(), file, ...fileBackground, status: 'loading' });
+		for (const file of incoming) {
+			if (!isSupportedFile(file, mode)) {
+				notify(
+					mode === 'resize'
+						? 'resizeUnsupported'
+						: mode === 'compression'
+							? 'compressionUnsupported'
+							: 'unsupported'
+				);
+				continue;
 			}
 
-			setPreparationProgress(added.length ? { completed: 0, total: added.length } : null);
-			update([...rows.current, ...added]);
-
-			for (const { id, file, status } of added) {
-				if (!mounted.current || operation !== generation.current) break;
-				if (status !== 'loading') continue;
-
-				try {
-					const info = await inspectImage(file, mode, controller.signal);
-
-					if (!mounted.current || operation !== generation.current) break;
-
-					if (mode === 'resize' && !resizeInitialized.current) {
-						resizeInitialized.current = true;
-						setResizeState((previous) =>
-							previous.width || previous.height
-								? previous
-								: {
-										...previous,
-										width: String(
-											Math.max(1, Math.round((info.width * Number(previous.percent)) / 100))
-										),
-										height: String(
-											Math.max(1, Math.round((info.height * Number(previous.percent)) / 100))
-										),
-									}
-						);
-					}
-
-					patch(id, {
-						format: info.format,
-						width: info.width,
-						height: info.height,
-						url: createUrl(info.preview),
-						originalUrl: createUrl(info.original),
-						status: 'ready',
-					});
-				} catch (error) {
-					if (!mounted.current || operation !== generation.current) break;
-
-					const code = errorCode(error, 'decode');
-					patch(id, {
-						status: 'error',
-						error:
-							code === 'unsupported' && mode !== 'converter'
-								? mode === 'resize'
-									? 'resizeUnsupported'
-									: mode === 'compression'
-										? 'compressionUnsupported'
-										: 'unsupported'
-								: code,
-					});
-				} finally {
-					if (mounted.current && operation === generation.current && preparation.current === controller) {
-						setPreparationProgress(
-							(previous) => previous && { ...previous, completed: previous.completed + 1 }
-						);
-					}
-				}
+			if (rows.current.length + added.length >= IMAGES.MAX_FILES) {
+				notify('limit');
+				break;
 			}
-			if (mounted.current && operation === generation.current) {
-				if (oversized) notify('size');
-				if (limited) notify('limit');
+
+			if (file.size > IMAGES.MAX_BYTES) {
+				notify('size');
+				continue;
 			}
-		} finally {
-			if (preparation.current === controller) {
-				preparation.current = null;
-				if (mounted.current) setPreparationProgress(null);
+
+			if (total + file.size > IMAGES.MAX_TOTAL_BYTES) {
+				notify('limit');
+				continue;
 			}
-			end(operation);
+
+			total += file.size;
+			added.push({ id: generateUUID(), file, status: 'loading' });
 		}
+
+		if (!added.length) return;
+
+		update([...rows.current, ...added]);
+		additions.current.push({ ids: added.map((row) => row.id), completed: new Set() });
+		preparationStatus();
+		prepareBatch();
 	};
+	const cancelBatchAddition = () => {
+		const batch = additions.current.at(-1);
+		if (!batch || locked.current) return;
 
-	const isCurrent = (row: ImageFile) => row.status === 'done' && !!row.result;
+		preparation.current?.abort();
 
-	const processFiles = async () => {
-		if (locked.current) return;
+		if (resizeOwner.current && batch.ids.includes(resizeOwner.current.id)) {
+			resizeRef.current = resizeOwner.current.previous;
+			setResizeState(resizeOwner.current.previous);
+			resizeInitialized.current = false;
+			resizeOwner.current = null;
+		}
 
-		const operation = begin();
-		const controller = new AbortController();
-
-		processing.current = controller;
-
-		const queue = rows.current
-			.filter((row) => row.format && !isCurrent(row))
-			.map((row) => {
-				const common = { id: operation + ':' + row.id, file: row.file, format: row.format! };
-				const job: ImageJob =
-					mode === 'background'
-						? {
-								...common,
-								mode,
-								output: format as 'png' | 'webp',
-								settings: row.background ?? IMAGES.BACKGROUND.DEFAULT,
-							}
-						: mode === 'resize'
-							? { ...common, mode, plan: planResize(row.width!, row.height!, resize) }
-							: mode === 'compression'
-								? { ...common, mode, quality }
-								: { ...common, mode: 'converter', output: format };
-				return { row, job, bytes: estimateImageJobBytes(job, row.width!, row.height!) };
-			});
-
-		setIsProcessing(true);
-		setProgress({ completed: 0, total: queue.length });
-
-		const queuedIds = new Set(queue.map(({ row }) => row.id));
+		additions.current = additions.current.filter((item) => item !== batch);
 
 		update(
-			rows.current.map((row) => (queuedIds.has(row.id) ? { ...row, status: 'ready', error: undefined } : row))
+			rows.current.filter((row) => {
+				if (!batch.ids.includes(row.id)) return true;
+				releaseFile(row);
+				attemptedThumbnails.current.delete(row.id);
+				return false;
+			})
 		);
 
-		const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-		const budget = (memory ? (memory <= 4 ? 192 : 384) : 256) * 1024 * 1024;
-		const threadedCodec =
-			globalThis.crossOriginIsolated &&
-			queue.some(({ job }) =>
-				job.mode === 'converter'
-					? job.output === 'avif'
-					: job.mode === 'compression'
-						? job.format === 'png' || job.format === 'avif'
-						: job.mode === 'resize' && job.format === 'avif'
-			);
-		const largeImages = queue.some(({ bytes }) => bytes > budget / 2);
-		const limit = navigator.hardwareConcurrency <= 2 || threadedCodec || largeImages ? 1 : 2;
-		const processors = Array.from({ length: Math.min(limit, queue.length) }, () =>
-			createImageProcessor(controller.signal)
-		);
-		const available = [...processors];
-		const active = new Set<Promise<void>>();
+		preparationStatus();
+		void preparationTask.current?.then(() => prepareBatch());
+	};
 
-		let reserved = 0;
+	const processBatch = async () => {
+		if (locked.current) return;
+
+		const operation = begin(),
+			controller = new AbortController();
+		processing.current = controller;
+		setIsProcessing(true);
+		preparation.current?.abort();
+
+		const queue = rows.current.filter((row) => !isCurrent(row) && row.status !== 'error');
+		if (queue.length) archiveCache.current = null;
+
+		setProgress({ completed: 0, total: queue.length });
+
+		const queuedIds = new Set(queue.map((row) => row.id));
+		update(rows.current.map((row) => (queuedIds.has(row.id) ? { ...row, status: 'ready' } : row)));
 
 		const current = () => mounted.current && operation === generation.current && !controller.signal.aborted;
 
-		const processJob = async ({ row, job }: (typeof queue)[number], processor: (typeof processors)[number]) => {
+		let effectiveResize = resize;
+
+		const budget = imageMemoryBudget();
+		const limit = imageDevice() === 'desktop' && BATCH_PROCESSING.maxActive >= 2 ? 2 : 1;
+		const active = new Map<Promise<void>, { bytes: number; parallel: boolean }>();
+
+		const fail = (id: string, error: unknown, policy: ReturnType<typeof limitsFor>) => {
 			if (!current()) return;
 
-			release(row.result?.url);
-			release(row.result?.fullUrl);
-			patch(row.id, { status: 'processing', error: undefined, result: undefined });
+			const system = isMemoryAllocationError(error);
+			const code = system ? 'memory' : errorCode(error, 'encode');
 
-			try {
-				const result = await processor.process(job);
-				if (!current()) return;
+			patch(id, {
+				status: 'error',
+				error: code,
+				errorLimits: code === 'outputPixels' || code === 'webpSide' ? policy.output : policy.input,
+			});
 
-				const outputFormat = job.mode === 'converter' || job.mode === 'background' ? job.output : row.format!;
-				const base = row.file.name.replace(/\.[^.]+$/, '') || 'image';
-
-				patch(row.id, {
-					status: 'done',
-					result: {
-						blob: result.blob,
-						width: result.width,
-						height: result.height,
-						url: createUrl(result.preview),
-						fullUrl: createUrl(result.fullPreview),
-						name: base + '.' + outputFormat,
-						format: outputFormat,
-					},
-				});
-			} catch (error) {
-				if (current()) patch(row.id, { status: 'error', error: errorCode(error, 'encode') });
-			} finally {
-				if (current())
-					setProgress((previous) => previous && { ...previous, completed: previous.completed + 1 });
-			}
+			setProgress((value) => value && { ...value, completed: value.completed + 1 });
+			if (system) controller.abort();
 		};
-
 		try {
-			while (current() && (queue.length > 0 || active.size > 0)) {
-				const retained = rows.current.reduce(
-					(sum, row) => sum + row.file.size + (row.result?.blob.size ?? 0),
-					0
-				);
-				const room = Math.max(0, budget - retained);
-				const index = queue.findIndex(({ bytes }) => active.size === 0 || reserved + bytes <= room);
+			await preparationTask.current;
+			for (const entry of queue) {
+				if (!current()) break;
 
-				if (available.length > 0 && index >= 0) {
-					const [entry] = queue.splice(index, 1);
-					const processor = available.pop()!;
+				while (current() && active.size >= limit) await Promise.race(active.keys());
+				if (!current()) break;
 
-					reserved += entry.bytes;
+				const row = rows.current.find((item) => item.id === entry.id);
+				if (!row) continue;
+				if ((!row.format || !row.width || !row.height) && active.size) await Promise.all(active.keys());
+				if (!current()) break;
 
-					const task = processJob(entry, processor).finally(() => {
-						reserved -= entry.bytes;
-						available.push(processor);
-						active.delete(task);
+				let processor: ReturnType<typeof createImageProcessor> | undefined;
+				let policy = limitsFor(row.format);
+
+				try {
+					const info =
+						row.format && row.width && row.height
+							? { format: row.format, width: row.width, height: row.height, original: row.file }
+							: await inspectImageMetadata(
+									row.file,
+									mode,
+									controller.signal,
+									(format) => {
+										policy = limitsFor(format);
+										return policy.input;
+									},
+									admitSourceDecode
+								);
+
+					if (!current()) break;
+
+					policy = limitsFor(info.format);
+					checkDimensions(info.width, info.height, policy.input);
+
+					if (!resizeInitialized.current) effectiveResize = initialiseResize(info.width, info.height, row.id);
+
+					patch(row.id, { format: info.format, width: info.width, height: info.height });
+
+					const common = { id: operation + ':' + row.id, file: row.file, format: info.format, policy };
+					const job: ImageJob =
+						mode === 'resize'
+							? {
+									...common,
+									mode,
+									plan: planResize(
+										info.width,
+										info.height,
+										effectiveResize,
+										policy.output,
+										info.format
+									),
+								}
+							: mode === 'compression'
+								? { ...common, mode, quality }
+								: { ...common, mode: 'converter', output: format };
+
+					if (job.mode === 'resize') {
+						if (job.plan.error) throw new Error(job.plan.error);
+						checkOutputDimensions(job.plan.width, job.plan.height, policy.output, job.format);
+					} else {
+						const output = 'output' in job ? job.output : job.format;
+						if (output !== 'ico') checkOutputDimensions(info.width, info.height, policy.output, output);
+					}
+
+					const bytes = estimateImageJobBytes(job, info.width, info.height);
+					const parallel = canShareImageBudget(job, bytes, budget);
+
+					const fitsAlongside = () =>
+						parallel &&
+						[...active.values()].every((value) => value.parallel) &&
+						[...active.values()].reduce((sum, value) => sum + value.bytes, bytes) +
+							retainedImageBytes(rows.current) +
+							BATCH_PROCESSING.parallelReserve <=
+							budget;
+
+					while (current() && active.size && !fitsAlongside()) await Promise.race(active.keys());
+					if (!current()) break;
+
+					const reserved = [...active.values()].reduce((sum, value) => sum + value.bytes, bytes);
+					admitImageJob(
+						reserved + (active.size ? BATCH_PROCESSING.parallelReserve : 0),
+						retainedImageBytes(rows.current),
+						budget
+					);
+
+					processor = createImageProcessor(controller.signal);
+					const runningProcessor = processor;
+
+					patch(row.id, { status: 'processing', error: undefined, errorLimits: undefined });
+
+					let task: Promise<void>;
+					task = Promise.resolve().then(async () => {
+						try {
+							if (!current()) return;
+							const result = await runningProcessor.process(job);
+							if (!current()) return;
+
+							const output = job.mode === 'converter' ? job.output : job.format;
+							patch(row.id, {
+								status: 'done',
+								result: {
+									blob: result.blob,
+									width: result.width,
+									height: result.height,
+									name: (row.file.name.replace(/\.[^.]+$/, '') || 'image') + '.' + output,
+									format: output,
+								},
+							});
+
+							setProgress((value) => value && { ...value, completed: value.completed + 1 });
+						} catch (error) {
+							fail(row.id, error, policy);
+						} finally {
+							runningProcessor.dispose();
+							active.delete(task);
+						}
 					});
 
-					active.add(task);
-				} else {
-					await Promise.race(active);
+					active.set(task, { bytes, parallel });
+					processor = undefined;
+				} catch (error) {
+					fail(row.id, error, policy);
+				} finally {
+					processor?.dispose();
 				}
 			}
-
-			await Promise.all(active);
 		} finally {
-			processors.forEach((processor) => processor.dispose());
+			await Promise.all(active.keys());
+
+			if (controller.signal.aborted && mounted.current)
+				update(rows.current.map((row) => (row.status === 'processing' ? { ...row, status: 'ready' } : row)));
 
 			if (processing.current === controller) {
 				processing.current = null;
-
 				if (mounted.current) setIsProcessing(false);
 			}
 
 			end(operation);
+			prepareBatch();
 		}
 	};
+
+	const addFiles = async (incoming: File[]) => {
+		if (!incoming.length || locked.current) return;
+		return addBatch(incoming);
+	};
+
+	const isCurrent = (row: ImageFile) => row.status === 'done' && !!row.result;
+
+	const processFiles = processBatch;
 
 	const cancelProcessing = () => {
 		const controller = processing.current;
 		if (!controller) return;
-
-		generation.current++;
-		processing.current = null;
 		controller.abort();
-
 		update(rows.current.map((row) => (row.status === 'processing' ? { ...row, status: 'ready' } : row)));
-
-		locked.current = false;
-
-		setBusy(false);
-		setIsProcessing(false);
 	};
 
 	const invalidateResults = () =>
-		update(rows.current.map((row) => (row.result ? { ...row, status: 'ready', error: undefined } : row)));
-
-	const setBackground = (id: string, value: BackgroundSettings) => {
-		if (locked.current || mode !== 'background') return;
-
-		const row = rows.current.find((item) => item.id === id);
-		if (!row?.background) return;
-
-		const next = normalizeBackgroundSettings(value);
-
-		if (
-			next.mode === row.background.mode &&
-			next.tolerance === row.background.tolerance &&
-			next.feather === row.background.feather &&
-			next.sample.x === row.background.sample.x &&
-			next.sample.y === row.background.sample.y
-		)
-			return;
-
-		patch(id, { background: next, ...(row.format && { status: 'ready', error: undefined }) });
-	};
-	const setBackgroundSample = (id: string, sample: BackgroundSettings['sample']) => {
-		const row = rows.current.find((item) => item.id === id);
-		if (row?.background) setBackground(id, { ...row.background, sample });
-	};
-	const selectBackgroundFile = (id: string) => {
-		if (mode === 'background' && rows.current.some((row) => row.id === id)) setActiveBackgroundId(id);
-	};
+		update(
+			rows.current.map((row) => {
+				release(row.result?.url);
+				release(row.result?.fullUrl);
+				return { ...row, result: undefined, status: 'ready', error: undefined, errorLimits: undefined };
+			})
+		);
 
 	const updateResize = (next: ResizeSettings) => {
 		if (locked.current) return;
 
+		resizeOwner.current = null;
+		resizeRef.current = next;
 		setResizeState(next);
 		invalidateResults();
 	};
@@ -453,7 +613,15 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		if (unit === resize.unit) return;
 
 		const reference = rows.current.find((row) => row.width && row.height);
-		const plan = reference && planResize(reference.width!, reference.height!, resize);
+		const plan =
+			reference &&
+			planResize(
+				reference.width!,
+				reference.height!,
+				resize,
+				limitsFor(reference.format).output,
+				reference.format
+			);
 
 		if (!reference || !plan || plan.error) {
 			updateResize({ ...resize, unit });
@@ -474,7 +642,10 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	const resizePlans = new Map(
 		files
 			.filter((row) => row.width && row.height)
-			.map((row) => [row.id, planResize(row.width!, row.height!, resize)])
+			.map((row) => [
+				row.id,
+				planResize(row.width!, row.height!, resize, limitsFor(row.format).output, row.format),
+			])
 	);
 
 	const setQuality = (value: number) => {
@@ -488,33 +659,31 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 	};
 
 	const setFormat = (value: string) => {
-		const formats: readonly string[] = mode === 'background' ? IMAGES.BACKGROUND.FORMATS : IMAGES.CONVERTER.FORMATS;
-
-		if (!locked.current && value !== format && formats.includes(value)) {
+		if (!locked.current && value !== format && IMAGES.CONVERTER.FORMATS.includes(value as ImageFormat)) {
+			formatRef.current = value as ImageFormat;
+			preparation.current?.abort();
 			setFormatState(value as ImageFormat);
-			update(rows.current.map((row) => (row.result ? { ...row, status: 'ready', error: undefined } : row)));
+			invalidateResults();
 		}
 	};
 
 	const remove = (id: string) => {
 		if (locked.current) return;
+		if (batchMode() && preparingFile.current === id) preparation.current?.abort();
 
 		const row = rows.current.find((item) => item.id === id);
 		const remaining = rows.current.filter((item) => item.id !== id);
-
-		if (mode === 'background' && activeBackgroundFile?.id === id) {
-			const index = rows.current.findIndex((item) => item.id === id);
-			setActiveBackgroundId(remaining[Math.min(index, remaining.length - 1)]?.id ?? null);
-		}
 
 		release(row?.url);
 		release(row?.originalUrl);
 		release(row?.result?.url);
 		release(row?.result?.fullUrl);
+		attemptedThumbnails.current.delete(id);
 		update(remaining);
+		if (batchMode()) preparationStatus();
 	};
 	const clear = () => {
-		if (locked.current && mode !== 'background') return;
+		if (locked.current) return;
 
 		generation.current++;
 
@@ -524,6 +693,8 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 		setZipProgress(null);
 
+		additions.current = [];
+		attemptedThumbnails.current.clear();
 		preparation.current?.abort();
 		preparation.current = null;
 
@@ -539,16 +710,16 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		setIsProcessing(false);
 		setProgress(null);
 		setPreparationProgress(null);
-		setActiveBackgroundId(null);
 		update([]);
 	};
 
 	const ready = files.filter(isCurrent);
 
 	const download = (row: ImageFile) => {
-		if (isCurrent(row) && row.result) {
+		const current = row;
+		if (current && isCurrent(current) && current.result) {
 			try {
-				saveAs(row.result.blob, row.result.name);
+				saveAs(current.result.blob, current.result.name);
 			} catch {
 				notify('download');
 			}
@@ -613,13 +784,11 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 				saveAs(
 					blob,
-					mode === 'background'
-						? `Background_${formattedDate}.zip`
-						: mode === 'resize'
-							? `Resized_${formattedDate}.zip`
-							: mode === 'compression'
-								? `Compressed_${formattedDate}.zip`
-								: `Converted_${formattedDate}.zip`
+					mode === 'resize'
+						? `Resized_${formattedDate}.zip`
+						: mode === 'compression'
+							? `Compressed_${formattedDate}.zip`
+							: `Converted_${formattedDate}.zip`
 				);
 			}
 		} catch {
@@ -635,14 +804,12 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 
 	return {
 		files,
+		policy,
+		limitsFor,
 		format,
 		setFormat,
 		quality,
 		setQuality,
-		activeBackgroundFile,
-		selectBackgroundFile,
-		setBackground,
-		setBackgroundSample,
 		resize,
 		resizePlans,
 		setResizeSide,
@@ -655,6 +822,9 @@ export const useImages = (notify: (error: ImageError | 'limit' | 'download') => 
 		progress,
 		preparationProgress,
 		cancelProcessing,
+		cancelPreparation: () => {
+			if (batchMode()) cancelBatchAddition();
+		},
 		addFiles,
 		processFiles,
 		remove,

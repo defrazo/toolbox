@@ -1,7 +1,10 @@
 import { centerCrop, makeAspectCrop, type PercentCrop } from 'react-image-crop';
 
-import { type CropAspect, type CropFormat, type CropOutputPlan, type CropTransform, IMAGES } from '../../model';
-import { canvasBlob, checkDimensions, createCanvas } from './converter';
+import { IMAGES } from '../../model/constants';
+import { imagePolicy } from '../../model/imagePolicy';
+import type { CropAspect, CropFormat, CropOutputPlan, CropTransform } from '../../model/types';
+import { canvasBlob, createCanvas, verifyImageOutput } from './converter';
+import { checkOutputDimensions, type ImageLimits } from './dimensions';
 
 type Dimensions = { width: number; height: number };
 
@@ -35,9 +38,23 @@ export const fitCrop = (aspect: number | undefined, width: number, height: numbe
 		? centerCrop(makeAspectCrop({ unit: '%', width: 100 }, aspect, width, height), width, height)
 		: { ...IMAGES.CROP.FULL };
 
-export const cropPixels = (crop: PercentCrop, width: number, height: number) => {
+export const cropPixels = (crop: PercentCrop, width: number, height: number, pixelAligned = true) => {
 	const x = snap(Math.min(width, Math.max(0, (crop.x * width) / 100)));
 	const y = snap(Math.min(height, Math.max(0, (crop.y * height) / 100)));
+	const right = snap(Math.min(width, Math.max(x, ((crop.x + crop.width) * width) / 100)));
+	const bottom = snap(Math.min(height, Math.max(y, ((crop.y + crop.height) * height) / 100)));
+
+	if (pixelAligned) {
+		const left = right > x ? Math.min(width - 1, Math.round(x)) : Math.round(x);
+		const top = bottom > y ? Math.min(height - 1, Math.round(y)) : Math.round(y);
+
+		return {
+			x: left,
+			y: top,
+			width: right > x ? Math.min(width, Math.max(left + 1, Math.round(right))) - left : 0,
+			height: bottom > y ? Math.min(height, Math.max(top + 1, Math.round(bottom))) - top : 0,
+		};
+	}
 
 	return {
 		x,
@@ -62,16 +79,26 @@ export const drawCropSource = (canvas: HTMLCanvasElement, image: HTMLImageElemen
 	context.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2);
 };
 
-export const planCropOutput = (selection: Dimensions): CropOutputPlan => {
+export const planCropOutput = (
+	selection: Dimensions,
+	limits: ImageLimits = imagePolicy({ mode: 'crop' }).output,
+	format?: CropFormat
+): CropOutputPlan => {
+	if (
+		!Number.isFinite(selection.width) ||
+		!Number.isFinite(selection.height) ||
+		selection.width <= 0 ||
+		selection.height <= 0
+	)
+		return { width: 0, height: 0, error: 'settings' };
+
 	const width = Math.max(1, Math.round(selection.width));
 	const height = Math.max(1, Math.round(selection.height));
 
-	if (selection.width <= 0 || selection.height <= 0) return { width: 0, height: 0, error: 'settings' };
-
 	try {
-		checkDimensions(width, height);
-	} catch {
-		return { width, height, error: 'pixels' };
+		checkOutputDimensions(width, height, limits, format);
+	} catch (error) {
+		return { width, height, error: error instanceof Error && error.message === 'webpSide' ? 'webpSide' : 'pixels' };
 	}
 
 	return { width, height };
@@ -82,11 +109,12 @@ export const exportCrop = async (
 	selection: ReturnType<typeof cropPixels>,
 	plan: CropOutputPlan,
 	format: CropFormat,
-	quality: number
+	quality: number,
+	limits: ImageLimits = imagePolicy({ mode: 'crop', output: format }).output
 ) => {
 	if (plan.error) throw new Error('encode');
 
-	checkDimensions(plan.width, plan.height);
+	checkOutputDimensions(plan.width, plan.height, limits, format);
 
 	const { canvas, context } = createCanvas(plan.width, plan.height);
 
@@ -96,7 +124,11 @@ export const exportCrop = async (
 			context.fillRect(0, 0, plan.width, plan.height);
 		}
 
-		context.imageSmoothingEnabled = true;
+		const exact =
+			[selection.x, selection.y, selection.width, selection.height].every(Number.isInteger) &&
+			selection.width === plan.width &&
+			selection.height === plan.height;
+		context.imageSmoothingEnabled = !exact;
 		context.imageSmoothingQuality = 'high';
 
 		context.drawImage(
@@ -111,7 +143,9 @@ export const exportCrop = async (
 			plan.height
 		);
 
-		return await canvasBlob(canvas, IMAGES.MIME[format], quality / 100);
+		const blob = await canvasBlob(canvas, IMAGES.MIME[format], quality / 100);
+		await verifyImageOutput(blob, format, plan.width, plan.height, limits);
+		return blob;
 	} finally {
 		canvas.width = canvas.height = 0;
 	}

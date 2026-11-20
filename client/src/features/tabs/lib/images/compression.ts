@@ -1,38 +1,45 @@
 import { IMAGES } from '../../model/constants';
+import { type ImagePolicy, imagePolicy } from '../../model/imagePolicy';
 import type { ImageFormat } from '../../model/types';
-import { convertImage, detectFormat, thumbnail } from './converter';
+import { convertImage, verifyImageOutput } from './converter';
+import { checkDimensions } from './dimensions';
+import { readImageDimensions } from './headers';
 
 export const compressImage = async (
 	file: File,
 	format: ImageFormat,
 	quality: number,
-	encodeAvif: (data: ImageData, quality?: number) => Promise<ArrayBuffer>,
 	optimisePng: (data: ArrayBuffer) => Promise<ArrayBuffer>,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	policy: ImagePolicy = imagePolicy({ mode: 'compression', format })
 ) => {
 	signal?.throwIfAborted();
 
 	if (format === 'ico') throw new Error('compressionUnsupported');
 
 	if (format !== 'png')
-		return convertImage(
-			file,
-			format,
-			format,
-			(data) => encodeAvif(data, quality),
-			quality / 100,
-			undefined,
-			signal
-		);
+		return convertImage(file, format, format, quality / 100, undefined, signal, undefined, policy);
 
-	const buffer = await file.arrayBuffer();
+	const source = await readImageDimensions(file);
+	if (!source) throw new Error('decode');
+
+	const { width, height } = source;
+	checkDimensions(width, height, policy.input);
+
+	let buffer: ArrayBuffer | null = await file.arrayBuffer();
 
 	signal?.throwIfAborted();
 
-	const optimised = await optimisePng(buffer);
+	let pending: Promise<ArrayBuffer> | null = optimisePng(buffer);
+	buffer = null;
+	let optimised: ArrayBuffer | null = await pending;
+	pending = null;
+
 	const blob = new Blob([optimised], { type: IMAGES.MIME.png });
+	optimised = null;
 
-	if ((await detectFormat(blob)) !== 'png') throw new Error('encode');
+	await verifyImageOutput(blob, 'png', width, height, policy.output, signal);
 
-	return { blob, ...(await thumbnail(blob, signal)), fullPreview: blob };
+	signal?.throwIfAborted();
+	return { blob, width, height, preview: blob, fullPreview: blob };
 };

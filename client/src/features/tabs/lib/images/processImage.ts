@@ -1,5 +1,5 @@
-import type { BackgroundRequest, BackgroundSettings, ImageFormat, ResizePlan } from '../../model/types';
-import { removeImageBackground } from './background';
+import { type ImagePolicy, imagePolicy } from '../../model/imagePolicy';
+import type { ImageFormat, ResizePlan } from '../../model/types';
 import { compressImage } from './compression';
 import { convertImage } from './converter';
 import { resizeImage } from './resize';
@@ -8,32 +8,32 @@ export type ImageJob = {
 	id: string;
 	file: File;
 	format: ImageFormat;
+	policy?: ImagePolicy;
 } & (
 	| { mode: 'converter'; output: ImageFormat }
 	| { mode: 'compression'; quality: number }
 	| { mode: 'resize'; plan: ResizePlan; bitmap?: ImageBitmap }
-	| { mode: 'background'; output: 'png' | 'webp'; settings: BackgroundSettings }
 );
 
 export type ImageJobResult = Awaited<ReturnType<typeof convertImage>>;
 
 export const processImage = (
 	job: ImageJob,
-	encodeAvif: (image: ImageData, quality?: number) => Promise<ArrayBuffer>,
 	optimisePng: (buffer: ArrayBuffer) => Promise<ArrayBuffer>,
-	background: (request: BackgroundRequest) => Promise<ArrayBuffer>,
 	signal?: AbortSignal
 ): Promise<ImageJobResult> => {
 	signal?.throwIfAborted();
 
+	const policy =
+		job.policy ??
+		imagePolicy({ mode: job.mode, format: job.format, output: 'output' in job ? job.output : job.format });
+
 	switch (job.mode) {
 		case 'converter':
-			return convertImage(job.file, job.format, job.output, encodeAvif, undefined, undefined, signal);
+			return convertImage(job.file, job.format, job.output, undefined, undefined, signal, undefined, policy);
 		case 'compression':
-			return compressImage(job.file, job.format, job.quality, encodeAvif, optimisePng, signal);
+			return compressImage(job.file, job.format, job.quality, optimisePng, signal, policy);
 		case 'resize':
-			return resizeImage(job.file, job.format, job.plan, encodeAvif, signal, job.bitmap);
-		case 'background':
-			return removeImageBackground(job.file, job.format, job.output, job.settings, background, signal);
+			return resizeImage(job.file, job.format, job.plan, signal, job.bitmap, policy);
 	}
 };

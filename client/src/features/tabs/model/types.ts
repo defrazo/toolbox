@@ -1,5 +1,6 @@
 import type { Layout } from '@/entities/tool';
 
+import type { ImageLimits } from './imagePolicy';
 import type { TabId } from './tabsStore';
 
 export type TabLayoutProps = {
@@ -37,18 +38,17 @@ export type ApiResponse<T> = {
 // Images
 type Result = {
 	blob: Blob;
-	url: string;
-	fullUrl: string;
+	url?: string;
+	fullUrl?: string;
 	name: string;
 	format: ImageFormat;
 	width: number;
 	height: number;
 };
 
-export type Mode = 'converter' | 'compression' | 'resize' | 'background' | 'crop';
+export type Mode = 'converter' | 'compression' | 'resize' | 'crop';
 
-export type ImageWorkerRequest =
-	{ format: 'avif'; image: ImageData; quality?: number } | { format: 'png'; buffer: ArrayBuffer };
+export type ImageWorkerRequest = { format: 'png'; buffer: ArrayBuffer };
 
 export type ImageFile = {
 	id: string;
@@ -60,12 +60,12 @@ export type ImageFile = {
 	originalUrl?: string;
 	status: 'loading' | 'ready' | 'processing' | 'done' | 'error';
 	error?: ImageError;
+	errorLimits?: ImageLimits;
 	result?: Result;
-	background?: BackgroundSettings;
 };
 
 // Converter
-export type ImageFormat = 'jpg' | 'png' | 'webp' | 'avif' | 'ico';
+export type ImageFormat = 'jpg' | 'png' | 'webp' | 'ico';
 
 export type ImageError =
 	| 'unsupported'
@@ -74,6 +74,12 @@ export type ImageError =
 	| 'resizeSettings'
 	| 'size'
 	| 'pixels'
+	| 'outputPixels'
+	| 'outputDimensions'
+	| 'webpSide'
+	| 'memory'
+	| 'batchResolution'
+	| 'timeout'
 	| 'decode'
 	| 'encode';
 
@@ -88,21 +94,7 @@ export type ResizeSettings = {
 
 export type ResizePlan =
 	| { width: number; height: number; error?: undefined }
-	| { width?: undefined; height?: undefined; error: 'resizeSettings' | 'pixels' };
-
-// Background
-export type BackgroundSettings = {
-	mode: 'contiguous' | 'global';
-	tolerance: number;
-	feather: number;
-	sample: { x: number; y: number };
-};
-
-export type BackgroundRequest = {
-	format: 'background';
-	image: ImageData;
-	settings: BackgroundSettings;
-};
+	| { width?: undefined; height?: undefined; error: 'resizeSettings' | 'pixels' | 'outputPixels' | 'webpSide' };
 
 // Crop
 export type CropTransform = {
@@ -114,7 +106,7 @@ export type CropTransform = {
 export type CropOutputPlan = {
 	width: number;
 	height: number;
-	error?: 'settings' | 'pixels';
+	error?: 'settings' | 'pixels' | 'outputPixels' | 'webpSide';
 };
 
 export type CropSource = {
@@ -128,4 +120,15 @@ export type CropFormat = 'png' | 'jpg' | 'webp';
 
 export type CropAspect = 'free' | 'original' | '1:1' | '3:4' | '4:5' | '16:9' | '9:16' | 'custom';
 
-export type CropError = 'unsupported' | 'single' | 'size' | 'pixels' | 'decode' | 'encode';
+export type CropError =
+	| 'unsupported'
+	| 'single'
+	| 'size'
+	| 'pixels'
+	| 'decode'
+	| 'encode'
+	| 'cropTransform'
+	| 'memory'
+	| 'outputPixels'
+	| 'webpSide'
+	| 'outputDimensions';

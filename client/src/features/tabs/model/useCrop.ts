@@ -12,7 +12,10 @@ import {
 	orientedSize,
 	planCropOutput,
 } from '../lib';
+import { checkDimensions, type ImageLimits } from '../lib/images/dimensions';
+import { readImageDimensions } from '../lib/images/headers';
 import { IMAGES } from './constants';
+import { checkImageMemory, estimateCropBytes, hasCropTransform, imagePolicy } from './imagePolicy';
 import type { CropAspect, CropError, CropFormat, CropSource } from './types';
 
 type CropCustom = {
@@ -27,7 +30,7 @@ type CropResult = {
 	height: number;
 };
 
-export const useCrop = (notify: (error: CropError) => void) => {
+export const useCrop = (notify: (error: CropError, limits?: ImageLimits) => void) => {
 	const [file, setFile] = useState<File | null>(null);
 	const [source, setSource] = useState<CropSource | null>(null);
 	const [loading, setLoading] = useState(false);
@@ -68,20 +71,31 @@ export const useCrop = (notify: (error: CropError) => void) => {
 		setLoading(true);
 
 		void (async () => {
+			let inputLimits = imagePolicy({ mode: 'crop' }).input;
 			try {
 				if (file.size > IMAGES.MAX_BYTES) throw new Error('size');
 
 				const imageFormat = await detectFormat(file);
 				if (imageFormat === 'ico') throw new Error('unsupported');
+				inputLimits = imagePolicy({ mode: 'crop', format: imageFormat }).input;
 
 				if (!current) return;
 
-				image = await decodeImage(file, imageFormat);
+				const header = await readImageDimensions(file);
+				if (!current) return;
+
+				if (header) {
+					checkDimensions(header.width, header.height, inputLimits);
+					checkImageMemory(estimateCropBytes(header.width, header.height), file.size);
+				}
+
+				image = await decodeImage(file, imageFormat, inputLimits);
 
 				if (!current) {
 					image.src = '';
 					return;
 				}
+				checkImageMemory(estimateCropBytes(image.naturalWidth, image.naturalHeight), file.size);
 
 				setTransform({ ...IMAGES.CROP.DEFAULT });
 				setAspectState('free');
@@ -95,7 +109,8 @@ export const useCrop = (notify: (error: CropError) => void) => {
 					const code = error instanceof Error ? error.message : '';
 
 					notifyRef.current(
-						['unsupported', 'size', 'pixels'].includes(code) ? (code as CropError) : 'decode'
+						['unsupported', 'size', 'pixels', 'memory'].includes(code) ? (code as CropError) : 'decode',
+						inputLimits
 					);
 
 					setFile(null);
@@ -118,8 +133,17 @@ export const useCrop = (notify: (error: CropError) => void) => {
 		: { width: 1, height: 1 };
 
 	const ratio = cropAspect(aspect, size.width, size.height, custom);
-	const selection = cropPixels(crop, size.width, size.height);
-	const outputPlan = planCropOutput(selection);
+
+	const policy = imagePolicy({
+		mode: 'crop',
+		format: source?.format,
+		output: format,
+		transformed: hasCropTransform(transform),
+	});
+	const transformLimit = imagePolicy({ mode: 'crop', format: source?.format, transformed: true }).input;
+
+	const selection = cropPixels(crop, size.width, size.height, transform.rotation % 90 === 0);
+	const outputPlan = planCropOutput(selection, policy.output, format);
 
 	const addFiles = (files: File[]) => {
 		if (files.length !== 1) {
@@ -159,6 +183,11 @@ export const useCrop = (notify: (error: CropError) => void) => {
 	};
 
 	const rotate = (direction: -1 | 1) => {
+		if (source && source.image.naturalWidth * source.image.naturalHeight > transformLimit.maxPixels) {
+			notify('cropTransform', transformLimit);
+			return;
+		}
+
 		invalidate();
 
 		const rotation = (transform.rotation + direction * 90 + 360) % 360;
@@ -169,6 +198,11 @@ export const useCrop = (notify: (error: CropError) => void) => {
 	};
 
 	const flip = (side: 'flipX' | 'flipY') => {
+		if (source && source.image.naturalWidth * source.image.naturalHeight > transformLimit.maxPixels) {
+			notify('cropTransform', transformLimit);
+			return;
+		}
+
 		invalidate();
 		setTransform({ ...transform, [side]: !transform[side] });
 	};
@@ -223,14 +257,24 @@ export const useCrop = (notify: (error: CropError) => void) => {
 		setResult(null);
 
 		try {
-			const blob = await exportCrop(canvas, selection, outputPlan, format, quality);
+			checkImageMemory(estimateCropBytes(size.width, size.height), (file?.size ?? 0) + (result?.blob.size ?? 0));
+			const blob = await exportCrop(canvas, selection, outputPlan, format, quality, policy.output);
 
 			if (operation !== generation.current) return;
 
 			const base = source.name.replace(/\.[^.]+$/, '') || 'Image';
 			setResult({ blob, name: `${base}_crop.${format}`, width: outputPlan.width, height: outputPlan.height });
-		} catch {
-			if (operation === generation.current) notifyRef.current('encode');
+		} catch (error) {
+			if (operation === generation.current) {
+				const code = error instanceof Error ? error.message : '';
+
+				notifyRef.current(
+					['memory', 'webpSide', 'outputPixels', 'outputDimensions'].includes(code)
+						? (code as CropError)
+						: 'encode',
+					policy.output
+				);
+			}
 		} finally {
 			if (operation === generation.current) setExporting(false);
 		}
@@ -247,6 +291,8 @@ export const useCrop = (notify: (error: CropError) => void) => {
 	};
 
 	return {
+		policy,
+		transformLimit,
 		canvasRef,
 		source,
 		loading,

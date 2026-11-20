@@ -1,5 +1,8 @@
-import type { BackgroundRequest, ImageWorkerRequest } from '../../model/types';
-import { checkDimensions, createCanvas, loadImage } from './converter';
+import { imagePolicy } from '../../model/imagePolicy';
+import type { ImageWorkerRequest } from '../../model/types';
+import { createCanvas, loadImage } from './converter';
+import { checkOutputDimensions } from './dimensions';
+import { isMemoryAllocationError } from './memory';
 import { type ImageJob, type ImageJobResult, processImage } from './processImage';
 import type { ProcessingResponse } from './processing.worker';
 
@@ -9,9 +12,10 @@ const prepareJpegResize = async (job: Extract<ImageJob, { mode: 'resize' }>, sig
 
 	const { width, height } = job.plan;
 
-	checkDimensions(width, height);
+	const policy = job.policy ?? imagePolicy({ mode: 'resize', format: job.format });
+	checkOutputDimensions(width, height, policy.output, job.format);
 
-	const image = await loadImage(job.file, signal);
+	const image = await loadImage(job.file, signal, policy.input);
 
 	let surface: ReturnType<typeof createCanvas> | undefined;
 
@@ -27,8 +31,9 @@ const prepareJpegResize = async (job: Extract<ImageJob, { mode: 'resize' }>, sig
 
 		try {
 			bitmap = await createImageBitmap(canvas);
-		} catch {
+		} catch (error) {
 			signal.throwIfAborted();
+			if (isMemoryAllocationError(error)) throw new Error('memoryAllocation');
 			throw new Error('workerUnsupported');
 		}
 		if (signal.aborted) {
@@ -42,28 +47,16 @@ const prepareJpegResize = async (job: Extract<ImageJob, { mode: 'resize' }>, sig
 	}
 };
 
-export const estimateImageJobBytes = (job: ImageJob, width: number, height: number) => {
-	const source = width * height;
-	const output = job.mode === 'resize' && !job.plan.error ? job.plan.width * job.plan.height : source;
+export { estimateImageJobBytes } from './memory';
 
-	const avif = job.mode === 'converter' ? job.output === 'avif' : job.mode !== 'background' && job.format === 'avif';
-	const pngOptimizer = job.mode === 'compression' && job.format === 'png';
-	const bytesPerPixel =
-		job.mode === 'background' ? 32 : avif ? 48 : pngOptimizer ? 32 : job.format === 'ico' ? 24 : 16;
-
-	return Math.max(source, output) * bytesPerPixel + (pngOptimizer ? 64 : 32) * 1024 * 1024;
-};
-
-const codecRequest = (data: ImageWorkerRequest | BackgroundRequest, signal: AbortSignal): Promise<ArrayBuffer> =>
+const codecRequest = (data: ImageWorkerRequest, signal: AbortSignal): Promise<ArrayBuffer> =>
 	new Promise((resolve, reject) => {
 		signal.throwIfAborted();
 
-		const worker =
-			data.format === 'background'
-				? new Worker(new URL('./background.worker.ts', import.meta.url), { type: 'module' })
-				: new Worker(new URL('./image.worker.ts', import.meta.url), { type: 'module' });
+		const worker = new Worker(new URL('./image.worker.ts', import.meta.url), { type: 'module' });
 
 		const cleanup = () => {
+			clearTimeout(timer);
 			signal.removeEventListener('abort', abort);
 			worker.terminate();
 		};
@@ -72,6 +65,11 @@ const codecRequest = (data: ImageWorkerRequest | BackgroundRequest, signal: Abor
 			cleanup();
 			reject(signal.reason);
 		};
+
+		const timer = setTimeout(() => {
+			cleanup();
+			reject(new Error('timeout'));
+		}, 180_000);
 
 		signal.addEventListener('abort', abort, { once: true });
 
@@ -84,7 +82,7 @@ const codecRequest = (data: ImageWorkerRequest | BackgroundRequest, signal: Abor
 		worker.onerror = (event) => {
 			event.preventDefault();
 			cleanup();
-			reject(new Error('encode'));
+			reject(new Error(isMemoryAllocationError(event.message) ? 'memoryAllocation' : 'encode'));
 		};
 
 		worker.onmessageerror = () => {
@@ -93,7 +91,7 @@ const codecRequest = (data: ImageWorkerRequest | BackgroundRequest, signal: Abor
 		};
 
 		try {
-			worker.postMessage(data, [data.format === 'png' ? data.buffer : data.image.data.buffer]);
+			worker.postMessage(data, [data.buffer]);
 		} catch (error) {
 			cleanup();
 			reject(error);
@@ -104,8 +102,10 @@ export const createImageProcessor = (signal: AbortSignal) => {
 	let worker: Worker | null = null;
 	let fallback = false;
 	let rejectPending: ((reason: unknown) => void) | undefined;
+	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	const dispose = () => {
+		clearTimeout(timer);
 		worker?.terminate();
 		worker = null;
 
@@ -140,31 +140,39 @@ export const createImageProcessor = (signal: AbortSignal) => {
 						const activeWorker = worker;
 
 						rejectPending = reject;
+						timer = setTimeout(() => {
+							rejectPending = undefined;
+							dispose();
+							reject(new Error('timeout'));
+						}, 180_000);
 
 						activeWorker.onmessage = ({ data }: MessageEvent<ProcessingResponse>) => {
 							if (worker !== activeWorker || data.id !== job.id) return;
+							clearTimeout(timer);
 
 							rejectPending = undefined;
 
 							if ('result' in data) resolve(data.result);
 							else reject(new Error(data.error));
 						};
-						const fail = () => {
+						const fail = (message?: string) => {
 							if (worker !== activeWorker) return;
 
 							const rejectCurrent = rejectPending;
 
 							rejectPending = undefined;
 							dispose();
-							rejectCurrent?.(new Error('workerUnsupported'));
+							rejectCurrent?.(
+								new Error(isMemoryAllocationError(message) ? 'memoryAllocation' : 'workerUnsupported')
+							);
 						};
 
 						activeWorker.onerror = (event) => {
 							event.preventDefault();
-							fail();
+							fail(event.message);
 						};
 
-						activeWorker.onmessageerror = fail;
+						activeWorker.onmessageerror = () => fail();
 
 						try {
 							activeWorker.postMessage(bitmap ? { ...job, bitmap } : job, bitmap ? [bitmap] : []);
@@ -186,13 +194,7 @@ export const createImageProcessor = (signal: AbortSignal) => {
 				}
 			}
 
-			const result = await processImage(
-				job,
-				(image, quality) => codecRequest({ format: 'avif', image, quality }, signal),
-				(buffer) => codecRequest({ format: 'png', buffer }, signal),
-				(request) => codecRequest(request, signal),
-				signal
-			);
+			const result = await processImage(job, (buffer) => codecRequest({ format: 'png', buffer }, signal), signal);
 
 			signal.throwIfAborted();
 			return result;

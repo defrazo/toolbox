@@ -1,8 +1,16 @@
 import { IMAGES } from '../../model/constants';
+import { type ImagePolicy, imagePolicy } from '../../model/imagePolicy';
 import type { ImageFormat, ResizePlan, ResizeSettings } from '../../model/types';
-import { checkDimensions, convertImage } from './converter';
+import { convertImage } from './converter';
+import { checkOutputDimensions, type ImageLimits } from './dimensions';
 
-export const planResize = (width: number, height: number, settings: ResizeSettings): ResizePlan => {
+export const planResize = (
+	width: number,
+	height: number,
+	settings: ResizeSettings,
+	limits?: ImageLimits,
+	format?: ImageFormat
+): ResizePlan => {
 	let nextWidth: number;
 	let nextHeight: number;
 
@@ -27,8 +35,6 @@ export const planResize = (width: number, height: number, settings: ResizeSettin
 			return { error: 'resizeSettings' };
 		}
 
-		if (boundWidth > IMAGES.MAX_SIDE || boundHeight > IMAGES.MAX_SIDE) return { error: 'pixels' };
-
 		const scale = Math.min(boundWidth / width, boundHeight / height);
 
 		nextWidth = settings.keepAspect ? Math.max(1, Math.round(width * scale)) : boundWidth;
@@ -36,11 +42,11 @@ export const planResize = (width: number, height: number, settings: ResizeSettin
 	}
 
 	try {
-		checkDimensions(nextWidth, nextHeight);
+		checkOutputDimensions(nextWidth, nextHeight, limits ?? imagePolicy({ mode: 'resize', format }).output, format);
 
 		return { width: nextWidth, height: nextHeight };
-	} catch {
-		return { error: 'pixels' };
+	} catch (error) {
+		return { error: error instanceof Error && error.message === 'webpSide' ? 'webpSide' : 'outputPixels' };
 	}
 };
 
@@ -48,12 +54,12 @@ export const resizeImage = async (
 	file: File,
 	format: ImageFormat,
 	plan: ResizePlan,
-	encodeAvif: (data: ImageData, quality?: number) => Promise<ArrayBuffer>,
 	signal?: AbortSignal,
-	prepared?: ImageBitmap
+	prepared?: ImageBitmap,
+	policy: ImagePolicy = imagePolicy({ mode: 'resize', format })
 ) => {
 	if (format === 'ico') throw new Error('resizeUnsupported');
 	if (plan.error) throw new Error(plan.error);
 
-	return convertImage(file, format, format, (data) => encodeAvif(data, 80), 0.9, plan, signal, prepared);
+	return convertImage(file, format, format, 0.9, plan, signal, prepared, policy);
 };
