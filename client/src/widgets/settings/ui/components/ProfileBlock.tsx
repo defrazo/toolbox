@@ -4,20 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, CircleUserRound, Mail, Save } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
 import { updateEmail, updateProfile } from '@/entities/user';
-import { emailCooldown, getAuthErrorMessage, useAuth } from '@/features/auth';
+import { createAuthChecks, emailCooldown, getAuthErrorMessage } from '@/features/auth';
 import { Button, Input } from '@/shared/ui';
 
-import { Row } from '.';
+import type { SettingsWidgetProps } from '../../model/types';
+import { Row } from './Row';
 
-export const ProfileBlock = observer(() => {
+type ProfileBlockProps = Pick<SettingsWidgetProps, 'userStore' | 'onNotice'>;
+
+export const ProfileBlock = observer(({ userStore, onNotice }: ProfileBlockProps) => {
 	const { t: tAuth } = useTranslation('auth');
 	const { t: tSettings } = useTranslation('settings');
 	const navigate = useNavigate();
 
-	const { userStore, notifyStore } = useStore();
-	const { checkUsername, checkEmail } = useAuth(tAuth);
+	const { checkUsername, checkEmail } = createAuthChecks(tAuth, (message) => onNotice(message, 'info'));
 
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -40,12 +41,12 @@ export const ProfileBlock = observer(() => {
 
 			userStore.setUser(data.user);
 
-			notifyStore.setNotice(
+			onNotice(
 				tSettings(($) => $.success.username),
 				'success'
 			);
 		} catch {
-			notifyStore.setNotice(
+			onNotice(
 				tSettings(($) => $.errors.username),
 				'error'
 			);
@@ -66,13 +67,13 @@ export const ProfileBlock = observer(() => {
 			userStore.setUser(data.user);
 			emailCooldown.start();
 
-			notifyStore.setNotice(
+			onNotice(
 				tSettings(($) => $.success.email),
 				'info'
 			);
 		} catch (error: any) {
 			const code = error?.response?.data?.code;
-			notifyStore.setNotice(getAuthErrorMessage(tAuth, code), 'error');
+			onNotice(getAuthErrorMessage(tAuth, code), 'error');
 		} finally {
 			setIsLoading(false);
 		}

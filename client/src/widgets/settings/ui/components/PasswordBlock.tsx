@@ -3,20 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { Eye, EyeClosed, Lock, LockKeyhole, LockOpen } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 
-import { useStore } from '@/app/providers';
 import { updatePassword } from '@/entities/user';
-import { getAuthErrorMessage, PasswordHint, useAuth } from '@/features/auth';
+import { createAuthChecks, getAuthErrorMessage, PasswordHint } from '@/features/auth';
 import { cn } from '@/shared/lib/utils';
 import { Button, Divider, Input } from '@/shared/ui';
 
-import { Row } from '.';
+import type { SettingsWidgetProps } from '../../model/types';
+import { Row } from './Row';
 
-export const PasswordBlock = observer(() => {
+type PasswordBlockProps = Pick<SettingsWidgetProps, 'onNotice'>;
+
+export const PasswordBlock = observer(({ onNotice }: PasswordBlockProps) => {
 	const { t: tSettings } = useTranslation('settings');
 	const { t: tAuth } = useTranslation('auth');
 
-	const { notifyStore } = useStore();
-	const { checkPassword } = useAuth(tAuth);
+	const { checkPassword } = createAuthChecks(tAuth, (message) => onNotice(message, 'info'));
 
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +38,7 @@ export const PasswordBlock = observer(() => {
 		if (!checkPassword(passNew)) return;
 
 		if (passNew !== passConfirm) {
-			notifyStore.setNotice(
+			onNotice(
 				tAuth(($) => $.errors.invalid.passwordMismatch),
 				'info'
 			);
@@ -53,7 +54,7 @@ export const PasswordBlock = observer(() => {
 				password_confirmation: passConfirm,
 			});
 
-			notifyStore.setNotice(
+			onNotice(
 				tSettings(($) => $.success.password),
 				'success'
 			);
@@ -65,7 +66,7 @@ export const PasswordBlock = observer(() => {
 			setVisiblePass(false);
 		} catch (error: any) {
 			const code = error?.response?.data?.code;
-			notifyStore.setNotice(getAuthErrorMessage(tAuth, code), 'error');
+			onNotice(getAuthErrorMessage(tAuth, code), 'error');
 		} finally {
 			setIsLoading(false);
 		}
