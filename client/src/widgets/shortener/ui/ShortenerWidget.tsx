@@ -3,17 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'lucide-react';
 import { reaction } from 'mobx';
 
-import { useStore } from '@/app/providers';
+import { shortLinksApi } from '@/entities/short-link';
+import type { TabsStore } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, Input } from '@/shared/ui';
 
-import { shortenApi } from '../api';
-import { ResultBlock } from './components/shortener';
+import { ResultBlock } from './components';
 
-export const TabShortener = () => {
+interface ShortenerWidgetProps {
+	navigation: Pick<TabsStore, 'shortcut' | 'consumeShortcut'>;
+	onOpenLinks: () => void;
+	onNotice: (message: string, type: 'success' | 'error') => void;
+}
+
+export const ShortenerWidget = ({ navigation, onOpenLinks, onNotice }: ShortenerWidgetProps) => {
 	const { t } = useTranslation('shortener');
-
-	const { notifyStore, tabsStore } = useStore();
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [url, setUrl] = useState('');
@@ -25,10 +29,10 @@ export const TabShortener = () => {
 		setIsLoading(true);
 
 		try {
-			const link = await shortenApi(url);
+			const link = await shortLinksApi.createLink(url);
 			setShortUrl(link.shortUrl);
 		} catch {
-			notifyStore.setNotice(
+			onNotice(
 				t(($) => $.result.error),
 				'error'
 			);
@@ -45,15 +49,20 @@ export const TabShortener = () => {
 	useEffect(
 		() =>
 			reaction(
-				() => tabsStore.shortcut,
+				() => navigation.shortcut,
 				(request) => {
-					if (request?.type !== 'paste-url' || !tabsStore.consumeShortcut(request.id)) return;
-					setUrl(request.text);
+					if (
+						request?.type !== 'paste-url' ||
+						typeof request.payload !== 'string' ||
+						!navigation.consumeShortcut(request.id)
+					)
+						return;
+					setUrl(request.payload);
 					setShortUrl('');
 				},
 				{ fireImmediately: true }
 			),
-		[tabsStore]
+		[navigation]
 	);
 
 	return (
@@ -91,11 +100,8 @@ export const TabShortener = () => {
 					</Button>
 				</form>
 			</div>
-			{shortUrl && <ResultBlock shortUrl={shortUrl} />}
-			<Button
-				className="mx-auto w-full text-(--color-secondary) xl:w-72"
-				onClick={() => tabsStore.setTab('links')}
-			>
+			{shortUrl && <ResultBlock shortUrl={shortUrl} onCopied={(message) => onNotice(message, 'success')} />}
+			<Button className="mx-auto w-full text-(--color-secondary) xl:w-72" onClick={onOpenLinks}>
 				{t(($) => $.result.recent)}
 			</Button>
 		</>

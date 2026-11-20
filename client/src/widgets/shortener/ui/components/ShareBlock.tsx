@@ -4,10 +4,9 @@ import { type LucideIcon, MessageCircleMore, QrCode } from 'lucide-react';
 
 import { IconTG, IconVK } from '@/shared/assets/icons';
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui';
+import { Button, QrCodeBlock } from '@/shared/ui';
 
-import { share } from '../../../lib';
-import { QrCodeBlock } from '.';
+import { share } from '../../lib/share';
 
 type ShareButton = {
 	id: string;
@@ -69,7 +68,7 @@ export const ShareBlock = ({ shortUrl }: { shortUrl: string }) => {
 					</Button>
 				))}
 			</div>
-			{showQrCode && <QrCodeBlock value={shortUrl} />}
+			{showQrCode && <QrCodeBlock downloadLabel={t(($) => $.share.downloadQr)} value={shortUrl} />}
 		</div>
 	);
 };

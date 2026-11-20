@@ -1,24 +1,21 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, Copy, Infinity, Link2, Timer } from 'lucide-react';
 
+import type { ShortLink } from '@/entities/short-link';
 import { fullDate } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-import { getTtl } from '../../../lib';
-import { type ShortLink, useLinksTable } from '../../../model';
-import { LinkActions } from '.';
+import { getTtl } from '../../lib/ttl';
 
 interface LinkCardProps {
 	link: ShortLink;
-	pendingId: number | null;
-	onLock: (id: number) => void;
-	onDelete: (id: number) => void;
+	actions: ReactNode;
+	onCopy: (text: string) => void;
 }
 
-export const LinkCard = ({ link, pendingId, onLock, onDelete }: LinkCardProps) => {
+export const LinkCard = ({ link, actions, onCopy }: LinkCardProps) => {
 	const { t } = useTranslation('links');
-
-	const { copyLink } = useLinksTable();
 
 	const ttl = getTtl(link.createdAt, Date.now());
 
@@ -37,7 +34,6 @@ export const LinkCard = ({ link, pendingId, onLock, onDelete }: LinkCardProps) =
 					>
 						{link.shortUrl}
 					</a>
-
 					<span className="max-w-[55vw] truncate text-xs text-(--color-secondary)">{link.originalUrl}</span>
 				</div>
 				<Button
@@ -48,7 +44,7 @@ export const LinkCard = ({ link, pendingId, onLock, onDelete }: LinkCardProps) =
 					size="custom"
 					title={t(($) => $.table.hint.shortUrl)}
 					variant="mobile"
-					onClick={() => copyLink(link.shortUrl)}
+					onClick={() => onCopy(link.shortUrl)}
 				/>
 			</div>
 			<div className="flex items-center justify-between border-b border-(--border-color) py-4 text-sm">
@@ -74,7 +70,7 @@ export const LinkCard = ({ link, pendingId, onLock, onDelete }: LinkCardProps) =
 					{link.clicks}
 				</div>
 			</div>
-			<LinkActions link={link} pendingId={pendingId} onDelete={onDelete} onLock={onLock} />
+			{actions}
 		</div>
 	);
 };

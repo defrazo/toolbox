@@ -1,13 +1,16 @@
 import { useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 import { QRCode } from 'react-qr-code';
 import { Download } from 'lucide-react';
 
-import { Button } from '@/shared/ui';
+import { Button } from '../../../inputs/button';
 
-export const QrCodeBlock = ({ value, onDownloaded }: { value: string; onDownloaded?: () => void }) => {
-	const { t } = useTranslation('shortener');
+interface QrCodeBlockProps {
+	value: string;
+	downloadLabel: string;
+	onDownloaded?: () => void;
+}
 
+export const QrCodeBlock = ({ value, downloadLabel, onDownloaded }: QrCodeBlockProps) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const handleDownload = () => {
@@ -53,7 +56,7 @@ export const QrCodeBlock = ({ value, onDownloaded }: { value: string; onDownload
 				variant="ghost"
 				onClick={handleDownload}
 			>
-				{t(($) => $.share.downloadQr)}
+				{downloadLabel}
 			</Button>
 		</div>
 	);

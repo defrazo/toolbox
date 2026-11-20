@@ -4,12 +4,17 @@ import { Link } from 'lucide-react';
 import { useCopy } from '@/shared/lib/hooks';
 import { Button, Input } from '@/shared/ui';
 
-import { ShareBlock } from '.';
+import { ShareBlock } from './ShareBlock';
 
-export const ResultBlock = ({ shortUrl }: { shortUrl: string }) => {
+interface ResultBlockProps {
+	shortUrl: string;
+	onCopied: (message: string) => void;
+}
+
+export const ResultBlock = ({ shortUrl, onCopied }: ResultBlockProps) => {
 	const { t } = useTranslation('shortener');
 
-	const copy = useCopy();
+	const copy = useCopy(onCopied);
 
 	const onCopy = () =>
 		copy(

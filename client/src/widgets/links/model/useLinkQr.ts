@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { useCopy } from '@/shared/lib/hooks';
-
-export const useLinksTable = () => {
-	const { t } = useTranslation('links');
-	const copy = useCopy();
-
+export const useLinkQr = () => {
 	const [openQr, setOpenQr] = useState<string | null>(null);
 
 	const qrContainerRef = useRef<HTMLDivElement>(null);
@@ -15,13 +9,6 @@ export const useLinksTable = () => {
 	const closeQr = () => setOpenQr(null);
 
 	const toggleQr = (code: string) => setOpenQr((prev) => (prev === code ? null : code));
-
-	const copyLink = (text: string) => {
-		copy(
-			text,
-			t((t) => t.success.linkCopied)
-		);
-	};
 
 	const setQrButtonRef = (code: string) => (element: HTMLButtonElement | null) => {
 		if (element) qrButtonRefs.current.set(code, element);
@@ -47,5 +34,5 @@ export const useLinksTable = () => {
 		return () => document.removeEventListener('pointerdown', handleOutside);
 	}, [openQr, setOpenQr]);
 
-	return { openQr, qrContainerRef, closeQr, setQrButtonRef, toggleQr, copyLink };
+	return { openQr, qrContainerRef, closeQr, setQrButtonRef, toggleQr };
 };

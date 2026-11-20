@@ -1,27 +1,22 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Copy, Infinity, Timer } from 'lucide-react';
 
+import type { ShortLink } from '@/entities/short-link';
 import { cn, fullDate } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
-import { getTtl } from '../../../lib';
-import { type ShortLink, useLinksTable } from '../../../model';
-import { LinkActions } from '.';
-
-const TABLE_GRID =
-	'grid-cols-[minmax(150px,2fr)_minmax(150px,2fr)_minmax(100px,1.5fr)_minmax(100px,1fr)_minmax(100px,1fr)_minmax(100px,1fr)] gap-6';
+import { getTtl } from '../../lib/ttl';
+import { TABLE_GRID } from '../../model/constants';
 
 interface LinkRowProps {
 	link: ShortLink;
-	pendingId: number | null;
-	onLock: (id: number) => void;
-	onDelete: (id: number) => void;
+	actions: ReactNode;
+	onCopy: (text: string) => void;
 }
 
-export const LinkRow = ({ link, pendingId, onLock, onDelete }: LinkRowProps) => {
+export const LinkRow = ({ link, actions, onCopy }: LinkRowProps) => {
 	const { t } = useTranslation('links');
-
-	const { copyLink } = useLinksTable();
 
 	const ttl = getTtl(link.createdAt, Date.now());
 
@@ -43,7 +38,7 @@ export const LinkRow = ({ link, pendingId, onLock, onDelete }: LinkRowProps) => 
 					size="custom"
 					title={t(($) => $.table.hint.shortUrl)}
 					variant="mobile"
-					onClick={() => copyLink(link.shortUrl)}
+					onClick={() => onCopy(link.shortUrl)}
 				/>
 			</div>
 			<div className="flex gap-3 py-4">
@@ -60,7 +55,7 @@ export const LinkRow = ({ link, pendingId, onLock, onDelete }: LinkRowProps) => 
 					size="custom"
 					title={t(($) => $.table.hint.originalUrl)}
 					variant="mobile"
-					onClick={() => copyLink(link.originalUrl)}
+					onClick={() => onCopy(link.originalUrl)}
 				/>
 			</div>
 			<div className="mx-auto mt-0.5 flex py-4 text-sm text-(--color-secondary)">{fullDate(link.createdAt)}</div>
@@ -84,7 +79,7 @@ export const LinkRow = ({ link, pendingId, onLock, onDelete }: LinkRowProps) => 
 			<div className="mx-auto my-4 flex w-fit min-w-10 items-center justify-center rounded-lg bg-(--bg-tertiary) px-3 py-1 text-sm font-medium">
 				{link.clicks}
 			</div>
-			<LinkActions link={link} pendingId={pendingId} onDelete={onDelete} onLock={onLock} />
+			{actions}
 		</div>
 	);
 };

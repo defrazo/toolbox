@@ -1,34 +1,31 @@
 import { useTranslation } from 'react-i18next';
 import { ExternalLink, Lock, LockOpen, QrCode, Trash2 } from 'lucide-react';
 
-import { useStore } from '@/app/providers';
+import type { ShortLink } from '@/entities/short-link';
 import { cn } from '@/shared/lib/utils';
-import { Button } from '@/shared/ui';
+import { Button, QrCodeBlock } from '@/shared/ui';
 
-import { type ShortLink, useLinksTable } from '../../../model';
-import { QrCodeBlock } from '../shortener';
+import { useLinkQr } from '../../model/useLinkQr';
 
 interface LinkActionsProps {
 	link: ShortLink;
 	pendingId: number | null;
 	onLock: (id: number) => void;
 	onDelete: (id: number) => void;
+	onDownloaded: () => void;
 }
 
-export const LinkActions = ({ link, pendingId, onLock, onDelete }: LinkActionsProps) => {
+export const LinkActions = ({ link, pendingId, onLock, onDelete, onDownloaded }: LinkActionsProps) => {
 	const { t } = useTranslation('links');
+	const { t: tShortener } = useTranslation('shortener');
 
-	const { notifyStore } = useStore();
-	const { openQr, qrContainerRef, toggleQr, setQrButtonRef, closeQr } = useLinksTable();
+	const { openQr, qrContainerRef, toggleQr, setQrButtonRef, closeQr } = useLinkQr();
 
 	const action = 'size-5 text-(--color-secondary) transition-transform hover:scale-125';
 
 	const handleDownlodad = () => {
 		closeQr();
-		notifyStore.setNotice(
-			t((t) => t.success.qrDownloaded),
-			'success'
-		);
+		onDownloaded();
 	};
 
 	return (
@@ -88,7 +85,11 @@ export const LinkActions = ({ link, pendingId, onLock, onDelete }: LinkActionsPr
 					openQr === link.code ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
 				)}
 			>
-				<QrCodeBlock value={link.shortUrl} onDownloaded={handleDownlodad} />
+				<QrCodeBlock
+					downloadLabel={tShortener(($) => $.share.downloadQr)}
+					value={link.shortUrl}
+					onDownloaded={handleDownlodad}
+				/>
 			</div>
 		</div>
 	);
