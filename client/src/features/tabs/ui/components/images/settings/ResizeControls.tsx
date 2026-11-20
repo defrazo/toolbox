@@ -32,7 +32,7 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 							key={unit}
 							aria-pressed={resize.unit === unit}
 							className={cn(
-								'h-8 flex-1 rounded-lg first:rounded-r-none last:rounded-l-none',
+								'h-7 flex-1 rounded-lg text-sm first:rounded-r-none last:rounded-l-none',
 								resize.unit === unit && 'active-btn'
 							)}
 							disabled={disabled}
@@ -55,7 +55,7 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 									{t(($) => $.resize[side])}
 								</label>
 								<Input
-									className="h-8 min-w-0 rounded-lg"
+									className="h-7 min-w-0 rounded-lg text-sm"
 									disabled={disabled}
 									id={`images-${side}`}
 									max={IMAGES.MAX_SIDE}
@@ -64,6 +64,7 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 									step={1}
 									type="number"
 									value={resize[side]}
+									wheelStep
 									onChange={(event) => setSide(side, event.target.value)}
 								/>
 							</div>
@@ -97,9 +98,6 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 							</span>
 							{t(($) => $.resize.keepAspect)}
 						</label>
-						<span className="text-xs text-(--color-secondary)">
-							{t(($) => $.resize[resize.keepAspect ? 'fitShort' : 'exactShort'])}
-						</span>
 					</div>
 				</>
 			) : (
@@ -108,7 +106,7 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 						{t(($) => $.resize.scale)}
 					</label>
 					<Input
-						className="h-8 min-w-0 rounded-lg"
+						className="h-7 min-w-0 rounded-lg text-sm"
 						disabled={disabled}
 						id="images-percent"
 						max={IMAGES.RESIZE.MAX_PERCENT}
@@ -116,11 +114,9 @@ export const ResizeControls = ({ resize, disabled, setSide, setUnit, setPercent,
 						step="any"
 						type="number"
 						value={resize.percent}
+						wheelStep
 						onChange={(event) => setPercent(event.target.value)}
 					/>
-					<span className="text-xs text-(--color-secondary) select-none">
-						{t(($) => $.resize.percentShort)}
-					</span>
 				</div>
 			)}
 		</div>
@@ -141,7 +137,6 @@ export const ResizeInfo = ({ resize }: { resize: ResizeSettings }) => {
 				)}
 			</span>
 			<span>{t(($) => $.resize.switchHint)}</span>
-			<span>{t(($) => $.resize.limits)}</span>
 		</>
 	);
 };

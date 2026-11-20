@@ -1,5 +1,3 @@
-export * from './background';
-export * from './backgroundPixels';
 export * from './compression';
 export * from './converter';
 export * from './crop';

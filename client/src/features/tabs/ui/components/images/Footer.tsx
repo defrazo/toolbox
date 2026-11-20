@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Square, Trash2 } from 'lucide-react';
 
 import { Button } from '@/shared/ui';
 
@@ -10,24 +10,34 @@ interface FooterProps {
 	readyCount: number;
 	busy: boolean;
 	zipProgress: number | null;
-	isBackground: boolean;
+	isPreparing: boolean;
+	onCancelPreparation: () => void;
 	onClear: () => void;
 	onDownload: () => void;
 }
 
-export const Footer = ({ count, readyCount, busy, zipProgress, isBackground, onClear, onDownload }: FooterProps) => {
+export const Footer = ({
+	count,
+	readyCount,
+	busy,
+	zipProgress,
+	isPreparing,
+	onCancelPreparation,
+	onClear,
+	onDownload,
+}: FooterProps) => {
 	const { t } = useTranslation('images');
 
 	return (
 		<div className="flex flex-col gap-3 border-t border-(--border-color) pt-3">
 			<Button
-				className="active-btn w-full min-w-0"
-				disabled={busy || readyCount === 0}
-				leftIcon={<Download className="size-4" />}
+				className="active-btn h-8 w-full min-w-0 rounded-lg"
+				disabled={!isPreparing && (busy || readyCount === 0)}
+				leftIcon={isPreparing ? <Square className="size-4" /> : <Download className="size-4" />}
 				loading={zipProgress !== null}
-				onClick={onDownload}
+				onClick={isPreparing ? onCancelPreparation : onDownload}
 			>
-				{t(($) => $.download, { count: readyCount })}
+				{isPreparing ? t(($) => $.cancelPreparation) : t(($) => $.download, { count: readyCount })}
 			</Button>
 			{zipProgress !== null && (
 				<p className="text-xs text-(--color-secondary)" role="status">
@@ -35,12 +45,12 @@ export const Footer = ({ count, readyCount, busy, zipProgress, isBackground, onC
 				</p>
 			)}
 			<div className="flex flex-wrap items-center justify-between gap-2">
-				<div className="h-8 rounded-lg bg-(--accent-primary-dark) px-3 py-1.5 text-center text-sm text-(--color-accent) select-none">
+				<div className="h-8 flex-1 rounded-lg bg-(--accent-primary-dark) px-3 py-1.5 text-center text-sm text-(--color-accent) select-none">
 					{t(($) => $.selected, { count })} / {IMAGES.MAX_FILES}
 				</div>
 				<Button
-					className="h-8 rounded-lg"
-					disabled={(!isBackground && busy) || count === 0}
+					className="h-8 flex-1 rounded-lg text-sm"
+					disabled={busy || count === 0}
 					leftIcon={<Trash2 className="size-4" />}
 					onClick={onClear}
 				>

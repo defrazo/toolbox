@@ -62,6 +62,9 @@ export const Preview = ({ image, transform, zoom, crop, aspect, disabled, canvas
 		if (!canvas || !image.naturalWidth) return;
 
 		drawCropSource(canvas, image, transform);
+		return () => {
+			canvas.width = canvas.height = 0;
+		};
 	}, [canvasRef, image, transform]);
 
 	return (

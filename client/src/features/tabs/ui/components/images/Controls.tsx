@@ -22,6 +22,7 @@ interface ControlsProps {
 	settings: ReactNode;
 	info: ReactNode;
 	onCancel: () => void;
+	onCancelPreparation: () => void;
 	onClear: () => void;
 	onProcess: () => void;
 	onDownload: () => void | Promise<void>;
@@ -41,6 +42,7 @@ export const Controls = ({
 	settings,
 	info,
 	onCancel,
+	onCancelPreparation,
 	onClear,
 	onProcess,
 	onDownload,
@@ -61,20 +63,19 @@ export const Controls = ({
 	return (
 		<div className="core-border flex min-w-0 flex-1 scrollbar-none flex-col overflow-y-auto bg-(--bg-secondary)/70 p-3 shadow-(--shadow)">
 			{settings}
-			<details className="group/hint mt-2 text-xs text-(--color-secondary)">
-				<summary className="group flex cursor-pointer list-none items-center gap-1.5 rounded py-1 transition-colors select-none focus-visible:outline focus-visible:outline-(--accent-primary-hover) [&::-webkit-details-marker]:hidden">
-					<Info className="size-3.5 shrink-0 group-hover:text-(--color-accent)" />
-					<span className="mb-0.5 group-hover:text-(--color-accent)">{t(($) => $.info)}</span>
-					<ChevronDown className="ml-auto size-3.5 shrink-0 transition-transform group-open/hint:rotate-180 group-hover:text-(--color-accent)" />
-				</summary>
-				<div className="mt-1 flex flex-col gap-2 border-t border-(--border-color) pt-2 leading-relaxed">
-					<span>{t(($) => $.limits)}</span>
-					{info}
-				</div>
-			</details>
+			{info && (
+				<details className="group/hint mt-2 text-xs text-(--color-secondary)">
+					<summary className="group flex cursor-pointer list-none items-center gap-1.5 rounded py-1 transition-colors select-none focus-visible:outline focus-visible:outline-(--accent-primary-hover) [&::-webkit-details-marker]:hidden">
+						<Info className="size-3.5 shrink-0 group-hover:text-(--color-accent)" />
+						<span className="mb-0.5 group-hover:text-(--color-accent)">{t(($) => $.info)}</span>
+						<ChevronDown className="ml-auto size-3.5 shrink-0 transition-transform group-open/hint:rotate-180 group-hover:text-(--color-accent)" />
+					</summary>
+					<div className="mt-1 flex flex-col gap-1 border-t border-(--border-color) pt-2">{info}</div>
+				</details>
+			)}
 			<div className="mt-auto flex flex-col gap-3 pt-3">
-				<div className="min-w-0 xl:h-16">
-					{currentProgress && (
+				{currentProgress && (
+					<div className="min-w-0 xl:h-10">
 						<div className="flex h-full min-w-0 flex-col justify-center gap-1 text-xs">
 							<div className="flex min-w-0 items-center justify-between gap-2">
 								<span className="truncate font-medium" title={title}>
@@ -103,11 +104,11 @@ export const Controls = ({
 								)}
 							</div>
 						</div>
-					)}
-				</div>
+					</div>
+				)}
 				<Button
 					className={cn(
-						'w-full min-w-0',
+						'h-8 w-full min-w-0 rounded-lg',
 						isProcessing ? 'bg-(--status-error)/70 hover:bg-(--status-error)/90' : 'active-btn'
 					)}
 					disabled={!isProcessing && (busy || !canProcess)}
@@ -118,9 +119,10 @@ export const Controls = ({
 				<Footer
 					busy={busy}
 					count={count}
-					isBackground={mode === 'background'}
+					isPreparing={preparationProgress !== null && !isProcessing}
 					readyCount={readyCount}
 					zipProgress={zipProgress}
+					onCancelPreparation={onCancelPreparation}
 					onClear={onClear}
 					onDownload={onDownload}
 				/>

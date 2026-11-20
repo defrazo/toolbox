@@ -17,7 +17,7 @@ export const ConverterSettings = ({ disabled, format, setFormat }: ConverterSett
 		<div className="flex min-w-0 flex-col gap-1">
 			<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.output)}</span>
 			<SelectExt
-				className="h-8 rounded-lg"
+				className="h-7 rounded-lg text-sm"
 				disabled={disabled}
 				options={IMAGES.CONVERTER.FORMATS.map((value) => ({ value, label: value.toUpperCase() }))}
 				value={format}

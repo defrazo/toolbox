@@ -56,8 +56,12 @@ export const FileArea = ({ editor, isDropActive, dragProps, uploadRef }: FileAre
 						<span className={cn(isDropActive && 'animate-pulse')}>
 							{loading ? t(($) => $.status.loading) : t(($) => $.crop.drop)}
 						</span>
-						<span className="text-sm font-normal text-(--color-tertiary)">JPG · PNG · WebP · AVIF</span>
-						<span className="text-sm font-normal text-(--color-tertiary)">{t(($) => $.crop.limits)}</span>
+						<span className="text-sm font-normal text-(--color-tertiary)">JPG · PNG · WebP</span>
+						<span className="text-sm font-normal text-(--color-tertiary)">
+							{t(($) => $.crop.limits, {
+								megapixels: editor.policy.input.maxPixels / 1_000_000,
+							})}
+						</span>
 					</div>
 				</button>
 			) : (

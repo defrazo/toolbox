@@ -14,7 +14,7 @@ interface ModeTabsProps {
 	onModeChange: (mode: Mode) => void;
 }
 
-const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'background', 'crop'];
+const MODES: readonly Mode[] = ['converter', 'compression', 'resize', 'crop'];
 
 export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps) => {
 	const { t } = useTranslation('images');
@@ -72,7 +72,7 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 				(request) => {
 					if (
 						!request ||
-						(request.type !== 'background' && request.type !== 'crop') ||
+						request.type !== 'crop' ||
 						request.type === mode ||
 						handledRequest.current === request.id
 					)
@@ -114,7 +114,7 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 		<div
 			ref={tabsRef}
 			aria-label={t(($) => $.mode)}
-			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 divide-x divide-(--border-color)/50 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) not-xl:gap-1 xl:flex xl:h-12 xl:overflow-x-auto"
+			className="core-border core-scrollbar grid w-full min-w-0 shrink-0 grid-cols-2 divide-x divide-(--border-color)/50 bg-(--bg-tertiary)/70 p-1 shadow-(--shadow) not-xl:gap-1 xl:flex xl:h-13 xl:overflow-x-auto"
 			role="group"
 		>
 			{MODES.map((value) => (
@@ -122,9 +122,8 @@ export const ModeTabs = ({ mode, hasWork = false, onModeChange }: ModeTabsProps)
 					key={value}
 					aria-pressed={mode === value}
 					className={cn(
-						'min-w-0 rounded-lg px-3 py-2.5 text-base whitespace-nowrap transition-all duration-500 ease-out hover:-translate-y-px hover:border-(--accent-primary-hover) xl:flex-1 xl:py-2 xl:not-first:rounded-l-none xl:not-last:rounded-r-none',
-						mode === value && 'active-btn',
-						value === 'crop' && 'col-span-2'
+						'min-w-0 rounded-lg px-3 py-2.5 text-base whitespace-nowrap transition-all duration-500 ease-out hover:border-(--accent-primary-hover) xl:flex-1 xl:py-2 xl:not-first:rounded-l-none xl:not-last:rounded-r-none',
+						mode === value && 'active-btn-static'
 					)}
 					onClick={() => handleModeChange(value)}
 				>

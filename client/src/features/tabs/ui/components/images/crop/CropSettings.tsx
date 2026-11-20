@@ -11,6 +11,7 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 	const { t } = useTranslation('images');
 
 	const { outputPlan, result, transform } = editor;
+	const outputError = outputPlan.error;
 	const hasSource = !!editor.source;
 	const disabled = editor.exporting || !hasSource;
 
@@ -23,10 +24,18 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 
 	return (
 		<div className="flex min-w-0 flex-1 flex-col gap-3">
+			{outputError && (
+				<p className="text-xs text-(--status-error)" role="status">
+					{t(($) => $.crop.outputErrors[outputError], {
+						megapixels: editor.policy.output.maxPixels / 1_000_000,
+						maxSide: editor.policy.output.maxSide,
+					})}
+				</p>
+			)}
 			<div className="flex min-w-0 flex-col gap-1.5">
 				<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.crop.aspect)}</span>
 				<SelectExt
-					className="h-8 rounded-lg"
+					className="h-7 rounded-lg text-sm"
 					disabled={disabled}
 					options={IMAGES.CROP.ASPECTS.map((value) => ({
 						value,
@@ -42,11 +51,15 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 			{editor.aspect === 'custom' && (
 				<div className="grid grid-cols-2 gap-2">
 					{(['width', 'height'] as const).map((side) => (
-						<div key={side} className="min-w-0">
-							<label className="text-xs" htmlFor={`crop-aspect-${side}`}>
+						<div key={side} className="flex min-w-0 flex-col gap-1.5">
+							<label
+								className="text-sm text-(--color-secondary) select-none"
+								htmlFor={`crop-aspect-${side}`}
+							>
 								{t(($) => $.resize[side])}
 							</label>
 							<Input
+								className="h-7 rounded-lg text-sm"
 								disabled={disabled}
 								id={`crop-aspect-${side}`}
 								max={1000}
@@ -54,6 +67,7 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 								step={1}
 								type="number"
 								value={editor.custom[side]}
+								wheelStep
 								onChange={(event) => editor.setCustom(side, event.target.value)}
 							/>
 						</div>
@@ -61,9 +75,9 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 				</div>
 			)}
 			{editor.aspect === 'custom' && !editor.ratio && (
-				<span className="text-xs text-(--status-error)">{t(($) => $.crop.aspectHint)}</span>
+				<span className="text-xs text-(--status-error) select-none">{t(($) => $.crop.aspectHint)}</span>
 			)}
-			<div className="flex flex-col gap-1.5">
+			<div className="flex flex-col">
 				<div className="flex items-center gap-2 text-(--color-secondary) select-none">
 					<span className="text-sm">
 						{t(($) => $.crop.zoom)}: {editor.zoom}%
@@ -82,25 +96,26 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 					type="range"
 					value={editor.zoom}
 					variant="custom"
+					wheelStep
 					onChange={(event) => editor.setZoom(Number(event.target.value))}
 				/>
 			</div>
 			<div className="flex min-w-0 flex-col gap-1.5">
-				<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.output)}</span>
+				<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.crop.transform)}</span>
 				<div className="grid grid-cols-2 gap-2">
 					<Button
-						className="h-8 rounded-lg"
+						className="h-7 rounded-lg"
 						disabled={disabled}
-						leftIcon={<RotateCcw className="size-4" />}
+						leftIcon={<RotateCcw className="size-3.5" />}
 						size="sm"
 						onClick={() => editor.rotate(-1)}
 					>
 						−90°
 					</Button>
 					<Button
-						className="h-8 rounded-lg"
+						className="h-7 rounded-lg"
 						disabled={disabled}
-						leftIcon={<RotateCw className="size-4" />}
+						leftIcon={<RotateCw className="size-3.5" />}
 						size="sm"
 						onClick={() => editor.rotate(1)}
 					>
@@ -108,16 +123,16 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 					</Button>
 					<Button
 						aria-pressed={transform.flipX}
-						centerIcon={<FlipHorizontal2 className="size-5" />}
-						className={cn('h-8 rounded-lg', transform.flipX && 'active-btn')}
+						centerIcon={<FlipVertical2 className="size-3.5" />}
+						className={cn('h-7 rounded-lg', transform.flipX && 'active-btn')}
 						disabled={disabled}
 						title={t(($) => $.crop.flipHorizontal)}
 						onClick={() => editor.flip('flipX')}
 					/>
 					<Button
 						aria-pressed={transform.flipY}
-						centerIcon={<FlipVertical2 className="size-5" />}
-						className={cn('h-8 rounded-lg', transform.flipY && 'active-btn')}
+						centerIcon={<FlipHorizontal2 className="size-3.5" />}
+						className={cn('h-7 rounded-lg', transform.flipY && 'active-btn')}
 						disabled={disabled}
 						title={t(($) => $.crop.flipVertical)}
 						onClick={() => editor.flip('flipY')}
@@ -127,11 +142,11 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 					{t(($) => $.crop.reset)}
 				</Button>
 			</div>
-			<div className="flex min-w-0 flex-1 flex-col gap-2 pb-3">
+			<div className="flex min-w-0 flex-1 flex-col gap-2">
 				<div className="flex flex-col gap-1.5">
 					<span className="text-sm text-(--color-secondary) select-none">{t(($) => $.output)}</span>
 					<SelectExt
-						className="h-8 rounded-lg"
+						className="h-7 rounded-lg text-sm"
 						disabled={disabled}
 						options={IMAGES.CROP.FORMATS.map((value) => ({ value, label: value.toUpperCase() }))}
 						value={editor.format}
@@ -139,7 +154,7 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 					/>
 				</div>
 				{editor.format !== 'png' && (
-					<div className="flex flex-col gap-1.5">
+					<div className="flex flex-col">
 						<label className="text-sm text-(--color-secondary) select-none" htmlFor="crop-quality">
 							{t(($) => $.compression.quality)}: {editor.quality}%
 						</label>
@@ -153,12 +168,13 @@ export const CropSettings = ({ editor }: { editor: ReturnType<typeof useCrop> })
 							type="range"
 							value={editor.quality}
 							variant="custom"
+							wheelStep
 							onChange={(event) => editor.setQuality(Number(event.target.value))}
 						/>
 					</div>
 				)}
 				<Button
-					className="active-btn mt-auto w-full min-w-0"
+					className="active-btn mt-auto h-8 w-full min-w-0 rounded-lg"
 					disabled={!canPrepare}
 					onClick={() => void editor.prepare()}
 				>

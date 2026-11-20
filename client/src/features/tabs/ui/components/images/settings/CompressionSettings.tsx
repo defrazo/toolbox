@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
+import { Info } from 'lucide-react';
 
-import { Input } from '@/shared/ui';
+import { Input, Tooltip } from '@/shared/ui';
 
 import type { useImages } from '../../../../model';
 
@@ -14,10 +15,15 @@ export const CompressionSettings = ({ disabled, quality, setQuality }: Compressi
 	const { t } = useTranslation('images');
 
 	return (
-		<div className="flex min-w-0 flex-col gap-1">
-			<span className="text-sm text-(--color-secondary) select-none">
-				{t(($) => $.compression.quality)}: {quality}
-			</span>
+		<div className="flex min-w-0 flex-col select-none">
+			<div className="flex items-center gap-2 text-(--color-secondary)">
+				<span className="text-sm text-(--color-secondary)">
+					{t(($) => $.compression.quality)}: {quality}
+				</span>
+				<Tooltip content={t(($) => $.compression.shortHint)}>
+					<Info className="size-4" />
+				</Tooltip>
+			</div>
 			<Input
 				className="h-6 cursor-pointer px-0 accent-(--accent-primary)"
 				disabled={disabled}
@@ -26,13 +32,12 @@ export const CompressionSettings = ({ disabled, quality, setQuality }: Compressi
 				min={1}
 				step={1}
 				type="range"
+
 				value={quality}
 				variant="custom"
+				wheelStep
 				onChange={(event) => setQuality(Number(event.target.value))}
 			/>
-			<span className="text-xs text-(--color-secondary) select-none" id="images-quality-hint">
-				{t(($) => $.compression.shortHint)}
-			</span>
 		</div>
 	);
 };

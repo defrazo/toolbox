@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui';
 
 import { type Mode, useCrop, useDropzone } from '../../../../model';
+import { imagePolicy } from '../../../../model/imagePolicy';
 import { useShortcutUpload } from '../../../../model/useShortcutUpload';
 import { Layout } from '../Layout';
 import { ModeTabs } from '../ModeTabs';
@@ -24,9 +25,12 @@ const Workspace = ({ onModeChange }: { onModeChange: (mode: Mode) => void }) => 
 
 	const uploadRef = useRef<HTMLInputElement>(null);
 
-	const editor = useCrop((error) =>
+	const editor = useCrop((error, limits) =>
 		notifyStore.setNotice(
-			t(($) => $.crop.errors[error]),
+			t(($) => $.crop.errors[error], {
+				megapixels: (limits ?? imagePolicy({ mode: 'crop' }).input).maxPixels / 1_000_000,
+				maxSide: (limits ?? imagePolicy({ mode: 'crop' }).input).maxSide,
+			}),
 			'error'
 		)
 	);
@@ -39,7 +43,6 @@ const Workspace = ({ onModeChange }: { onModeChange: (mode: Mode) => void }) => 
 		<Layout
 			settings={
 				<div className="flex min-h-0 min-w-0 flex-1 flex-col gap-3">
-					<Toolbar busy={editor.loading} uploadRef={uploadRef} onAddFiles={editor.addFiles} />
 					<div
 						className={cn(
 							'core-border flex min-h-0 min-w-0 flex-1 flex-col bg-(--bg-secondary)/70 p-3',
@@ -47,8 +50,9 @@ const Workspace = ({ onModeChange }: { onModeChange: (mode: Mode) => void }) => 
 						)}
 					>
 						<CropSettings editor={editor} />
-						<div className="mt-auto flex flex-col gap-3 border-t border-(--border-color) pt-3">
+						<div className="mt-3 flex flex-col gap-3 border-t border-(--border-color) pt-3">
 							<Button
+								className="h-8 rounded-lg"
 								disabled={!editor.result || editor.exporting}
 								leftIcon={<Download className="size-4" />}
 								onClick={editor.download}
@@ -69,6 +73,7 @@ const Workspace = ({ onModeChange }: { onModeChange: (mode: Mode) => void }) => 
 				</div>
 			}
 			tabs={<ModeTabs hasWork={editor.hasWork} mode="crop" onModeChange={onModeChange} />}
+			toolbar={<Toolbar busy={editor.loading} uploadRef={uploadRef} onAddFiles={editor.addFiles} />}
 		>
 			<FileArea dragProps={dragProps} editor={editor} isDropActive={isDropActive} uploadRef={uploadRef} />
 		</Layout>

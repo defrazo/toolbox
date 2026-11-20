@@ -28,10 +28,6 @@
 			"title": "Paste link",
 			"subtitle": "Paste a link from clipboard"
 		},
-		"background": {
-			"title": "Remove background",
-			"subtitle": "Choose images and remove the background"
-		},
 		"crop": {
 			"title": "Crop image",
 			"subtitle": "Choose and crop the image"
