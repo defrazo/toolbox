@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, type LucideIcon, PencilRuler } from 'lucide-react';
 
-import { useStore } from '@/app/providers';
-import { type ToolId, TOOLS_LIST } from '@/entities/tool';
+import type { ToolId } from '@/entities/tool';
 import { cn } from '@/shared/lib/utils';
 import { Button, Carousel } from '@/shared/ui';
+
+import type { HomeTool } from '../../model/types';
 
 type HomeToolId = ToolId | 'new';
 
@@ -16,27 +17,16 @@ type DisplayTool = {
 	isDisabled?: boolean;
 };
 
-export const ToolsSection = () => {
-	const { t: tCompare } = useTranslation('compare');
-	const { t: tImages } = useTranslation('images');
+interface ToolsSectionProps {
+	tools: readonly HomeTool[];
+	onNavigate: (id: ToolId) => void;
+}
+
+export const ToolsSection = ({ tools, onNavigate }: ToolsSectionProps) => {
 	const { t: tHome } = useTranslation('home');
-	const { t: tRenamer } = useTranslation('renamer');
-	const { t: tShortener } = useTranslation('shortener');
-
-	const { tabsStore } = useStore();
-
-	const toolOverrides = {
-		compare: { title: tCompare(($) => $.meta.title), subtitle: tCompare(($) => $.meta.subtitle) },
-		images: { title: tImages(($) => $.meta.title), subtitle: tImages(($) => $.meta.subtitle) },
-		renamer: { title: tRenamer(($) => $.meta.title), subtitle: tRenamer(($) => $.meta.subtitle) },
-		shortener: { title: tShortener(($) => $.meta.title), subtitle: tShortener(($) => $.meta.subtitle) },
-	};
 
 	const displayTools: DisplayTool[] = [
-		...(['images', 'shortener', 'compare', 'renamer'] as const).map((id) => ({
-			...TOOLS_LIST.find((tool) => tool.id === id)!,
-			...toolOverrides[id],
-		})),
+		...tools,
 		{
 			id: 'new',
 			title: tHome(($) => $.tools.placeholder.title),
@@ -69,7 +59,7 @@ export const ToolsSection = () => {
 						rightIcon={<ChevronRight className="absolute top-1/2 right-4 size-5 -translate-y-1/2" />}
 						onClick={() => {
 							if (isDisabled || id === 'new') return;
-							tabsStore.setTab(id);
+							onNavigate(id);
 						}}
 					>
 						{isDisabled ? tHome(($) => $.tools.actions.soon) : tHome(($) => $.tools.actions.open)}

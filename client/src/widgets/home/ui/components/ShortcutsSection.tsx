@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ClipboardPaste, Crop, Upload } from 'lucide-react';
 
-import { useStore } from '@/app/providers';
 import { Carousel } from '@/shared/ui';
 
-export const ShortcutsSection = () => {
-	const { t: tHome } = useTranslation('home');
+import type { HomeWidgetProps } from '../../model/types';
 
-	const { notifyStore, tabsStore } = useStore();
+type ShortcutsSectionProps = Pick<HomeWidgetProps, 'actions' | 'onNotice'>;
+
+export const ShortcutsSection = ({ actions, onNotice }: ShortcutsSectionProps) => {
+	const { t: tHome } = useTranslation('home');
 
 	const clipboardRequest = useRef(0);
 	useEffect(
@@ -26,19 +27,19 @@ export const ShortcutsSection = () => {
 			if (request !== clipboardRequest.current) return;
 
 			if (!text.trim()) {
-				tabsStore.setTab('shortener');
-				notifyStore.setNotice(
+				actions.openShortener();
+				onNotice(
 					tHome(($) => $.errors.empty),
 					'info'
 				);
 				return;
 			}
-			tabsStore.openShortcut({ type: 'paste-url', text });
+			actions.pasteUrl(text);
 		} catch {
 			if (request !== clipboardRequest.current) return;
 
-			tabsStore.setTab('shortener');
-			notifyStore.setNotice(
+			actions.openShortener();
+			onNotice(
 				tHome(($) => $.errors.paste),
 				'error'
 			);
@@ -58,14 +59,14 @@ export const ShortcutsSection = () => {
 			title: tHome(($) => $.shortcuts.upload.title),
 			subtitle: tHome(($) => $.shortcuts.upload.subtitle),
 			icon: Upload,
-			action: () => tabsStore.openShortcut({ type: 'upload-files' }),
+			action: actions.uploadFiles,
 		},
 		{
 			id: 'crop',
 			title: tHome(($) => $.shortcuts.crop.title),
 			subtitle: tHome(($) => $.shortcuts.crop.subtitle),
 			icon: Crop,
-			action: () => tabsStore.openShortcut({ type: 'crop' }),
+			action: actions.crop,
 		},
 	];
 
