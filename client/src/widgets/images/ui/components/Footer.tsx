@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Download, Square, Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 
+import { IconStop } from '@/shared/assets/icons';
 import { Button } from '@/shared/ui';
 
 import { IMAGES } from '../../model/constants';
@@ -33,7 +34,7 @@ export const Footer = ({
 			<Button
 				className="active-btn h-10 w-full min-w-0 rounded-lg"
 				disabled={!isPreparing && (busy || readyCount === 0)}
-				leftIcon={isPreparing ? <Square className="size-4" /> : <Download className="size-4" />}
+				leftIcon={isPreparing ? <IconStop className="size-4" /> : <Download className="size-4" />}
 				loading={zipProgress !== null}
 				onClick={isPreparing ? onCancelPreparation : onDownload}
 			>

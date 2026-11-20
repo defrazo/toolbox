@@ -354,23 +354,32 @@ export const useImages = (
 		prepareBatch();
 	};
 	const cancelBatchAddition = () => {
-		const batch = additions.current.at(-1);
-		if (!batch || locked.current) return;
+		if (!additions.current.length || locked.current) return;
+
+		const pending = new Set(additions.current.flatMap((batch) => batch.ids));
+		const completed = new Set(additions.current.flatMap((batch) => [...batch.completed]));
+		const cancelled = new Set(
+			rows.current
+				.filter(
+					(row) => pending.has(row.id) && !completed.has(row.id) && !(row.format && row.width && row.height)
+				)
+				.map((row) => row.id)
+		);
 
 		preparation.current?.abort();
 
-		if (resizeOwner.current && batch.ids.includes(resizeOwner.current.id)) {
+		if (resizeOwner.current && cancelled.has(resizeOwner.current.id)) {
 			resizeRef.current = resizeOwner.current.previous;
 			setResizeState(resizeOwner.current.previous);
 			resizeInitialized.current = false;
 			resizeOwner.current = null;
 		}
 
-		additions.current = additions.current.filter((item) => item !== batch);
+		additions.current = [];
 
 		update(
 			rows.current.filter((row) => {
-				if (!batch.ids.includes(row.id)) return true;
+				if (!cancelled.has(row.id)) return true;
 				releaseFile(row);
 				attemptedThumbnails.current.delete(row.id);
 				return false;
@@ -378,7 +387,6 @@ export const useImages = (
 		);
 
 		preparationStatus();
-		void preparationTask.current?.then(() => prepareBatch());
 	};
 
 	const processBatch = async () => {

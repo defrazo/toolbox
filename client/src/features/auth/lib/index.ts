@@ -1,2 +1,2 @@
-export * from './auth-channel';
-export * from './utils';
+export { createAuthChecks } from './createAuthChecks';
+export { getAuthErrorMessage } from './utils';

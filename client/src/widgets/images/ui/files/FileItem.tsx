@@ -75,15 +75,15 @@ export const FileItem = ({
 	return (
 		<li className={cn('flex min-w-0 items-center gap-3 rounded-xl bg-(--bg-tertiary)/70 p-3')}>
 			{hasOriginal ? (
-				<div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-(--border-color) bg-(--bg-secondary)">
+				<div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-(--border-color) bg-(--bg-secondary)">
 					<img alt={t(($) => $.original)} className="size-full object-contain" src={file.url} />
 				</div>
 			) : (
-				<div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-(--bg-secondary)">
+				<div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-secondary)">
 					<Image className="size-6 text-(--color-disabled)" />
 				</div>
 			)}
-			<div className="flex h-full min-w-0 flex-1 flex-col gap-1">
+			<div className="my-auto flex h-10 min-w-0 flex-1 flex-col gap-1 pb-0.5">
 				<span className="block truncate text-sm font-medium" title={file.file.name}>
 					{file.file.name}
 				</span>

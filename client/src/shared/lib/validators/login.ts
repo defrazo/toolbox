@@ -1,4 +1,5 @@
-import { validateEmail, validateUsername } from '.';
+import { validateEmail } from './email';
+import { validateUsername } from './username';
 
 export const validateLogin = (login: string): 'empty' | 'invalid' | 'valid' => {
 	const normalized = login.trim();

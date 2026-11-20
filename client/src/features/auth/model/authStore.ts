@@ -4,7 +4,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import { getUser, type UserStore } from '@/entities/user';
 
 import { authApi } from '../api';
-import { authChannel } from '../lib';
+import { authChannel } from '../lib/auth-channel';
 
 export class AuthStore {
 	private authVersion = 0;

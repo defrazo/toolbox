@@ -2,15 +2,13 @@
 	"sidebar": {
 		"subtitle": "Your Toolbox",
 		"items": {
-			"items": {
-				"home": "Home",
-				"images": "Images",
-				"shortener": "URL Shortener",
-				"compare": "Text Compare",
-				"renamer": "File Renamer",
-				"settings": "Settings",
-				"onemate": "OneMate"
-			}
+			"home": "Home",
+			"images": "Images",
+			"shortener": "URL Shortener",
+			"compare": "Text Compare",
+			"renamer": "File Renamer",
+			"settings": "Settings",
+			"onemate": "OneMate"
 		}
 	},
 	"userMenu": {
