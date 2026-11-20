@@ -4,8 +4,13 @@ import { useRenamer } from './useRenamer';
 
 const RenamerContext = createContext<ReturnType<typeof useRenamer> | null>(null);
 
-export const RenamerProvider = ({ children }: { children: ReactNode }) => {
-	const renamer = useRenamer();
+interface RenamerProviderProps {
+	children: ReactNode;
+	onError: (message: string) => void;
+}
+
+export const RenamerProvider = ({ children, onError }: RenamerProviderProps) => {
+	const renamer = useRenamer(onError);
 	return <RenamerContext.Provider value={renamer}>{children}</RenamerContext.Provider>;
 };
 

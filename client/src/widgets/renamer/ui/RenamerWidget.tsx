@@ -2,23 +2,33 @@ import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, File, Plus, Trash2 } from 'lucide-react';
 
+import { type TabsStore, useShortcutUpload } from '@/features/tabs';
 import { cn } from '@/shared/lib/utils';
 import { Button, ClearInputButton, FileUploader, Input } from '@/shared/ui';
 
-import { buildRenamedFiles, downloadAsZip } from '../lib';
+import { downloadAsZip } from '../lib/download';
+import { buildRenamedFiles } from '../lib/naming';
 import { RenamerProvider, useRenamerContext } from '../model/renamer-context';
-import { useShortcutUpload } from '../model/useShortcutUpload';
-import { FileArea } from './components/renamer';
+import { FileArea } from './components';
 
-export const TabRenamer = () => {
+interface RenamerWidgetProps {
+	navigation: Pick<TabsStore, 'shortcut' | 'consumeShortcut'>;
+	onError: (message: string) => void;
+}
+
+export const RenamerWidget = ({ navigation, onError }: RenamerWidgetProps) => {
 	return (
-		<RenamerProvider>
-			<TabRenamerContent />
+		<RenamerProvider onError={onError}>
+			<RenamerContent navigation={navigation} />
 		</RenamerProvider>
 	);
 };
 
-const TabRenamerContent = () => {
+interface RenamerContentProps {
+	navigation: RenamerWidgetProps['navigation'];
+}
+
+const RenamerContent = ({ navigation }: RenamerContentProps) => {
 	const { t } = useTranslation('renamer');
 
 	const { files, prefix, setPrefix, suffix, setSuffix, preview, handleIncomingFiles, reset } = useRenamerContext();
@@ -26,7 +36,7 @@ const TabRenamerContent = () => {
 	const uploadRef = useRef<HTMLInputElement>(null);
 	const addRef = useRef<HTMLInputElement>(null);
 
-	useShortcutUpload('upload-files', files.length ? addRef : uploadRef);
+	useShortcutUpload(navigation, 'upload-files', files.length ? addRef : uploadRef);
 
 	return (
 		<>

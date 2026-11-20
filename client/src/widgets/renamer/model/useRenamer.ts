@@ -1,27 +1,18 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useStore } from '@/app/providers';
+import { buildName } from '../lib/naming';
+import { MAX_FILES, MAX_SIZE } from './constants';
+import type { AddFilesResult, PreviewFile } from './types';
 
-import { buildName } from '../lib';
-import { MAX_FILES, MAX_SIZE } from '.';
-
-interface AddFilesResult {
-	added: number;
-	rejectedByLimit: number;
-	rejectedBySize: File[];
-}
-
-export const useRenamer = () => {
+export const useRenamer = (onError: (message: string) => void) => {
 	const { t } = useTranslation('renamer');
-
-	const { notifyStore } = useStore();
 
 	const [files, setFiles] = useState<File[]>([]);
 	const [prefix, setPrefix] = useState('');
 	const [suffix, setSuffix] = useState('');
 
-	const preview = useMemo(() => {
+	const preview = useMemo<PreviewFile[]>(() => {
 		return files.map((file, idx) => ({
 			oldName: file.name,
 			newName: buildName(prefix, suffix, idx, file.name),
@@ -48,18 +39,10 @@ export const useRenamer = () => {
 
 	const notifyAddFiles = (result: ReturnType<typeof addFiles>) => {
 		result.rejectedBySize.forEach((file) => {
-			notifyStore.setNotice(
-				t(($) => $.errors.tooLarge, { file: file.name }),
-				'error'
-			);
+			onError(t(($) => $.errors.tooLarge, { file: file.name }));
 		});
 
-		if (result.rejectedByLimit > 0) {
-			notifyStore.setNotice(
-				t(($) => $.errors.tooMany, { count: result.rejectedByLimit }),
-				'error'
-			);
-		}
+		if (result.rejectedByLimit > 0) onError(t(($) => $.errors.tooMany, { count: result.rejectedByLimit }));
 	};
 
 	const handleIncomingFiles = (incoming: File[]) => {
@@ -74,17 +57,5 @@ export const useRenamer = () => {
 		setSuffix('');
 	};
 
-	return {
-		files,
-		prefix,
-		setPrefix,
-		suffix,
-		setSuffix,
-
-		preview,
-
-		addFiles,
-		handleIncomingFiles,
-		reset,
-	};
+	return { files, prefix, setPrefix, suffix, setSuffix, preview, addFiles, handleIncomingFiles, reset };
 };

@@ -2,12 +2,8 @@ import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/shared/lib/utils';
 
-import { useRenamerContext } from '../../../model/renamer-context';
-
-type PreviewFile = {
-	oldName: string;
-	newName: string;
-};
+import { useRenamerContext } from '../../model/renamer-context';
+import type { PreviewFile } from '../../model/types';
 
 type FileContainer = {
 	id: 'before' | 'after';
@@ -35,6 +31,7 @@ export const PreviewContainers = () => {
 			getName: (file: PreviewFile) => file.newName,
 		},
 	];
+
 	return (
 		<>
 			{fileContainers.map(({ id, title, statusColor, getName }) => (

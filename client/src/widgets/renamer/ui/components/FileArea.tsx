@@ -2,14 +2,17 @@ import type { RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Upload } from 'lucide-react';
 
-import { useDropzone } from '@/features/tabs/model';
-import { useDeviceType } from '@/shared/lib/hooks';
+import { useDeviceType, useDropzone } from '@/shared/lib/hooks';
 import { cn } from '@/shared/lib/utils';
 
-import { useRenamerContext } from '../../../model/renamer-context';
-import { PreviewContainers } from '.';
+import { useRenamerContext } from '../../model/renamer-context';
+import { PreviewContainers } from './PreviewContainers';
 
-export const FileArea = ({ uploadRef }: { uploadRef: RefObject<HTMLInputElement | null> }) => {
+interface FileAreaProps {
+	uploadRef: RefObject<HTMLInputElement | null>;
+}
+
+export const FileArea = ({ uploadRef }: FileAreaProps) => {
 	const { t } = useTranslation('renamer');
 	const device = useDeviceType();
 
