@@ -1,6 +1,7 @@
+import { isAxiosError } from 'axios';
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import type { UserStore } from '@/entities/user';
+import { getUser, type UserStore } from '@/entities/user';
 
 import { authApi } from '../api';
 import { authChannel } from '../lib';
@@ -8,29 +9,54 @@ import { authChannel } from '../lib';
 export class AuthStore {
 	private authVersion = 0;
 	private initialized = false;
+	private userRequest?: { version: number; promise: Promise<void> };
 
 	isInitializing = true;
+	initializationFailed = false;
 	isLoading = false;
 
 	get isAuth(): boolean {
 		return !!this.userStore.user;
 	}
 
-	async fetchUser(): Promise<void> {
+	fetchUser(): Promise<void> {
 		const version = this.authVersion;
+		if (this.userRequest?.version === version) return this.userRequest.promise;
 
-		try {
-			const { authenticated, user } = await authApi.getSession();
+		const promise = Promise.resolve().then(async () => {
+			try {
+				const { data } = await getUser();
 
-			if (version !== this.authVersion) return;
+				if (version === this.authVersion)
+					runInAction(() => {
+						this.initializationFailed = false;
+						this.setSession(data);
+					});
+			} catch (error) {
+				if (version !== this.authVersion) return;
 
-			runInAction(() => {
-				if (authenticated && user) this.setSession(user);
-				else this.clearSession();
-			});
-		} finally {
-			runInAction(() => (this.isInitializing = false));
-		}
+				if (isAxiosError(error) && error.response?.status === 401) {
+					runInAction(() => {
+						this.initializationFailed = false;
+						this.clearSession();
+					});
+
+					return;
+				}
+
+				runInAction(() => (this.initializationFailed = true));
+
+				throw error;
+			} finally {
+				if (this.userRequest?.version === version) {
+					this.userRequest = undefined;
+					runInAction(() => (this.isInitializing = false));
+				}
+			}
+		});
+
+		this.userRequest = { version, promise };
+		return promise;
 	}
 
 	async verifyInvite(inviteCode: string): Promise<string> {
@@ -67,11 +93,12 @@ export class AuthStore {
 	}
 
 	async login(login: string, password: string): Promise<void> {
+		const version = ++this.authVersion;
 		this.isLoading = true;
 
 		try {
 			const { user } = await authApi.login(login.trim(), password);
-			this.setSession(user);
+			if (version === this.authVersion) this.setSession(user);
 		} finally {
 			runInAction(() => (this.isLoading = false));
 		}
@@ -132,13 +159,13 @@ export class AuthStore {
 	}
 
 	async logout(): Promise<void> {
-		this.authVersion++;
+		const version = ++this.authVersion;
 
 		try {
 			await authApi.logout();
-			authChannel.postMessage({ type: 'logout' });
+			if (version === this.authVersion) authChannel.postMessage({ type: 'logout' });
 		} finally {
-			this.clearSession();
+			if (version === this.authVersion) this.clearSession();
 		}
 	}
 
@@ -149,18 +176,22 @@ export class AuthStore {
 
 	private setSession(user: NonNullable<UserStore['user']>): void {
 		this.authVersion++;
+		this.isInitializing = false;
+		this.initializationFailed = false;
 		this.userStore.setUser(user);
 	}
 
 	private clearSession(): void {
 		this.authVersion++;
+		this.isInitializing = false;
+		this.initializationFailed = false;
 		this.userStore.clear();
 	}
 
 	constructor(private readonly userStore: UserStore) {
-		makeAutoObservable<this, 'authVersion' | 'initialized'>(
+		makeAutoObservable<this, 'authVersion' | 'initialized' | 'userRequest'>(
 			this,
-			{ authVersion: false, initialized: false },
+			{ authVersion: false, initialized: false, userRequest: false },
 			{ autoBind: true }
 		);
 	}
@@ -171,10 +202,11 @@ export class AuthStore {
 
 		authChannel.addEventListener('message', this.handleAuthMessage);
 
-		void this.fetchUser().catch();
+		void this.fetchUser().catch(() => {});
 	}
 
 	dispose(): void {
+		this.authVersion++;
 		authChannel.removeEventListener('message', this.handleAuthMessage);
 		this.initialized = false;
 	}

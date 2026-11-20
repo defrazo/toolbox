@@ -1,6 +1,6 @@
 import { api, csrf } from '@/shared/api';
 
-import type { AuthResponse, AuthSessionResponse, RegisterPayload, ResetPasswordPayload } from '.';
+import type { AuthResponse, RegisterPayload, ResetPasswordPayload } from '.';
 
 export const authApi = {
 	async verifyInvite(inviteCode: string): Promise<string> {
@@ -32,11 +32,6 @@ export const authApi = {
 	async confirmOneMateLink(password: string): Promise<void> {
 		await csrf();
 		await api.post('/auth/onemate/link/confirm', { password });
-	},
-
-	async getSession(): Promise<AuthSessionResponse> {
-		const { data } = await api.get<AuthSessionResponse>('/auth/session');
-		return data;
 	},
 
 	async logout(): Promise<void> {

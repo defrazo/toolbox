@@ -37,14 +37,6 @@ class AuthController extends Controller
         return response()->json(['invite_token' => $token]);
     }
 
-    public function session(Request $request): JsonResponse
-    {
-        return response()->json([
-            'authenticated' => $request->user('sanctum') !== null,
-            'user' => $request->user('sanctum'),
-        ]);
-    }
-
     public function register(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
